@@ -38,7 +38,7 @@ export const ar = {
     all: "الكل"
   },
   navigation: {
-    dashboard: "لوحة العمليات",
+    dashboard: "لوحة التحكم",
     employees: "دليل الموظفين",
     clients: "قائمة العملاء",
     followups: "متابعات اليوم",
