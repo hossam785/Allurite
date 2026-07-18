@@ -296,7 +296,7 @@ export default function FollowUpsPage() {
   };
 
   return (
-    <main style={{ flex: 1, padding: "var(--sp-8)", overflowY: "auto", display: "flex", flexDirection: "column", gap: "var(--sp-6)" }}>
+    <main className="responsive-main">
       {/* Sub-Header Toolbar */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
@@ -734,7 +734,7 @@ export default function FollowUpsPage() {
               </div>
 
               {/* Grid: Type and DateTime */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
+              <div className="responsive-grid-2">
                 <div className="c-input">
                   <label className="c-input__label">قناة الاتصال *</label>
                   <select

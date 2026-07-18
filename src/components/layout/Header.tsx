@@ -148,9 +148,9 @@ export default function Header({
 
   return (
     <header
+      className="c-header-responsive"
       style={{
         height: "70px",
-        padding: "0 var(--sp-8)",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
@@ -163,7 +163,7 @@ export default function Header({
       }}
     >
       {/* Page Title */}
-      <div style={{ display: "flex", alignItems: "center" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--sp-2)", minWidth: 0 }}>
         {toggleMobileSidebar && (
           <button
             onClick={() => {
@@ -188,13 +188,13 @@ export default function Header({
             <Menu size={22} />
           </button>
         )}
-        <h1 style={{ fontSize: "var(--fs-h3)", fontWeight: "var(--fw-bold)", fontFamily: "Outfit" }}>
+        <h1 className="c-header-title" style={{ fontSize: "var(--fs-h3)", fontWeight: "var(--fw-bold)", fontFamily: "Outfit", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           {title}
         </h1>
       </div>
 
       {/* Right Controls: Bell and User */}
-      <div style={{ display: "flex", alignItems: "center", gap: "var(--sp-6)" }}>
+      <div className="c-header-controls" style={{ display: "flex", alignItems: "center", gap: "var(--sp-4)" }}>
         
 
         {/* Theme Switcher Toggle */}
@@ -595,6 +595,25 @@ export default function Header({
         .profile-menu-item:hover {
           background-color: var(--clr-bg-hover) !important;
           color: var(--clr-text-primary) !important;
+        }
+        .c-header-responsive {
+          padding: 0 var(--sp-8);
+        }
+        @media (max-width: 1023px) {
+          .c-header-responsive {
+            padding: 0 var(--sp-4) !important;
+          }
+          .c-header-title {
+            font-size: var(--fs-body-lg) !important;
+          }
+        }
+        @media (max-width: 639px) {
+          .c-header-responsive {
+            padding: 0 var(--sp-3) !important;
+          }
+          .c-header-title {
+            font-size: var(--fs-body-sm) !important;
+          }
         }
       `}</style>
     </header>

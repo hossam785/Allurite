@@ -296,7 +296,7 @@ export default function TasksPage() {
   };
 
   return (
-    <main style={{ flex: 1, padding: "var(--sp-8)", overflowY: "auto", display: "flex", flexDirection: "column", gap: "var(--sp-6)" }}>
+    <main className="responsive-main">
       
       {/* Top action header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -675,7 +675,7 @@ export default function TasksPage() {
               </div>
 
               {/* Grid: Priority & Due Date */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
+              <div className="responsive-grid-2">
                 <div className="c-input">
                   <label className="c-input__label">الأولوية *</label>
                   <select

@@ -245,7 +245,7 @@ export default function FilesManagerPage() {
   };
 
   return (
-    <main style={{ flex: 1, padding: "var(--sp-8)", overflowY: "auto", display: "flex", flexDirection: "column", gap: "var(--sp-6)" }}>
+    <main className="responsive-main">
       
       {/* Header action bar */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -640,7 +640,7 @@ export default function FilesManagerPage() {
               </div>
 
               {/* Related Module */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
+              <div className="responsive-grid-2">
                 <div className="c-input">
                   <label className="c-input__label">ربط بالقسم / الكيان</label>
                   <select

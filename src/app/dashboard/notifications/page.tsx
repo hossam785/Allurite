@@ -229,7 +229,7 @@ export default function NotificationCenterPage() {
   };
 
   return (
-    <main style={{ flex: 1, padding: "var(--sp-8)", overflowY: "auto", display: "flex", flexDirection: "column", gap: "var(--sp-6)" }}>
+    <main className="responsive-main">
       
       {/* Search and Filters Toolbar */}
       <div 
@@ -317,7 +317,7 @@ export default function NotificationCenterPage() {
       </div>
 
       {/* Grid: Left Panel (List) & Right Panel (Details/Prefs) */}
-      <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "var(--sp-6)", alignItems: "flex-start", flex: 1 }}>
+      <div className="responsive-split-grid--compact" style={{ flex: 1 }}>
         
         {/* Left Column: List Card */}
         <section 

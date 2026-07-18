@@ -214,7 +214,7 @@ export default function ClientsPage() {
   };
 
   return (
-    <main style={{ flex: 1, padding: "var(--sp-8)", overflowY: "auto", display: "flex", flexDirection: "column", gap: "var(--sp-6)" }}>
+    <main className="responsive-main">
       {/* Header */}
       <header
         style={{
@@ -640,7 +640,7 @@ export default function ClientsPage() {
 
             {/* Form */}
             <form onSubmit={handleCreateSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
+              <div className="responsive-grid-2">
                 <div className="c-input">
                   <label className="c-input__label">الاسم الأول *</label>
                   <input 
@@ -665,7 +665,7 @@ export default function ClientsPage() {
                 </div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
+              <div className="responsive-grid-2">
                 <div className="c-input">
                   <label className="c-input__label">البريد الإلكتروني *</label>
                   <input 
@@ -691,7 +691,7 @@ export default function ClientsPage() {
                 </div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
+              <div className="responsive-grid-2">
                 <div className="c-input">
                   <label className="c-input__label">{t("clients_view.company_name")}</label>
                   <input 
@@ -727,7 +727,7 @@ export default function ClientsPage() {
                 />
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
+              <div className="responsive-grid-2">
                 <div className="c-input">
                   <label className="c-input__label">{t("clients_view.source")}</label>
                   <select

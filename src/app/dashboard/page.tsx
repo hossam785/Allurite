@@ -264,7 +264,7 @@ export default function DashboardPage() {
     : 0;
 
   return (
-    <main style={{ flex: 1, padding: "var(--sp-8)", overflowY: "auto", display: "flex", flexDirection: "column", gap: "var(--sp-6)" }}>
+    <main className="responsive-main">
       
       {/* 1. Header Overview Bar */}
       <div style={{ 
@@ -391,14 +391,14 @@ export default function DashboardPage() {
           </div>
 
           {/* 3. Quick Actions & Performance Section */}
-          <div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: "var(--sp-6)" }}>
+          <div className="responsive-split-grid">
             
             {/* Quick Actions Hub */}
             <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
               <h2 style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-accent-primary)", borderBottom: "1px solid var(--clr-border)", paddingBottom: "var(--sp-2)", margin: 0 }}>
                 الإجراءات والعمليات السريعة
               </h2>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "var(--sp-4)", flex: 1 }}>
+              <div className="responsive-grid-3" style={{ flex: 1 }}>
                 
                 <Link href="/dashboard/clients" className="action-button-card">
                   <UserPlus size={20} style={{ color: "var(--clr-success)" }} />
@@ -474,7 +474,7 @@ export default function DashboardPage() {
           </div>
 
           {/* 4. Activity Center & Business Intelligence Grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: "var(--sp-6)" }}>
+          <div className="responsive-split-grid--wide">
             
             {/* Left Column: Activity Streams */}
             <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>

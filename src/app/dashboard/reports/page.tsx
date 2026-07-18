@@ -264,7 +264,7 @@ export default function ReportsCenterPage() {
   };
 
   return (
-    <main style={{ flex: 1, padding: "var(--sp-8)", overflowY: "auto", display: "flex", flexDirection: "column", gap: "var(--sp-6)" }} className="print-container">
+    <main className="responsive-main print-container">
       
       {/* Filters & Export Panel (Hidden in print) */}
       <div 
@@ -491,7 +491,7 @@ export default function ReportsCenterPage() {
           </div>
 
           {/* Grid Layout: Visual charts */}
-          <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "var(--sp-6)", alignItems: "flex-start" }} className="grid-print-split">
+          <div className="responsive-split-grid--compact grid-print-split">
             
             {/* Chart Left Panel: Trend lines and details */}
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-6)" }}>

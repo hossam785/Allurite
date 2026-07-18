@@ -180,7 +180,7 @@ export default function EmployeesPage() {
   };
 
   return (
-    <main style={{ flex: 1, padding: "var(--sp-8)", overflowY: "auto", display: "flex", flexDirection: "column", gap: "var(--sp-6)" }}>
+    <main className="responsive-main">
       {/* Page Header */}
       <header
         style={{
@@ -539,7 +539,7 @@ export default function EmployeesPage() {
 
             {/* Modal Form */}
             <form onSubmit={handleOnboardSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
+              <div className="responsive-grid-2">
                 <div className="c-input">
                   <label className="c-input__label">{t("employees_view.first_name")}</label>
                   <input 
@@ -602,7 +602,7 @@ export default function EmployeesPage() {
                 />
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
+              <div className="responsive-grid-2">
                 <div className="c-input">
                   <label className="c-input__label">{t("employees_view.department")}</label>
                   <select

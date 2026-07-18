@@ -155,7 +155,7 @@ export default function BackupsPage() {
   const lastBackup = backups.length > 0 ? backups[0].createdAt : null;
 
   return (
-    <main style={{ flex: 1, padding: "var(--sp-8)", overflowY: "auto", display: "flex", flexDirection: "column", gap: "var(--sp-6)" }}>
+    <main className="responsive-main">
       
       {/* Header toolbar */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -190,7 +190,7 @@ export default function BackupsPage() {
       )}
 
       {/* KPI Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "var(--sp-6)", textAlign: "right" }}>
+      <div className="responsive-grid-3" style={{ textAlign: "right" }}>
         <div className="c-card c-card--glow" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-2)" }}>
           <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>إجمالي النسخ الاحتياطية</span>
           <span style={{ fontSize: "32px", fontWeight: "var(--fw-bold)", fontFamily: "Outfit" }}>{backups.length} نسخة</span>

@@ -340,10 +340,10 @@ export default function SettingsDashboardPage() {
   }
 
   return (
-    <main style={{ flex: 1, padding: "var(--sp-8)", overflowY: "auto", display: "flex", flexDirection: "column", gap: "var(--sp-6)" }}>
+    <main className="responsive-main">
       
       {/* Tab grid container */}
-      <div style={{ display: "grid", gridTemplateColumns: "240px 1fr", gap: "var(--sp-6)", alignItems: "flex-start", flex: 1 }}>
+      <div className="responsive-settings-grid">
         
         {/* Left Side Tab Navigation */}
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-2)" }}>
@@ -436,7 +436,7 @@ export default function SettingsDashboardPage() {
               )}
 
               <form onSubmit={handleSaveSettings} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
+                <div className="responsive-grid-2">
                   <div className="c-input">
                     <label className="c-input__label">{t("settings_view.company_name")}</label>
                     <input 
@@ -458,7 +458,7 @@ export default function SettingsDashboardPage() {
                   </div>
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
+                <div className="responsive-grid-2">
                   <div className="c-input">
                     <label className="c-input__label">{t("settings_view.company_phone")}</label>
                     <input 
@@ -489,7 +489,7 @@ export default function SettingsDashboardPage() {
                   />
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "var(--sp-4)" }}>
+                <div className="responsive-grid-3">
                   <div className="c-input">
                     <label className="c-input__label">{t("settings_view.timezone")}</label>
                     <select 
@@ -533,7 +533,7 @@ export default function SettingsDashboardPage() {
                   </div>
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "var(--sp-4)", marginTop: "var(--sp-4)" }}>
+                <div className="responsive-grid-3" style={{ marginTop: "var(--sp-4)" }}>
                   <div className="c-input">
                     <label className="c-input__label">{t("settings_view.country")}</label>
                     <input 
@@ -852,7 +852,7 @@ export default function SettingsDashboardPage() {
               )}
 
               <form onSubmit={handleSaveSettings} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "var(--sp-4)" }}>
+                <div className="responsive-grid-3">
                   <div className="c-input">
                     <label className="c-input__label">{t("settings_view.password_min_length")}</label>
                     <input 

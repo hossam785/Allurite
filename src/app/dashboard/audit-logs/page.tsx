@@ -290,11 +290,11 @@ export default function AuditLogsPage() {
   }
 
   return (
-    <main style={{ flex: 1, padding: "var(--sp-8)", overflowY: "auto", display: "flex", flexDirection: "column", gap: "var(--sp-6)" }}>
+    <main className="responsive-main">
       
       {/* Search and Filters panel */}
       <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr", gap: "var(--sp-4)" }}>
+        <div className="responsive-audit-grid">
           
           <div style={{ position: "relative" }}>
             <Search size={15} style={{ position: "absolute", right: isRtl ? "12px" : "auto", left: isRtl ? "auto" : "12px", top: "50%", transform: "translateY(-50%)", color: "var(--clr-text-muted)" }} />
@@ -475,7 +475,7 @@ export default function AuditLogsPage() {
       {activeTab === "overview" && (
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-6)" }}>
           {/* Stats grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "var(--sp-6)", textAlign: "right" }}>
+          <div className="responsive-grid-3" style={{ textAlign: "right" }}>
             <div className="c-card c-card--glow">
               <span style={{ fontSize: "10px", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>إجمالي العمليات المراقبة</span>
               <span style={{ fontSize: "28px", fontWeight: "var(--fw-bold)", display: "block", marginTop: "4px" }}>{stats.total} سجل</span>
