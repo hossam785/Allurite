@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../layout";
+import { useLanguage } from "@/context/LanguageContext";
 import { 
   Search, 
   Trash2, 
@@ -18,6 +19,7 @@ import {
   Eye,
   Settings,
   ChevronRight,
+  ChevronLeft,
   ExternalLink,
   Save,
   CheckCircle2
@@ -38,6 +40,7 @@ interface NotificationItem {
 export default function NotificationCenterPage() {
   const router = useRouter();
   const { user: currentUser, refreshUser } = useAuth();
+  const { t, isRtl } = useLanguage();
   const isSuperAdmin = currentUser?.role === "SuperAdmin";
 
   // Data states
@@ -249,7 +252,8 @@ export default function NotificationCenterPage() {
               size={18} 
               style={{ 
                 position: "absolute", 
-                left: "12px", 
+                right: isRtl ? "12px" : "auto",
+                left: isRtl ? "auto" : "12px", 
                 top: "50%", 
                 transform: "translateY(-50%)", 
                 color: "var(--clr-text-muted)" 
@@ -257,11 +261,11 @@ export default function NotificationCenterPage() {
             />
             <input 
               type="text" 
-              placeholder="Search notifications title/message..." 
+              placeholder="ابحث في عنوان أو نص التنبيهات..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="c-input__field"
-              style={{ paddingLeft: "40px", width: "100%", height: "42px" }}
+              style={{ paddingLeft: isRtl ? "12px" : "40px", paddingRight: isRtl ? "40px" : "12px", width: "100%", height: "42px", textAlign: "right" }}
             />
           </div>
         </div>
@@ -275,13 +279,13 @@ export default function NotificationCenterPage() {
             className="c-input__field"
             style={{ height: "42px", padding: "0 var(--sp-3)", minWidth: "120px", background: "var(--clr-bg-primary)" }}
           >
-            <option value="">All Categories</option>
-            <option value="Task">Tasks 📋</option>
-            <option value="Follow-Up">Follow-Ups ⏰</option>
-            <option value="Client">Clients 👥</option>
-            <option value="Employee">Staff 💼</option>
-            <option value="System">System 🖥️</option>
-            <option value="Security">Security 🔒</option>
+            <option value="">كل التصنيفات</option>
+            <option value="Task">المهام 📋</option>
+            <option value="Follow-Up">المتابعات ⏰</option>
+            <option value="Client">العملاء 👥</option>
+            <option value="Employee">الموظفين 💼</option>
+            <option value="System">النظام 🖥️</option>
+            <option value="Security">الأمان 🔒</option>
           </select>
 
           {/* Priority */}
@@ -291,11 +295,11 @@ export default function NotificationCenterPage() {
             className="c-input__field"
             style={{ height: "42px", padding: "0 var(--sp-3)", minWidth: "110px", background: "var(--clr-bg-primary)" }}
           >
-            <option value="">All Priorities</option>
-            <option value="Critical">Critical 🚨</option>
-            <option value="High">High ⚠️</option>
-            <option value="Normal">Normal ℹ️</option>
-            <option value="Low">Low 💤</option>
+            <option value="">كل المستويات</option>
+            <option value="Critical">حرجة 🚨</option>
+            <option value="High">مرتفعة ⚠️</option>
+            <option value="Normal">عادية ℹ️</option>
+            <option value="Low">منخفضة 💤</option>
           </select>
 
           {/* Read Status */}
@@ -305,9 +309,9 @@ export default function NotificationCenterPage() {
             className="c-input__field"
             style={{ height: "42px", padding: "0 var(--sp-3)", minWidth: "110px", background: "var(--clr-bg-primary)" }}
           >
-            <option value="">All Status</option>
-            <option value="false">Unread Only</option>
-            <option value="true">Read Only</option>
+            <option value="">كل الحالات</option>
+            <option value="false">غير المقروءة فقط</option>
+            <option value="true">المقروءة فقط</option>
           </select>
         </div>
       </div>
@@ -324,7 +328,8 @@ export default function NotificationCenterPage() {
             flexDirection: "column", 
             overflow: "hidden", 
             minHeight: "560px",
-            maxHeight: "720px"
+            maxHeight: "720px",
+            textAlign: "right"
           }}
         >
           {/* List Toolbar Actions */}
@@ -339,7 +344,7 @@ export default function NotificationCenterPage() {
             }}
           >
             <span style={{ fontWeight: "var(--fw-bold)", fontSize: "var(--fs-body-sm)" }}>
-              Loaded Alerts ({notifications.length})
+              التنبيهات الواردة ({notifications.length})
             </span>
             <div style={{ display: "flex", gap: "var(--sp-3)" }}>
               <button 
@@ -349,7 +354,7 @@ export default function NotificationCenterPage() {
                 style={{ padding: "var(--sp-2) var(--sp-3)", fontSize: "11px", gap: "var(--sp-1)" }}
               >
                 <CheckCheck size={14} />
-                <span>Mark all read</span>
+                <span>تحديد الكل كمقروء</span>
               </button>
               <button 
                 onClick={handleClearHistory} 
@@ -358,7 +363,7 @@ export default function NotificationCenterPage() {
                 style={{ padding: "var(--sp-2) var(--sp-3)", fontSize: "11px", borderColor: "rgba(229, 62, 62, 0.4)", color: "var(--clr-error)", gap: "var(--sp-1)" }}
               >
                 <Trash2 size={14} />
-                <span>Clear list</span>
+                <span>مسح القائمة</span>
               </button>
             </div>
           </div>
@@ -367,7 +372,7 @@ export default function NotificationCenterPage() {
           <div style={{ overflowY: "auto", flex: 1, backgroundColor: "rgba(4, 13, 33, 0.15)" }}>
             {loading ? (
               <div style={{ padding: "var(--sp-12)", textAlign: "center", color: "var(--clr-text-muted)" }}>
-                Loading notification logs...
+                جاري تحميل سجلات التنبيهات...
               </div>
             ) : error ? (
               <div style={{ padding: "var(--sp-8)", textAlign: "center", color: "var(--clr-error)" }}>
@@ -376,7 +381,7 @@ export default function NotificationCenterPage() {
             ) : notifications.length === 0 ? (
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "var(--sp-12)", gap: "var(--sp-3)", color: "var(--clr-text-muted)" }}>
                 <Bell size={40} style={{ opacity: 0.2 }} />
-                <span style={{ fontSize: "var(--fs-body-sm)" }}>No notifications match your filter criteria</span>
+                <span style={{ fontSize: "var(--fs-body-sm)" }}>لا توجد أي تنبيهات تطابق معايير التصفية الحالية</span>
               </div>
             ) : (
               notifications.map((notif) => {
@@ -396,8 +401,10 @@ export default function NotificationCenterPage() {
                         : !notif.read 
                         ? "rgba(0, 210, 255, 0.02)" 
                         : "transparent",
-                      borderLeft: !notif.read ? `3px solid ${getPriorityColor(notif.priority)}` : "3px solid transparent",
-                      transition: "var(--transition-fast)"
+                      borderRight: !notif.read ? `3px solid ${getPriorityColor(notif.priority)}` : "3px solid transparent",
+                      borderLeft: "3px solid transparent",
+                      transition: "var(--transition-fast)",
+                      textAlign: "right"
                     }}
                     className="notif-row-hover"
                   >
@@ -416,13 +423,13 @@ export default function NotificationCenterPage() {
                             textOverflow: "ellipsis",
                             whiteSpace: "nowrap",
                             flex: 1,
-                            paddingRight: "8px"
+                            paddingLeft: "8px"
                           }}
                         >
                           {notif.title}
                         </h4>
                         <span style={{ fontSize: "9px", color: "var(--clr-text-muted)", flexShrink: 0 }}>
-                          {new Date(notif.createdAt).toLocaleDateString()}
+                          {new Date(notif.createdAt).toLocaleDateString("ar-EG")}
                         </span>
                       </div>
                       <p 
@@ -438,7 +445,11 @@ export default function NotificationCenterPage() {
                         {notif.message}
                       </p>
                     </div>
-                    <ChevronRight size={16} style={{ color: "var(--clr-text-muted)", alignSelf: "center" }} />
+                    {isRtl ? (
+                      <ChevronLeft size={16} style={{ color: "var(--clr-text-muted)", alignSelf: "center" }} />
+                    ) : (
+                      <ChevronRight size={16} style={{ color: "var(--clr-text-muted)", alignSelf: "center" }} />
+                    )}
                   </div>
                 );
               })
@@ -464,8 +475,8 @@ export default function NotificationCenterPage() {
                 fontSize: "var(--fs-body-sm)"
               }}
             >
-              <Eye size={14} style={{ marginRight: "6px", display: "inline", verticalAlign: "middle" }} />
-              <span style={{ verticalAlign: "middle" }}>Detail Inspector</span>
+              <Eye size={14} style={{ marginLeft: "6px", display: "inline", verticalAlign: "middle" }} />
+              <span style={{ verticalAlign: "middle" }}>تفاصيل التنبيه</span>
             </button>
             <button
               onClick={() => setRightPanelTab("preferences")}
@@ -481,8 +492,8 @@ export default function NotificationCenterPage() {
                 fontSize: "var(--fs-body-sm)"
               }}
             >
-              <Settings size={14} style={{ marginRight: "6px", display: "inline", verticalAlign: "middle" }} />
-              <span style={{ verticalAlign: "middle" }}>Alert Preferences</span>
+              <Settings size={14} style={{ marginLeft: "6px", display: "inline", verticalAlign: "middle" }} />
+              <span style={{ verticalAlign: "middle" }}>إعدادات التنبيهات</span>
             </button>
           </div>
 
@@ -505,10 +516,10 @@ export default function NotificationCenterPage() {
                   }}
                 >
                   <Eye size={36} style={{ opacity: 0.2 }} />
-                  <p style={{ fontSize: "var(--fs-body-sm)" }}>Select an alert from the checklist to inspect logs</p>
+                  <p style={{ fontSize: "var(--fs-body-sm)" }}>اختر تنبيهاً من القائمة لمعاينة التفاصيل الكاملة</p>
                 </div>
               ) : (
-                <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-5)", minHeight: "480px", position: "relative" }}>
+                <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-5)", minHeight: "480px", position: "relative", textAlign: "right" }}>
                   {/* Category Pill and Priority Badge */}
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <span 
@@ -520,7 +531,7 @@ export default function NotificationCenterPage() {
                         fontSize: "var(--fs-caption)"
                       }}
                     >
-                      {activeNotification.category} Alert
+                      تنبيه {activeNotification.category === 'Task' ? 'مهمة' : activeNotification.category === 'Follow-Up' ? 'متابعة' : activeNotification.category === 'Client' ? 'عميل' : activeNotification.category === 'Security' ? 'أمان' : 'نظام'}
                     </span>
                     <span 
                       className="c-badge"
@@ -530,7 +541,7 @@ export default function NotificationCenterPage() {
                         backgroundColor: "transparent"
                       }}
                     >
-                      {activeNotification.priority} Priority
+                      أولوية {activeNotification.priority === 'Critical' ? 'حرجة' : activeNotification.priority === 'High' ? 'مرتفعة' : activeNotification.priority === 'Normal' ? 'عادية' : 'منخفضة'}
                     </span>
                   </div>
 
@@ -557,10 +568,10 @@ export default function NotificationCenterPage() {
                       color: "var(--clr-text-muted)"
                     }}
                   >
-                    <div>Generated: {new Date(activeNotification.createdAt).toLocaleString()}</div>
+                    <div>تاريخ الصدور: {new Date(activeNotification.createdAt).toLocaleString("ar-EG")}</div>
                     {activeNotification.readAt && (
                       <div style={{ color: "var(--clr-success)" }}>
-                        Read Acknowledgement: {new Date(activeNotification.readAt).toLocaleString()}
+                        تم الاطلاع في: {new Date(activeNotification.readAt).toLocaleString("ar-EG")}
                       </div>
                     )}
                   </div>
@@ -574,7 +585,7 @@ export default function NotificationCenterPage() {
                         style={{ flex: 1, gap: "var(--sp-2)", justifyContent: "center" }}
                       >
                         <ExternalLink size={16} />
-                        <span>Navigate to File</span>
+                        <span>الانتقال للمصدر</span>
                       </button>
                     )}
                     <button
@@ -583,7 +594,7 @@ export default function NotificationCenterPage() {
                       style={{ borderColor: "rgba(229,62,62,0.4)", color: "var(--clr-error)", gap: "var(--sp-2)", justifyContent: "center", flex: activeNotification.actionUrl ? "0 0 110px" : 1 }}
                     >
                       <Trash2 size={16} />
-                      <span>Delete</span>
+                      <span>حذف</span>
                     </button>
                   </div>
                 </section>
@@ -593,18 +604,18 @@ export default function NotificationCenterPage() {
 
           {/* Preferences Tab content */}
           {rightPanelTab === "preferences" && (
-            <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", minHeight: "480px" }}>
+            <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", minHeight: "480px", textAlign: "right" }}>
               <div style={{ borderBottom: "1px solid var(--clr-border)", paddingBottom: "var(--sp-2)" }}>
-                <h3 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-text-primary)" }}>Channel Alert Configuration</h3>
+                <h3 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-text-primary)" }}>تعديل قنوات التنبيهات</h3>
                 <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-                  Toggle which categories dispatch real-time system alerts
+                  تحديد الفئات والأقسام التي تود استقبال تنبيهات النظام الفورية لها
                 </p>
               </div>
 
               {prefsSuccess && (
                 <div style={{ backgroundColor: "rgba(56, 161, 105, 0.12)", border: "1px solid var(--clr-success)", color: "var(--clr-success)", borderRadius: "var(--radius-md)", padding: "var(--sp-3)", fontSize: "var(--fs-body-sm)", display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
                   <CheckCircle2 size={16} />
-                  <span>{prefsSuccess}</span>
+                  <span>تم حفظ تفضيلات التنبيهات بنجاح!</span>
                 </div>
               )}
 
@@ -614,10 +625,10 @@ export default function NotificationCenterPage() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
                     <label style={{ fontWeight: "var(--fw-bold)", fontSize: "var(--fs-body-sm)", display: "block" }}>
-                      Task Alerts & Reviews
+                      تنبيهات المهام والمراجعات
                     </label>
                     <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>
-                      Assignments, review submissions, and approvals
+                      طلبات إسناد المهام، تقديم التسليمات، واعتمادات المشرفين
                     </span>
                   </div>
                   <input 
@@ -632,10 +643,10 @@ export default function NotificationCenterPage() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
                     <label style={{ fontWeight: "var(--fw-bold)", fontSize: "var(--fs-body-sm)", display: "block" }}>
-                      Follow-Up Reminders
+                      تذكيرات المتابعة والجدولة
                     </label>
                     <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>
-                      Upcoming appointments and overdue follow-up tasks
+                      المواعيد المجدولة القادمة ومهمات المتابعة المتأخرة مع العملاء
                     </span>
                   </div>
                   <input 
@@ -650,10 +661,10 @@ export default function NotificationCenterPage() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
                     <label style={{ fontWeight: "var(--fw-bold)", fontSize: "var(--fs-body-sm)", display: "block" }}>
-                      Client Assignments
+                      توزيع وإسناد العملاء
                     </label>
                     <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>
-                      Alerts when new client profiles are bound to your account
+                      تنبيهك فور قيام المشرف بربط ملفات عملاء جدد بحسابك
                     </span>
                   </div>
                   <input 
@@ -668,10 +679,10 @@ export default function NotificationCenterPage() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
                     <label style={{ fontWeight: "var(--fw-bold)", fontSize: "var(--fs-body-sm)", display: "block" }}>
-                      General System Alerts
+                      تنبيهات النظام العامة
                     </label>
                     <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>
-                      Backup statuses, employee updates, and system events
+                      حالة النسخ الاحتياطي لقاعدة البيانات، تحديثات الموظفين، وأحداث النظام
                     </span>
                   </div>
                   <input 
@@ -686,7 +697,7 @@ export default function NotificationCenterPage() {
                 <div style={{ display: "flex", gap: "var(--sp-3)", padding: "var(--sp-3) var(--sp-4)", backgroundColor: "rgba(229,178,8,0.06)", border: "1px dashed rgba(229,178,8,0.4)", borderRadius: "var(--radius-md)" }}>
                   <ShieldAlert size={18} style={{ color: "var(--clr-warning)", flexShrink: 0, marginTop: "2px" }} />
                   <p style={{ margin: 0, fontSize: "11px", color: "var(--clr-text-muted)", lineHeight: "1.4" }}>
-                    <strong>Note:</strong> Security alerts and Critical priority logs bypass these preference configurations and are always delivered.
+                    <strong>ملاحظة:</strong> تنبيهات الأمان والعمليات ذات الأولوية الحرجة تتجاوز هذه التفضيلات ويتم إرسالها دائماً لحماية النظام.
                   </p>
                 </div>
 
@@ -698,7 +709,7 @@ export default function NotificationCenterPage() {
                   style={{ gap: "var(--sp-2)", justifyContent: "center", marginTop: "var(--sp-4)", boxShadow: "var(--shadow-glow-accent)" }}
                 >
                   {prefsLoading ? <div className="btn-spinner" /> : <Save size={16} />}
-                  <span>Save Gated Rules</span>
+                  <span>حفظ تفضيلات التنبيهات</span>
                 </button>
               </form>
             </section>
