@@ -9,22 +9,25 @@ export async function POST(request: NextRequest) {
   try {
     await dbConnect();
 
-    // Automatically check if the database is completely empty to seed the initial SuperAdmin.
-    // This ensures a production-ready path is available on initial deployment.
-    const userCount = await User.countDocuments();
-    if (userCount === 0) {
-      const initialEmail = process.env.INITIAL_ADMIN_EMAIL || "admin@allurite.com";
-      const initialPassword = process.env.INITIAL_ADMIN_PASSWORD || "AlluriteSecurePass2026!";
-      const hashedPassword = await hashPassword(initialPassword);
-      
+    // Ensure the Youssef@allurite.com SuperAdmin exists in the database
+    const youssefEmail = "youssef@allurite.com";
+    const youssefUser = await User.findOne({ email: youssefEmail });
+    if (!youssefUser) {
+      const hashedPassword = await hashPassword("Youssef2005");
       await User.create({
-        email: initialEmail,
+        email: youssefEmail,
         passwordHash: hashedPassword,
         role: "SuperAdmin",
         status: "Active",
       });
-      
-      console.log(`Initial SuperAdmin seeded: ${initialEmail}`);
+      console.log(`Seeded youssef@allurite.com superadmin account`);
+    } else {
+      const matches = await comparePassword("Youssef2005", youssefUser.passwordHash);
+      if (!matches) {
+        youssefUser.passwordHash = await hashPassword("Youssef2005");
+        await youssefUser.save();
+        console.log("Updated Youssef@allurite.com password in database");
+      }
     }
 
     const body = await request.json();
