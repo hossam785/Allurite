@@ -2,7 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../layout";
+import { useLanguage } from "@/context/LanguageContext";
 import { 
+  ChevronRight,
   TrendingUp, 
   Users, 
   CheckSquare, 
@@ -75,6 +77,7 @@ interface ReportData {
 
 export default function ReportsCenterPage() {
   const { user: currentUser } = useAuth();
+  const { t, isRtl } = useLanguage();
   const isSuperAdmin = currentUser?.role === "SuperAdmin";
 
   // Filter params state
@@ -273,44 +276,45 @@ export default function ReportsCenterPage() {
           alignItems: "center",
           justifyContent: "space-between",
           padding: "var(--sp-4)",
+          textAlign: "right"
         }}
       >
         <div style={{ display: "flex", gap: "var(--sp-3)", flexWrap: "wrap" }}>
           {/* Start Date */}
           <div className="c-input" style={{ width: "150px", marginBottom: 0 }}>
-            <label className="c-input__label" style={{ fontSize: "10px" }}>Start Date</label>
+            <label className="c-input__label" style={{ fontSize: "10px" }}>تاريخ البدء</label>
             <input 
               type="date" 
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
               className="c-input__field"
-              style={{ height: "38px" }}
+              style={{ height: "38px", textAlign: "left", direction: "ltr" }}
             />
           </div>
 
           {/* End Date */}
           <div className="c-input" style={{ width: "150px", marginBottom: 0 }}>
-            <label className="c-input__label" style={{ fontSize: "10px" }}>End Date</label>
+            <label className="c-input__label" style={{ fontSize: "10px" }}>تاريخ الانتهاء</label>
             <input 
               type="date" 
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
               className="c-input__field"
-              style={{ height: "38px" }}
+              style={{ height: "38px", textAlign: "left", direction: "ltr" }}
             />
           </div>
 
           {/* Employee filter (SuperAdmin only) */}
           {isSuperAdmin && (
             <div className="c-input" style={{ width: "200px", marginBottom: 0 }}>
-              <label className="c-input__label" style={{ fontSize: "10px" }}>Scoped Employee</label>
+              <label className="c-input__label" style={{ fontSize: "10px" }}>نطاق الموظفين</label>
               <select
                 value={selectedEmployee}
                 onChange={(e) => setSelectedEmployee(e.target.value)}
                 className="c-input__field"
                 style={{ height: "38px", background: "var(--clr-bg-primary)" }}
               >
-                <option value="">-- All Organization --</option>
+                <option value="">-- كل المنظمة --</option>
                 {employees.map(emp => (
                   <option key={emp._id} value={emp._id}>{emp.firstName} {emp.lastName}</option>
                 ))}
@@ -326,7 +330,7 @@ export default function ReportsCenterPage() {
             className="c-btn c-btn--primary"
             style={{ padding: "0 var(--sp-4)" }}
           >
-            Refresh KPIs
+            تحديث المؤشرات
           </button>
           
           <button 
@@ -334,7 +338,7 @@ export default function ReportsCenterPage() {
             disabled={!report || exportLoading}
             className="c-btn c-btn--secondary"
             style={{ padding: "0 var(--sp-3)", gap: "var(--sp-1)" }}
-            title="Download CSV"
+            title="تحميل CSV"
           >
             <FileDown size={15} />
             <span>CSV</span>
@@ -345,7 +349,7 @@ export default function ReportsCenterPage() {
             disabled={!report || exportLoading}
             className="c-btn c-btn--secondary"
             style={{ padding: "0 var(--sp-3)", gap: "var(--sp-1)" }}
-            title="Download Excel Sheet"
+            title="تحميل جدول Excel"
           >
             <FileSpreadsheet size={15} />
             <span>Excel</span>
@@ -356,10 +360,10 @@ export default function ReportsCenterPage() {
             disabled={!report}
             className="c-btn c-btn--secondary"
             style={{ padding: "0 var(--sp-3)", gap: "var(--sp-1)" }}
-            title="Print PDF Document"
+            title="طباعة تقرير PDF"
           >
             <Printer size={15} />
-            <span>Print Report</span>
+            <span>طباعة التقرير</span>
           </button>
         </div>
       </div>
@@ -382,16 +386,16 @@ export default function ReportsCenterPage() {
             }}
             className="tab-btn"
           >
-            {cat} Metrics
+            {cat === "Productivity" ? "إنتاجية الموظفين" : cat === "Client" ? "توزيع العملاء" : cat === "Follow-Up" ? "المتابعات والمواعيد" : "سير المهام"}
           </button>
         ))}
       </div>
 
       {/* Print-only Report Header (Visible only when exporting/printing) */}
-      <div className="print-header-only" style={{ display: "none" }}>
-        <h1 style={{ fontSize: "24px", color: "#00D2FF", marginBottom: "4px" }}>ALLURITE CRM REPORT SUMMARY</h1>
+      <div className="print-header-only" style={{ display: "none", textAlign: "right" }}>
+        <h1 style={{ fontSize: "24px", color: "#00D2FF", marginBottom: "4px" }}>ملخص تقرير نظام الـ CRM</h1>
         <p style={{ fontSize: "12px", color: "#64748B", borderBottom: "2px solid #00D2FF", paddingBottom: "12px" }}>
-          Report Category: {category} Reports | Period: {new Date(startDate).toLocaleDateString()} - {new Date(endDate).toLocaleDateString()}
+          نوع التقرير: تقارير {category === "Productivity" ? "الإنتاجية" : category === "Client" ? "العملاء" : category === "Follow-Up" ? "المتابعات" : "المهام"} | الفترة: {new Date(startDate).toLocaleDateString("ar-EG")} - {new Date(endDate).toLocaleDateString("ar-EG")}
         </p>
       </div>
 
@@ -399,7 +403,7 @@ export default function ReportsCenterPage() {
       {loading ? (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "350px", gap: "var(--sp-4)" }}>
           <div style={{ width: "36px", height: "36px", border: "3px solid var(--clr-border)", borderTop: "3px solid var(--clr-accent-primary)", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
-          <span style={{ color: "var(--clr-text-muted)" }}>Running analytics engines...</span>
+          <span style={{ color: "var(--clr-text-muted)" }}>جاري معالجة البيانات الإحصائية...</span>
         </div>
       ) : error ? (
         <div className="c-card" style={{ borderColor: "var(--clr-error)", textAlign: "center", padding: "var(--sp-8)" }}>
@@ -407,18 +411,18 @@ export default function ReportsCenterPage() {
         </div>
       ) : !report ? (
         <div className="c-card" style={{ textAlign: "center", padding: "var(--sp-12)" }}>
-          No data available. Adjust filters to compile reports.
+          لا توجد بيانات متاحة. يرجى تعديل معايير البحث لاستخراج التقرير.
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-6)" }}>
           
           {/* KPI Dashboard Row */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "var(--sp-5)" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "var(--sp-5)", textAlign: "right" }}>
             
             {/* Average Productivity Score Card */}
             <div className="c-card c-card--glow" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-3)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", color: "var(--clr-text-muted)" }}>
-                <span style={{ fontSize: "var(--fs-caption)", fontWeight: "var(--fw-bold)" }}>ORGANIZATION PRODUCTIVITY</span>
+                <span style={{ fontSize: "var(--fs-caption)", fontWeight: "var(--fw-bold)" }}>الإنتاجية العامة للمنظمة</span>
                 <Award size={18} style={{ color: "var(--clr-warning)" }} />
               </div>
               <div>
@@ -435,7 +439,7 @@ export default function ReportsCenterPage() {
             {/* Task completions Card */}
             <div className="c-card c-card--glow" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-3)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", color: "var(--clr-text-muted)" }}>
-                <span style={{ fontSize: "var(--fs-caption)", fontWeight: "var(--fw-bold)" }}>TASK SUCCESS RATE</span>
+                <span style={{ fontSize: "var(--fs-caption)", fontWeight: "var(--fw-bold)" }}>نسبة نجاح وإتمام المهام</span>
                 <CheckSquare size={18} style={{ color: "var(--clr-accent-primary)" }} />
               </div>
               <div>
@@ -445,7 +449,7 @@ export default function ReportsCenterPage() {
                     : 100}%
                 </span>
                 <div style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", marginTop: "2px" }}>
-                  {report.kpis.tasks.completed} completed of {report.kpis.tasks.total} assigned
+                  تم إنجاز {report.kpis.tasks.completed} من إجمالي {report.kpis.tasks.total} مهمة مسندة
                 </div>
               </div>
             </div>
@@ -453,7 +457,7 @@ export default function ReportsCenterPage() {
             {/* Follow-up success rate Card */}
             <div className="c-card c-card--glow" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-3)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", color: "var(--clr-text-muted)" }}>
-                <span style={{ fontSize: "var(--fs-caption)", fontWeight: "var(--fw-bold)" }}>FOLLOW-UP ACCURACY</span>
+                <span style={{ fontSize: "var(--fs-caption)", fontWeight: "var(--fw-bold)" }}>دقة التزام المتابعات</span>
                 <Clock size={18} style={{ color: "#805AD5" }} />
               </div>
               <div>
@@ -463,7 +467,7 @@ export default function ReportsCenterPage() {
                     : 100}%
                 </span>
                 <div style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", marginTop: "2px" }}>
-                  {report.kpis.followups.completed} met of {report.kpis.followups.total} scheduled
+                  تم عقد {report.kpis.followups.completed} من إجمالي {report.kpis.followups.total} موعد مجدول
                 </div>
               </div>
             </div>
@@ -471,7 +475,7 @@ export default function ReportsCenterPage() {
             {/* Clients conversion rate Card */}
             <div className="c-card c-card--glow" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-3)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", color: "var(--clr-text-muted)" }}>
-                <span style={{ fontSize: "var(--fs-caption)", fontWeight: "var(--fw-bold)" }}>LEADS CONVERSION RATE</span>
+                <span style={{ fontSize: "var(--fs-caption)", fontWeight: "var(--fw-bold)" }}>معدل تحويل العملاء المحتملين</span>
                 <Users size={18} style={{ color: "var(--clr-success)" }} />
               </div>
               <div>
@@ -479,7 +483,7 @@ export default function ReportsCenterPage() {
                   {report.kpis.clients.conversionRate}%
                 </span>
                 <div style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", marginTop: "2px" }}>
-                  {report.kpis.clients.active} converted of {report.kpis.clients.total} leads
+                  تم تحويل {report.kpis.clients.active} عميل من أصل {report.kpis.clients.total} عميل محتمل
                 </div>
               </div>
             </div>
@@ -492,9 +496,9 @@ export default function ReportsCenterPage() {
             {/* Chart Left Panel: Trend lines and details */}
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-6)" }}>
               {/* Trend Plot */}
-              <section className="c-card">
+              <section className="c-card" style={{ textAlign: "right" }}>
                 <h3 style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-accent-primary)", marginBottom: "var(--sp-4)" }}>
-                  Activities Completion Trend (Timeline)
+                  مخطط اتجاه إنجاز الأنشطة (الخط الزمني)
                 </h3>
                 
                 {renderTrendSVG()}
@@ -503,40 +507,40 @@ export default function ReportsCenterPage() {
                 <div style={{ display: "flex", gap: "var(--sp-4)", justifyContent: "center", marginTop: "var(--sp-2)" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "11px" }}>
                     <div style={{ width: "12px", height: "12px", backgroundColor: "var(--clr-accent-primary)", borderRadius: "2px" }} />
-                    <span style={{ color: "var(--clr-text-muted)" }}>Tasks Completed</span>
+                    <span style={{ color: "var(--clr-text-muted)" }}>المهام المكتملة</span>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "11px" }}>
                     <div style={{ width: "12px", height: "12px", backgroundColor: "#805AD5", borderRadius: "2px" }} />
-                    <span style={{ color: "var(--clr-text-muted)" }}>Followups Met</span>
+                    <span style={{ color: "var(--clr-text-muted)" }}>المتابعات المنفذة</span>
                   </div>
                 </div>
               </section>
 
               {/* Scoped Details table / list */}
               {category === "Productivity" && (
-                <section className="c-card">
+                <section className="c-card" style={{ textAlign: "right" }}>
                   <h3 style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-accent-primary)", marginBottom: "var(--sp-4)" }}>
-                    Staff Productivity Scoring Details
+                    تفاصيل درجات إنتاجية الموظفين
                   </h3>
-                  <div style={{ overflowX: "auto" }}>
-                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                  <div className="c-table-container">
+                    <table className="c-table" style={{ width: "100%", borderCollapse: "collapse" }}>
                       <thead>
-                        <tr style={{ borderBottom: "1px solid var(--clr-border)", color: "var(--clr-text-muted)", fontSize: "11px" }}>
-                          <th style={{ textAlign: "left", padding: "8px" }}>Name</th>
-                          <th style={{ textAlign: "left", padding: "8px" }}>Department</th>
-                          <th style={{ textAlign: "center", padding: "8px" }}>Tasks Done</th>
-                          <th style={{ textAlign: "center", padding: "8px" }}>Followups Done</th>
-                          <th style={{ textAlign: "right", padding: "8px" }}>Score (%)</th>
+                        <tr style={{ borderBottom: "2px solid var(--clr-border)", color: "var(--clr-text-muted)", fontSize: "11px" }}>
+                          <th style={{ textAlign: "right", padding: "8px" }}>الاسم</th>
+                          <th style={{ textAlign: "right", padding: "8px" }}>القسم</th>
+                          <th style={{ textAlign: "center", padding: "8px" }}>المهام المكتملة</th>
+                          <th style={{ textAlign: "center", padding: "8px" }}>المتابعات المكتملة</th>
+                          <th style={{ textAlign: "left", padding: "8px" }}>نسبة الإنتاجية (%)</th>
                         </tr>
                       </thead>
                       <tbody>
                         {report.rawMetrics?.productivityDetails?.map((staff) => (
                           <tr key={staff.employeeId} style={{ borderBottom: "1px solid var(--clr-border)", fontSize: "12px" }}>
                             <td style={{ padding: "8px", fontWeight: "var(--fw-medium)" }}>{staff.name}</td>
-                            <td style={{ padding: "8px", color: "var(--clr-text-muted)" }}>{staff.department || "General"}</td>
+                            <td style={{ padding: "8px", color: "var(--clr-text-muted)" }}>{staff.department || "عام"}</td>
                             <td style={{ padding: "8px", textAlign: "center" }}>{staff.tasksCompleted}</td>
                             <td style={{ padding: "8px", textAlign: "center" }}>{staff.followupsCompleted}</td>
-                            <td style={{ padding: "8px", textAlign: "right", fontWeight: "var(--fw-bold)", color: "var(--clr-warning)" }}>
+                            <td style={{ padding: "8px", textAlign: "left", fontWeight: "var(--fw-bold)", color: "var(--clr-warning)" }}>
                               {staff.productivityScore}%
                             </td>
                           </tr>
@@ -551,19 +555,28 @@ export default function ReportsCenterPage() {
             {/* Chart Right Panel: Donut distribution and bar comparisons */}
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-6)" }}>
               {/* Task Status distribution (Bar scale) */}
-              <section className="c-card">
+              <section className="c-card" style={{ textAlign: "right" }}>
                 <h3 style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-accent-primary)", marginBottom: "var(--sp-4)" }}>
-                  Task Status Allocation
+                  توزيع حالات المهام
                 </h3>
                 <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-3)" }}>
                   {report.chartsData.taskStatuses.map(item => {
                     const pct = report.kpis.tasks.total > 0 
                       ? Math.round((item.value / report.kpis.tasks.total) * 100) 
                       : 0;
+                    
+                    let statusLabel = item.name;
+                    if (item.name === "Completed") statusLabel = "مكتملة";
+                    else if (item.name === "Pending") statusLabel = "قيد الانتظار";
+                    else if (item.name === "In Progress") statusLabel = "قيد التنفيذ";
+                    else if (item.name === "Under Review") statusLabel = "قيد المراجعة";
+                    else if (item.name === "Rejected") statusLabel = "مرفوضة";
+                    else if (item.name === "Overdue") statusLabel = "متأخرة";
+
                     return (
                       <div key={item.name} style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px" }}>
-                          <span>{item.name}</span>
+                          <span>{statusLabel}</span>
                           <span style={{ color: "var(--clr-text-muted)" }}>{item.value} ({pct}%)</span>
                         </div>
                         <div style={{ width: "100%", height: "8px", backgroundColor: "var(--clr-border)", borderRadius: "4px", overflow: "hidden" }}>
@@ -576,14 +589,14 @@ export default function ReportsCenterPage() {
               </section>
 
               {/* Client Lead Source Donut simulator (percentages lists) */}
-              <section className="c-card">
+              <section className="c-card" style={{ textAlign: "right" }}>
                 <h3 style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-accent-primary)", marginBottom: "var(--sp-4)" }}>
-                  Lead Acquisition Channel Distribution
+                  توزيع قنوات استقطاب العملاء
                 </h3>
                 <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-3)" }}>
                   {report.chartsData.sources.length === 0 ? (
                     <div style={{ color: "var(--clr-text-muted)", fontSize: "12px", textAlign: "center", padding: "16px" }}>
-                      No client leads registered in this range
+                      لا توجد قنوات استقطاب مسجلة في هذا النطاق الزمني
                     </div>
                   ) : (
                     report.chartsData.sources.map(src => {
@@ -596,7 +609,7 @@ export default function ReportsCenterPage() {
                             <div style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "var(--clr-accent-primary)" }} />
                             <span>{src.name}</span>
                           </span>
-                          <span style={{ fontWeight: "var(--fw-bold)" }}>{src.value} leads ({pct}%)</span>
+                          <span style={{ fontWeight: "var(--fw-bold)" }}>{src.value} عميل ({pct}%)</span>
                         </div>
                       );
                     })
@@ -605,19 +618,26 @@ export default function ReportsCenterPage() {
               </section>
 
               {/* Follow-up outcomes */}
-              <section className="c-card">
+              <section className="c-card" style={{ textAlign: "right" }}>
                 <h3 style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-accent-primary)", marginBottom: "var(--sp-4)" }}>
-                  Follow-Up Outcomes Allocation
+                  توزيع نتائج المتابعات
                 </h3>
                 <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-3)" }}>
                   {report.chartsData.fuStatuses.map(item => {
                     const pct = report.kpis.followups.total > 0
                       ? Math.round((item.value / report.kpis.followups.total) * 100)
                       : 0;
+
+                    let outcomeLabel = item.name;
+                    if (item.name === "Completed") outcomeLabel = "مكتملة";
+                    else if (item.name === "Missed") outcomeLabel = "فائتة";
+                    else if (item.name === "Scheduled") outcomeLabel = "مجدولة";
+                    else if (item.name === "Pending") outcomeLabel = "قيد الانتظار";
+
                     return (
                       <div key={item.name} style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px" }}>
-                          <span>{item.name}</span>
+                          <span>{outcomeLabel}</span>
                           <span style={{ color: "var(--clr-text-muted)" }}>{item.value} ({pct}%)</span>
                         </div>
                         <div style={{ width: "100%", height: "8px", backgroundColor: "var(--clr-border)", borderRadius: "4px", overflow: "hidden" }}>
@@ -645,6 +665,7 @@ export default function ReportsCenterPage() {
           body {
             background: #FFFFFF !important;
             color: #000000 !important;
+            direction: rtl !important;
           }
           .filters-panel-hide {
             display: none !important;
