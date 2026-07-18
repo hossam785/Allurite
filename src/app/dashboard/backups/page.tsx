@@ -2,7 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../layout";
+import { useLanguage } from "@/context/LanguageContext";
 import { 
+  ChevronRight,
   Database, 
   DownloadCloud, 
   RotateCcw, 
@@ -31,6 +33,7 @@ interface BackupItem {
 
 export default function BackupsPage() {
   const { user: currentUser } = useAuth();
+  const { t, isRtl } = useLanguage();
   const isSuperAdmin = currentUser?.role === "SuperAdmin";
 
   // Data state
@@ -137,10 +140,10 @@ export default function BackupsPage() {
         <ServerCrash size={48} style={{ color: "var(--clr-error)" }} />
         <div style={{ textAlign: "center" }}>
           <h2 style={{ fontSize: "var(--fs-h2)", color: "var(--clr-text-primary)", marginBottom: "var(--sp-1)" }}>
-            Access Denied (403 Forbidden)
+            تم رفض الوصول (403 غير مسموح)
           </h2>
           <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-            Only System Super Administrators are authorized to access database backup and recovery centers.
+            المشرفين العامين على النظام فقط مخول لهم بالوصول لإدارة النسخ الاحتياطي واستعادة البيانات.
           </p>
         </div>
       </main>
@@ -158,7 +161,7 @@ export default function BackupsPage() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
           <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-            Generate JSON snapshot copies of CRM databases to Vercel Blob cloud storage
+            إنشاء نسخ سحابية احتياطية لقواعد بيانات نظام الـ CRM على مساحات Vercel Blob
           </p>
         </div>
         <button
@@ -168,126 +171,128 @@ export default function BackupsPage() {
           style={{ gap: "var(--sp-2)", boxShadow: "var(--shadow-glow-accent)" }}
         >
           {creating ? <div className="btn-spinner" /> : <Database size={16} />}
-          <span>Create Snapshot Backup</span>
+          <span>إنشاء نسخة احتياطية جديدة</span>
         </button>
       </div>
 
       {/* Alert logs */}
       {actionError && (
-        <div style={{ backgroundColor: "rgba(229, 62, 62, 0.12)", border: "1px solid var(--clr-error)", color: "var(--clr-error)", padding: "var(--sp-3) var(--sp-4)", borderRadius: "var(--radius-md)", fontSize: "var(--fs-body-sm)" }}>
+        <div style={{ backgroundColor: "rgba(229, 62, 62, 0.12)", border: "1px solid var(--clr-error)", color: "var(--clr-error)", padding: "var(--sp-3) var(--sp-4)", borderRadius: "var(--radius-md)", fontSize: "var(--fs-body-sm)", textAlign: "right" }}>
           {actionError}
         </div>
       )}
 
       {restoreSuccess && (
-        <div style={{ backgroundColor: "rgba(56, 161, 105, 0.12)", border: "1px solid var(--clr-success)", color: "var(--clr-success)", padding: "var(--sp-3) var(--sp-4)", borderRadius: "var(--radius-md)", fontSize: "var(--fs-body-sm)", display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
+        <div style={{ backgroundColor: "rgba(56, 161, 105, 0.12)", border: "1px solid var(--clr-success)", color: "var(--clr-success)", padding: "var(--sp-3) var(--sp-4)", borderRadius: "var(--radius-md)", fontSize: "var(--fs-body-sm)", display: "flex", alignItems: "center", gap: "var(--sp-2)", textAlign: "right" }}>
           <CheckCircle2 size={16} />
           <span>{restoreSuccess}</span>
         </div>
       )}
 
       {/* KPI Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "var(--sp-6)" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "var(--sp-6)", textAlign: "right" }}>
         <div className="c-card c-card--glow" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-2)" }}>
-          <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>SNAPSHOTS COUNT</span>
-          <span style={{ fontSize: "32px", fontWeight: "var(--fw-bold)", fontFamily: "Outfit" }}>{backups.length} Backups</span>
+          <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>إجمالي النسخ الاحتياطية</span>
+          <span style={{ fontSize: "32px", fontWeight: "var(--fw-bold)", fontFamily: "Outfit" }}>{backups.length} نسخة</span>
         </div>
 
         <div className="c-card c-card--glow" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-2)" }}>
-          <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>LAST BACKUP SUCCESS</span>
+          <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>تاريخ آخر نسخة ناجحة</span>
           <span style={{ fontSize: "16px", fontWeight: "var(--fw-bold)", color: lastBackup ? "var(--clr-text-primary)" : "var(--clr-text-muted)", margin: "auto 0" }}>
-            {lastBackup ? new Date(lastBackup).toLocaleString() : "Never"}
+            {lastBackup ? new Date(lastBackup).toLocaleString("ar-EG") : "لم يتم مطلقاً"}
           </span>
         </div>
 
         <div className="c-card c-card--glow" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-2)" }}>
-          <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>STORAGE CONSUMPTION</span>
+          <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>إجمالي استهلاك المساحة</span>
           <span style={{ fontSize: "32px", fontWeight: "var(--fw-bold)", fontFamily: "Outfit" }}>{formatBytes(totalSize)}</span>
         </div>
       </div>
 
       {/* History table */}
       <section className="c-card" style={{ padding: 0, display: "flex", flexDirection: "column", minHeight: "440px" }}>
-        <div style={{ padding: "var(--sp-4)", borderBottom: "1px solid var(--clr-border)", backgroundColor: "rgba(4, 13, 33, 0.4)" }}>
-          <h2 style={{ fontSize: "var(--fs-body-sm)", fontWeight: "var(--fw-bold)", margin: 0 }}>Backup History Logs</h2>
+        <div style={{ padding: "var(--sp-4)", borderBottom: "1px solid var(--clr-border)", backgroundColor: "rgba(4, 13, 33, 0.4)", textAlign: "right" }}>
+          <h2 style={{ fontSize: "var(--fs-body-sm)", fontWeight: "var(--fw-bold)", margin: 0 }}>سجلات النسخ الاحتياطي التاريخية</h2>
         </div>
 
         <div style={{ overflowX: "auto", flex: 1 }}>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr style={{ borderBottom: "1px solid var(--clr-border)", fontSize: "11px", color: "var(--clr-text-muted)", backgroundColor: "rgba(4, 13, 33, 0.1)" }}>
-                <th style={{ textAlign: "left", padding: "12px var(--sp-4)" }}>File Snapshot Name</th>
-                <th style={{ textAlign: "left", padding: "12px" }}>File Size</th>
-                <th style={{ textAlign: "left", padding: "12px" }}>Generated By</th>
-                <th style={{ textAlign: "left", padding: "12px" }}>Status</th>
-                <th style={{ textAlign: "left", padding: "12px" }}>Creation Date</th>
-                <th style={{ textAlign: "center", padding: "12px var(--sp-4)" }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={6} style={{ padding: "var(--sp-12)", textAlign: "center", color: "var(--clr-text-muted)" }}>
-                    Loading database snapshots list...
-                  </td>
+          <div className="c-table-container">
+            <table className="c-table" style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ borderBottom: "2px solid var(--clr-border)", fontSize: "11px", color: "var(--clr-text-muted)", backgroundColor: "rgba(4, 13, 33, 0.1)" }}>
+                  <th style={{ textAlign: "right", padding: "12px var(--sp-4)" }}>اسم ملف النسخة الاحتياطية</th>
+                  <th style={{ textAlign: "right", padding: "12px" }}>حجم الملف</th>
+                  <th style={{ textAlign: "right", padding: "12px" }}>تم الإنشاء بواسطة</th>
+                  <th style={{ textAlign: "right", padding: "12px" }}>الحالة</th>
+                  <th style={{ textAlign: "right", padding: "12px" }}>تاريخ الإنشاء</th>
+                  <th style={{ textAlign: "center", padding: "12px var(--sp-4)" }}>الإجراءات</th>
                 </tr>
-              ) : backups.length === 0 ? (
-                <tr>
-                  <td colSpan={6} style={{ padding: "var(--sp-12)", textAlign: "center", color: "var(--clr-text-muted)" }}>
-                    No backups registered. Click 'Create Snapshot Backup' to perform database dump.
-                  </td>
-                </tr>
-              ) : (
-                backups.map(backup => (
-                  <tr key={backup._id} style={{ borderBottom: "1px solid var(--clr-border)", fontSize: "12px" }} className="table-row-hover">
-                    <td style={{ padding: "12px var(--sp-4)", fontWeight: "var(--fw-medium)" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                        <FileJson size={16} style={{ color: "var(--clr-accent-primary)" }} />
-                        <span>{backup.name}</span>
-                      </div>
-                    </td>
-                    <td style={{ padding: "12px", color: "var(--clr-text-muted)" }}>{formatBytes(backup.size)}</td>
-                    <td style={{ padding: "12px" }}>{backup.createdEmail}</td>
-                    <td style={{ padding: "12px" }}>
-                      <span className={`c-badge ${backup.status === "Restored" ? "c-badge--info" : "c-badge--success"}`} style={{ textTransform: "none" }}>
-                        {backup.status}
-                      </span>
-                    </td>
-                    <td style={{ padding: "12px", color: "var(--clr-text-muted)" }}>{new Date(backup.createdAt).toLocaleString()}</td>
-                    <td style={{ padding: "12px var(--sp-4)", textAlign: "center" }}>
-                      <div style={{ display: "flex", gap: "var(--sp-2)", justifyContent: "center" }}>
-                        <a
-                          href={backup.blobUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="c-btn c-btn--secondary"
-                          style={{ padding: "6px var(--sp-2)", display: "inline-flex", alignItems: "center", gap: "4px" }}
-                        >
-                          <DownloadCloud size={13} />
-                          <span>Download</span>
-                        </a>
-                        <button
-                          onClick={() => setRestoreTarget(backup)}
-                          className="c-btn c-btn--secondary"
-                          style={{ padding: "6px var(--sp-2)", gap: "4px" }}
-                        >
-                          <RotateCcw size={13} />
-                          <span>Restore</span>
-                        </button>
-                        <button
-                          onClick={() => handleDeleteBackup(backup._id)}
-                          className="c-btn c-btn--secondary delete-btn-hover"
-                          style={{ padding: "6px", borderColor: "rgba(229, 62, 62, 0.3)", color: "var(--clr-error)" }}
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan={6} style={{ padding: "var(--sp-12)", textAlign: "center", color: "var(--clr-text-muted)" }}>
+                      جاري تحميل سجلات النسخ الاحتياطي...
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : backups.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} style={{ padding: "var(--sp-12)", textAlign: "center", color: "var(--clr-text-muted)" }}>
+                      لا توجد أي نسخ احتياطية مسجلة. انقر على 'إنشاء نسخة احتياطية جديدة' لبدء النسخ لقواعد البيانات.
+                    </td>
+                  </tr>
+                ) : (
+                  backups.map(backup => (
+                    <tr key={backup._id} style={{ borderBottom: "1px solid var(--clr-border)", fontSize: "12px" }} className="table-row-hover">
+                      <td style={{ padding: "12px var(--sp-4)", fontWeight: "var(--fw-medium)", textAlign: "right" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                          <FileJson size={16} style={{ color: "var(--clr-accent-primary)" }} />
+                          <span>{backup.name}</span>
+                        </div>
+                      </td>
+                      <td style={{ padding: "12px", color: "var(--clr-text-muted)", textAlign: "right" }}>{formatBytes(backup.size)}</td>
+                      <td style={{ padding: "12px", textAlign: "right" }}>{backup.createdEmail}</td>
+                      <td style={{ padding: "12px", textAlign: "right" }}>
+                        <span className={`c-badge ${backup.status === "Restored" ? "c-badge--info" : "c-badge--success"}`} style={{ textTransform: "none" }}>
+                          {backup.status === "Completed" ? "مكتملة" : backup.status === "Restored" ? "مستعادة" : backup.status === "Failed" ? "فاشلة" : backup.status}
+                        </span>
+                      </td>
+                      <td style={{ padding: "12px", color: "var(--clr-text-muted)", textAlign: "right" }}>{new Date(backup.createdAt).toLocaleString("ar-EG")}</td>
+                      <td style={{ padding: "12px var(--sp-4)", textAlign: "center" }}>
+                        <div style={{ display: "flex", gap: "var(--sp-2)", justifyContent: "center" }}>
+                          <a
+                            href={backup.blobUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="c-btn c-btn--secondary"
+                            style={{ padding: "6px var(--sp-2)", display: "inline-flex", alignItems: "center", gap: "4px" }}
+                          >
+                            <DownloadCloud size={13} />
+                            <span>تحميل</span>
+                          </a>
+                          <button
+                            onClick={() => setRestoreTarget(backup)}
+                            className="c-btn c-btn--secondary"
+                            style={{ padding: "6px var(--sp-2)", gap: "4px" }}
+                          >
+                            <RotateCcw size={13} />
+                            <span>استعادة</span>
+                          </button>
+                          <button
+                            onClick={() => handleDeleteBackup(backup._id)}
+                            className="c-btn c-btn--secondary delete-btn-hover"
+                            style={{ padding: "6px", borderColor: "rgba(229, 62, 62, 0.3)", color: "var(--clr-error)" }}
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
 
@@ -319,27 +324,27 @@ export default function BackupsPage() {
               animation: "slideIn 0.25s ease-out" 
             }}
           >
-            <div style={{ display: "flex", gap: "var(--sp-3)", marginBottom: "var(--sp-4)" }}>
+            <div style={{ display: "flex", gap: "var(--sp-3)", marginBottom: "var(--sp-4)", textAlign: "right" }}>
               <AlertTriangle size={36} style={{ color: "var(--clr-error)", flexShrink: 0 }} />
               <div>
                 <h3 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-text-primary)", margin: 0 }}>
-                  CRITICAL: Confirm Database Recovery
+                  تنبيه حرج للغاية: تأكيد استعادة قاعدة البيانات
                 </h3>
                 <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)", marginTop: "4px" }}>
-                  Wiping collections and executing backup rolls back all data
+                  استعادة النسخة الاحتياطية ستقوم بحذف كافة البيانات الحالية وتجاوزها بالكامل.
                 </p>
               </div>
             </div>
 
-            <div style={{ backgroundColor: "rgba(229, 62, 62, 0.05)", border: "1px dashed var(--clr-error)", borderRadius: "var(--radius-md)", padding: "var(--sp-4)", fontSize: "var(--fs-body-sm)", color: "var(--clr-text-muted)", lineHeight: "1.6", marginBottom: "var(--sp-5)" }}>
+            <div style={{ backgroundColor: "rgba(229, 62, 62, 0.05)", border: "1px dashed var(--clr-error)", borderRadius: "var(--radius-md)", padding: "var(--sp-4)", fontSize: "var(--fs-body-sm)", color: "var(--clr-text-muted)", lineHeight: "1.6", marginBottom: "var(--sp-5)", textAlign: "right" }}>
               <p style={{ margin: 0 }}>
-                <strong>WARNING:</strong> This operation completely overwrites the active databases, including:
-                <br />• All Client pipeline accounts
-                <br />• Employees listings
-                <br />• Task boards & comments
-                <br />• Scheduled follow-up appointments
+                <strong>تحذير:</strong> ستقوم هذه العملية بالكتابة فوق قاعدة البيانات الحالية، بما في ذلك:
+                <br />• كافة حسابات وسجلات العملاء
+                <br />• قائمة حسابات الموظفين والمسؤولين
+                <br />• لوحات المهام والمناقشات والتعليقات
+                <br />• مواعيد وجدول المتابعة بالكامل
                 <br />
-                This action is irreversible once executed!
+                هذا الإجراء نهائي ولا يمكن التراجع عنه بعد البدء!
               </p>
             </div>
 
@@ -349,7 +354,7 @@ export default function BackupsPage() {
                 onClick={() => setRestoreTarget(null)}
                 className="c-btn c-btn--secondary"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
               <button
                 disabled={restoring}
@@ -358,7 +363,7 @@ export default function BackupsPage() {
                 style={{ backgroundColor: "var(--clr-error)", borderColor: "var(--clr-error)", minWidth: "120px", gap: "var(--sp-2)" }}
               >
                 {restoring ? <div className="btn-spinner" /> : <RotateCcw size={14} />}
-                <span>Recover DB</span>
+                <span>استعادة البيانات</span>
               </button>
             </div>
           </div>
