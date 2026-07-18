@@ -168,28 +168,6 @@ export default function Header({ title, toggleMobileSidebar }: HeaderProps) {
       {/* Right Controls: Bell and User */}
       <div style={{ display: "flex", alignItems: "center", gap: "var(--sp-6)" }}>
         
-        {/* Language Switcher */}
-        <button
-          onClick={() => setLanguage(language === "ar" ? "en" : "ar")}
-          style={{
-            background: "rgba(255, 255, 255, 0.03)",
-            border: "1px solid var(--clr-border)",
-            color: "var(--clr-accent-primary)",
-            cursor: "pointer",
-            fontSize: "11px",
-            fontWeight: "var(--fw-bold)",
-            padding: "6px 12px",
-            borderRadius: "var(--radius-sm)",
-            display: "flex",
-            alignItems: "center",
-            gap: "4px",
-            transition: "var(--transition-fast)",
-            fontFamily: "inherit"
-          }}
-          className="hover-bright"
-        >
-          {language === "ar" ? "English" : "العربية"}
-        </button>
 
         {/* Theme Switcher Toggle */}
         <button

@@ -2,13 +2,12 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { ar } from "@/lib/translations/ar";
-import { en } from "@/lib/translations/en";
 
-type Language = "ar" | "en";
+type Language = "ar";
 
 interface LanguageContextType {
   language: Language;
-  setLanguage: (lang: Language) => void;
+  setLanguage: (lang: any) => void;
   t: (path: string) => string;
   isRtl: boolean;
 }
@@ -16,31 +15,19 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>("ar");
+  const language: Language = "ar";
 
-  // Load language preference from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem("preferred_language") as Language;
-    if (saved === "ar" || saved === "en") {
-      setLanguageState(saved);
-    } else {
-      localStorage.setItem("preferred_language", "ar");
-    }
+    document.documentElement.dir = "rtl";
+    document.documentElement.lang = "ar";
   }, []);
 
-  const setLanguage = (lang: Language) => {
-    setLanguageState(lang);
-    localStorage.setItem("preferred_language", lang);
+  const setLanguage = (lang: any) => {
+    // Force Arabic, ignore switcher inputs
   };
 
-  // Toggle html dir and lang attributes client-side dynamically
-  useEffect(() => {
-    document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
-    document.documentElement.lang = language;
-  }, [language]);
-
   const t = (path: string): string => {
-    const dict = language === "ar" ? ar : en;
+    const dict = ar;
     const parts = path.split(".");
     let current: any = dict;
 
@@ -52,7 +39,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     return current || path;
   };
 
-  const isRtl = language === "ar";
+  const isRtl = true;
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t, isRtl }}>
