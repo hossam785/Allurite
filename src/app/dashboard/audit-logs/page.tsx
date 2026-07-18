@@ -174,6 +174,74 @@ export default function AuditLogsPage() {
     return <Fingerprint size={15} style={{ color: "var(--clr-text-muted)" }} />;
   };
 
+  const translateAction = (actionStr: string) => {
+    const mapping: Record<string, string> = {
+      "SETTINGS_UPDATE": "تحديث الإعدادات",
+      "AUTH_LOGIN_SUCCESS": "تسجيل دخول ناجح",
+      "AUTH_LOGIN_FAILED": "فشل تسجيل الدخول",
+      "AUTH_LOGOUT": "تسجيل خروج من النظام",
+      "EMPLOYEE_CREATE": "إضافة موظف جديد",
+      "EMPLOYEE_UPDATE": "تعديل بيانات موظف",
+      "EMPLOYEE_DELETE": "تعطيل حساب موظف",
+      "CLIENT_CREATE": "إنشاء ملف عميل",
+      "CLIENT_UPDATE": "تعديل بيانات عميل",
+      "CLIENT_DELETE": "حذف ملف عميل",
+      "TASK_CREATE": "إنشاء مهمة جديدة",
+      "TASK_UPDATE": "تحديث حالة/تفاصيل مهمة",
+      "TASK_DELETE": "حذف مهمة",
+      "FILE_UPLOAD": "رفع ملف مرفق جديد",
+      "FILE_DELETE": "حذف ملف مرفق",
+      "BACKUP_CREATE": "إنشاء نسخة احتياطية",
+      "BACKUP_RESTORE": "استعادة قاعدة البيانات",
+      "BACKUP_DELETE": "حذف نسخة احتياطية",
+      "ROLE_UPDATE": "تحديث صلاحيات الأدوار",
+      "DEPARTMENT_CREATE": "إنشاء قسم جديد",
+      "DEPARTMENT_UPDATE": "تعديل بيانات قسم"
+    };
+    return mapping[actionStr] || actionStr;
+  };
+
+  const translateEntityType = (entity: string) => {
+    const mapping: Record<string, string> = {
+      "User": "مستخدم",
+      "Employee": "موظف",
+      "Client": "عميل",
+      "Follow-Up": "متابعة",
+      "Task": "مهمة",
+      "File": "ملف مرفق",
+      "Backup": "نسخة احتياطية",
+      "Settings": "إعدادات النظام",
+      "Role": "الصلاحيات"
+    };
+    return mapping[entity] || entity;
+  };
+
+  const translateDetails = (details: string) => {
+    if (!details) return "-";
+    let t = details;
+    t = t.replace(/User theme preference modified to light/gi, "تم تغيير سمة المظهر للمستخدم إلى الوضع الفاتح");
+    t = t.replace(/User theme preference modified to dark/gi, "تم تغيير سمة المظهر للمستخدم إلى الوضع الداكن");
+    t = t.replace(/Successful user authentication login:/gi, "تسجيل دخول ناجح للمستخدم:");
+    t = t.replace(/User successfully logged out:/gi, "تم تسجيل خروج المستخدم بنجاح:");
+    t = t.replace(/Failed login attempt for user:/gi, "محاولة تسجيل دخول فاشلة للمستخدم:");
+    t = t.replace(/System settings modified by administrator/gi, "تم تعديل إعدادات النظام بواسطة المدير");
+    t = t.replace(/New department registered:/gi, "تم تسجيل قسم جديد باسم:");
+    t = t.replace(/Department details modified:/gi, "تم تعديل تفاصيل القسم:");
+    t = t.replace(/Permissions for role/gi, "صلاحيات الدور");
+    t = t.replace(/updated successfully/gi, "تم تحديثها بنجاح");
+    t = t.replace(/Created new employee profile:/gi, "تم إنشاء ملف موظف جديد:");
+    t = t.replace(/Updated employee profile:/gi, "تم تحديث ملف الموظف:");
+    t = t.replace(/Created new client profile:/gi, "تم إنشاء ملف عميل جديد:");
+    t = t.replace(/Updated client profile:/gi, "تم تحديث ملف العميل:");
+    t = t.replace(/Created new task:/gi, "تم إنشاء مهمة جديدة:");
+    t = t.replace(/Updated task details\/status:/gi, "تم تحديث تفاصيل/حالة المهمة:");
+    t = t.replace(/Uploaded new document attachment:/gi, "تم رفع مستند مرفق جديد:");
+    t = t.replace(/Created new database backup snapshot:/gi, "تم إنشاء نسخة احتياطية لقاعدة البيانات:");
+    t = t.replace(/Restored database backup snapshot:/gi, "تم استعادة نسخة احتياطية لقاعدة البيانات:");
+    t = t.replace(/Deleted database backup snapshot:/gi, "تم حذف نسخة احتياطية لقاعدة البيانات:");
+    return t;
+  };
+
   // Export logs to CSV
   const handleExportCSV = () => {
     if (logs.length === 0) return;
@@ -488,11 +556,11 @@ export default function AuditLogsPage() {
                             <td style={{ padding: "10px var(--sp-3)", textAlign: "right" }}>
                               <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                                 {getActionIcon(log.action)}
-                                <span>{log.action}</span>
+                                <span>{translateAction(log.action)}</span>
                               </div>
                             </td>
                             <td style={{ padding: "10px var(--sp-3)", color: "var(--clr-text-muted)", textAlign: "right" }}>{log.performedEmail}</td>
-                            <td style={{ padding: "10px var(--sp-3)", color: "var(--clr-text-primary)", textAlign: "right" }}>{log.details || "-"}</td>
+                            <td style={{ padding: "10px var(--sp-3)", color: "var(--clr-text-primary)", textAlign: "right" }}>{translateDetails(log.details || "")}</td>
                             <td style={{ padding: "10px var(--sp-3)", color: "var(--clr-text-muted)", fontSize: "11px", textAlign: "right" }}>
                               <strong>{log.ipAddress}</strong> <span style={{ opacity: 0.7 }}>({log.deviceInfo?.split(" ")[0]})</span>
                             </td>
@@ -583,10 +651,10 @@ export default function AuditLogsPage() {
                     {/* Details content */}
                     <div style={{ flex: 1, textAlign: "right" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <span style={{ fontWeight: "var(--fw-bold)", fontSize: "13px", color: "var(--clr-text-primary)" }}>{log.action}</span>
+                        <span style={{ fontWeight: "var(--fw-bold)", fontSize: "13px", color: "var(--clr-text-primary)" }}>{translateAction(log.action)}</span>
                         <span style={{ fontSize: "11px", color: "var(--clr-text-muted)" }}>{new Date(log.createdAt).toLocaleString("ar-EG")}</span>
                       </div>
-                      <p style={{ margin: "6px 0", fontSize: "12px", color: "var(--clr-text-primary)" }}>{log.details}</p>
+                      <p style={{ margin: "6px 0", fontSize: "12px", color: "var(--clr-text-primary)" }}>{translateDetails(log.details || "")}</p>
                       <div style={{ display: "flex", gap: "var(--sp-4)", fontSize: "11px", color: "var(--clr-text-muted)", flexWrap: "wrap" }}>
                         <span>منفذ بواسطة: <strong>{log.performedEmail}</strong> ({log.performedRole === "SuperAdmin" ? "مشرف عام" : "موظف"})</span>
                         <span>عنوان IP: <strong>{log.ipAddress}</strong></span>
@@ -679,9 +747,9 @@ export default function AuditLogsPage() {
                         <td style={{ padding: "10px var(--sp-3)", color: "var(--clr-accent-primary)", textAlign: "right" }}>{log.performedRole === "SuperAdmin" ? "مشرف عام" : "موظف"}</td>
                         <td style={{ padding: "10px var(--sp-3)", color: "var(--clr-text-muted)", textAlign: "right" }}>{log.performedEmail}</td>
                         <td style={{ padding: "10px var(--sp-3)", textAlign: "right" }}>
-                          <span className="c-badge" style={{ textTransform: "none" }}>{log.action}</span>
+                          <span className="c-badge" style={{ textTransform: "none" }}>{translateAction(log.action)}</span>
                         </td>
-                        <td style={{ padding: "10px var(--sp-3)", color: "var(--clr-text-muted)", textAlign: "right" }}>{log.details || "-"}</td>
+                        <td style={{ padding: "10px var(--sp-3)", color: "var(--clr-text-muted)", textAlign: "right" }}>{translateDetails(log.details || "")}</td>
                         <td style={{ padding: "10px var(--sp-3)", textAlign: "left", color: "var(--clr-text-muted)" }}>{new Date(log.createdAt).toLocaleString("ar-EG")}</td>
                       </tr>
                     ))
@@ -789,11 +857,11 @@ export default function AuditLogsPage() {
                           <td style={{ padding: "10px var(--sp-3)", textAlign: "right" }}>
                             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                               <AlertTriangle size={14} style={{ color: sev.color }} />
-                              <span style={{ fontWeight: "bold", color: "var(--clr-text-primary)" }}>{log.action}</span>
+                              <span style={{ fontWeight: "bold", color: "var(--clr-text-primary)" }}>{translateAction(log.action)}</span>
                             </div>
                           </td>
                           <td style={{ padding: "10px var(--sp-3)", textAlign: "right" }}>{log.performedEmail}</td>
-                          <td style={{ padding: "10px var(--sp-3)", color: "var(--clr-text-primary)", textAlign: "right" }}>{log.details || "-"}</td>
+                          <td style={{ padding: "10px var(--sp-3)", color: "var(--clr-text-primary)", textAlign: "right" }}>{translateDetails(log.details || "")}</td>
                           <td style={{ padding: "10px var(--sp-3)", color: "var(--clr-text-muted)", textAlign: "right" }}>
                             <strong>{log.ipAddress}</strong>
                           </td>
