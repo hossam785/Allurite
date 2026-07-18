@@ -63,7 +63,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
       const res = await fetch("/api/v1/auth/me");
       const json = await res.json();
       if (!res.ok) {
-        setError(json.error?.message || "Failed to load user session");
+        setError(json.error?.message || "فشل تحميل جلسة المستخدم");
         setTimeout(() => {
           router.push("/login");
         }, 2000);
@@ -71,7 +71,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
         setUser(json.data);
       }
     } catch (err) {
-      setError("Network connection error");
+      setError("خطأ في الاتصال بالشبكة");
     } finally {
       setLoading(false);
     }
@@ -132,7 +132,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
           }}
         />
         <span style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-          Authenticating session...
+          جاري التحقق من الجلسة الآمنة...
         </span>
         <style jsx global>{`
           @keyframes spin {
@@ -156,9 +156,9 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
         }}
       >
         <div className="c-card" style={{ borderColor: "var(--clr-error)", maxWidth: "500px", textAlign: "center" }}>
-          <h3 style={{ color: "var(--clr-error)", marginBottom: "var(--sp-2)" }}>Session Error</h3>
+          <h3 style={{ color: "var(--clr-error)", marginBottom: "var(--sp-2)" }}>خطأ في الجلسة</h3>
           <p style={{ color: "var(--clr-text-muted)", marginBottom: "var(--sp-4)" }}>{error}</p>
-          <p style={{ fontSize: "var(--fs-caption)" }}>Redirecting to Login screen...</p>
+          <p style={{ fontSize: "var(--fs-caption)" }}>جاري توجيهك لصفحة تسجيل الدخول...</p>
         </div>
       </div>
     );
