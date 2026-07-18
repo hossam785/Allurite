@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "../layout";
+import { useLanguage } from "@/context/LanguageContext";
 import { 
   Search, 
   Plus, 
@@ -62,6 +63,7 @@ interface EmployeeSummary {
 
 export default function FilesManagerPage() {
   const { user: currentUser } = useAuth();
+  const { t, isRtl } = useLanguage();
   const isSuperAdmin = currentUser?.role === "SuperAdmin";
 
   // Data lists
@@ -249,7 +251,7 @@ export default function FilesManagerPage() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
           <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-            Upload documentation, manage contracts, and link files to client profiles
+            رفع الوثائق والمستندات، إدارة العقود والملفات، وربطها بملفات العملاء المتابعين
           </p>
         </div>
         <button 
@@ -258,7 +260,7 @@ export default function FilesManagerPage() {
           style={{ gap: "var(--sp-2)", boxShadow: "var(--shadow-glow-accent)" }}
         >
           <Plus size={16} />
-          <span>Upload File</span>
+          <span>رفع ملف جديد</span>
         </button>
       </div>
 
@@ -278,7 +280,7 @@ export default function FilesManagerPage() {
           }}
           className="tab-btn"
         >
-          Active Files
+          الملفات النشطة
         </button>
         <button
           onClick={() => setActiveTab("archived")}
@@ -294,7 +296,7 @@ export default function FilesManagerPage() {
           }}
           className="tab-btn"
         >
-          Archived Files
+          الملفات المؤرشفة
         </button>
       </div>
 
@@ -319,7 +321,8 @@ export default function FilesManagerPage() {
               size={18} 
               style={{ 
                 position: "absolute", 
-                left: "12px", 
+                right: isRtl ? "12px" : "auto",
+                left: isRtl ? "auto" : "12px", 
                 top: "50%", 
                 transform: "translateY(-50%)", 
                 color: "var(--clr-text-muted)" 
@@ -327,11 +330,11 @@ export default function FilesManagerPage() {
             />
             <input 
               type="text" 
-              placeholder="Search files by name or tag tags..." 
+              placeholder="ابحث عن الملفات بالاسم أو الوسوم..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="c-input__field"
-              style={{ paddingLeft: "40px", width: "100%", height: "42px" }}
+              style={{ paddingLeft: isRtl ? "12px" : "40px", paddingRight: isRtl ? "40px" : "12px", width: "100%", height: "42px", textAlign: "right" }}
             />
           </div>
         </div>
@@ -344,13 +347,13 @@ export default function FilesManagerPage() {
             className="c-input__field"
             style={{ height: "42px", padding: "0 var(--sp-3)", minWidth: "135px", background: "var(--clr-bg-primary)" }}
           >
-            <option value="">All Formats</option>
-            <option value="PDF">PDF PDF 📄</option>
-            <option value="Image">Images 🖼️</option>
-            <option value="Document">Word Doc 📝</option>
-            <option value="Spreadsheet">Spreadsheet 📊</option>
-            <option value="Archive">ZIP Archive 📦</option>
-            <option value="Other">Other attachments 📁</option>
+            <option value="">كل الصيغ والأنواع</option>
+            <option value="PDF">ملف PDF 📄</option>
+            <option value="Image">صور وثائقية 🖼️</option>
+            <option value="Document">مستند Word 📝</option>
+            <option value="Spreadsheet">جدول بيانات Excel 📊</option>
+            <option value="Archive">أرشيف مضغوط ZIP 📦</option>
+            <option value="Other">مرفقات أخرى 📁</option>
           </select>
         </div>
       </div>
@@ -376,15 +379,15 @@ export default function FilesManagerPage() {
       ) : error ? (
         <div className="c-card" style={{ borderColor: "var(--clr-error)", textAlign: "center", padding: "var(--sp-8)" }}>
           <p style={{ color: "var(--clr-error)", fontWeight: "var(--fw-medium)", marginBottom: "var(--sp-4)" }}>{error}</p>
-          <button onClick={fetchFiles} className="c-btn c-btn--secondary">Retry Loading</button>
+          <button onClick={fetchFiles} className="c-btn c-btn--secondary">إعادة المحاولة</button>
         </div>
       ) : files.length === 0 ? (
         <div className="c-card" style={{ textAlign: "center", padding: "var(--sp-12)", display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--sp-4)" }}>
           <FolderOpen size={48} style={{ color: "var(--clr-text-muted)" }} />
           <div>
-            <h3 style={{ fontSize: "var(--fs-h3)", marginBottom: "var(--sp-1)" }}>No files cataloged</h3>
+            <h3 style={{ fontSize: "var(--fs-h3)", marginBottom: "var(--sp-1)" }}>لا توجد ملفات مسجلة</h3>
             <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-              No active or archived attachments match these filters.
+              لا توجد أي مرفقات نشطة أو مؤرشفة تطابق خيارات التصفية الحالية.
             </p>
           </div>
         </div>
@@ -398,17 +401,17 @@ export default function FilesManagerPage() {
             boxShadow: "var(--shadow-md)"
           }}
         >
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "900px" }}>
+          <div className="c-table-container">
+            <table className="c-table" style={{ width: "100%", borderCollapse: "collapse", minWidth: "900px" }}>
               <thead>
                 <tr style={{ borderBottom: "2px solid var(--clr-border)", backgroundColor: "rgba(4, 13, 33, 0.4)" }}>
-                  <th style={{ textAlign: "left", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)", width: "60px" }}>Format</th>
-                  <th style={{ textAlign: "left", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>File Name</th>
-                  <th style={{ textAlign: "left", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Size</th>
-                  <th style={{ textAlign: "left", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Module Link</th>
-                  <th style={{ textAlign: "left", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Uploaded At</th>
-                  <th style={{ textAlign: "left", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>File Owner</th>
-                  <th style={{ textAlign: "center", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Actions</th>
+                  <th style={{ textAlign: "center", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)", width: "100px" }}>نوع الملف</th>
+                  <th style={{ textAlign: "right", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>اسم الملف</th>
+                  <th style={{ textAlign: "right", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)", width: "120px" }}>الحجم</th>
+                  <th style={{ textAlign: "right", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>الارتباط بالنظام</th>
+                  <th style={{ textAlign: "right", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>تاريخ الرفع</th>
+                  <th style={{ textAlign: "right", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>مالك الملف</th>
+                  <th style={{ textAlign: "center", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>الإجراءات</th>
                 </tr>
               </thead>
               <tbody>
@@ -436,10 +439,10 @@ export default function FilesManagerPage() {
                         {getCategoryIcon(file.category)}
                       </div>
                     </td>
-                    <td style={{ padding: "var(--sp-4)", fontWeight: "var(--fw-medium)" }}>
+                    <td style={{ padding: "var(--sp-4)", fontWeight: "var(--fw-medium)", textAlign: "right" }}>
                       <div style={{ fontSize: "var(--fs-body-sm)" }}>{file.fileName}</div>
                       {file.tags.length > 0 && (
-                        <div style={{ display: "flex", gap: "4px", flexWrap: "wrap", marginTop: "4px" }}>
+                        <div style={{ display: "flex", gap: "4px", flexWrap: "wrap", marginTop: "4px", justifyContent: "flex-start" }}>
                           {file.tags.map(t => (
                             <span 
                               key={t} 
@@ -461,27 +464,27 @@ export default function FilesManagerPage() {
                         </div>
                       )}
                     </td>
-                    <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)" }}>
+                    <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)", textAlign: "right" }}>
                       {formatBytes(file.fileSize)}
                     </td>
-                    <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)" }}>
+                    <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)", textAlign: "right" }}>
                       {file.relatedModule ? (
                         <span className="c-badge" style={{ backgroundColor: "rgba(4, 13, 33, 0.5)", textTransform: "none" }}>
-                          {file.relatedModule} Link
+                          {file.relatedModule === "Clients" ? "العملاء" : file.relatedModule === "Tasks" ? "المهام" : "الموظفين"}
                         </span>
                       ) : (
                         "-"
                       )}
                     </td>
-                    <td style={{ padding: "var(--sp-4)" }}>
+                    <td style={{ padding: "var(--sp-4)", textAlign: "right" }}>
                       <div style={{ fontWeight: "var(--fw-medium)" }}>
-                        {new Date(file.createdAt).toLocaleDateString()}
+                        {new Date(file.createdAt).toLocaleDateString("ar-EG")}
                       </div>
                     </td>
-                    <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)" }}>
+                    <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)", textAlign: "right" }}>
                       {file.owner 
                         ? `${file.owner.firstName} ${file.owner.lastName}` 
-                        : "Unassigned"}
+                        : "غير مسند"}
                     </td>
                     <td style={{ padding: "var(--sp-4)", textAlign: "center" }}>
                       <div style={{ display: "flex", gap: "var(--sp-2)", justifyContent: "center" }}>
@@ -489,7 +492,7 @@ export default function FilesManagerPage() {
                           onClick={() => setPreviewFile(file)}
                           className="c-btn c-btn--secondary"
                           style={{ padding: "var(--sp-2)" }}
-                          title="Preview File"
+                          title="معاينة الملف"
                         >
                           <Eye size={14} />
                         </button>
@@ -499,7 +502,7 @@ export default function FilesManagerPage() {
                           rel="noopener noreferrer"
                           className="c-btn c-btn--secondary"
                           style={{ padding: "var(--sp-2)", display: "inline-flex", alignItems: "center" }}
-                          title="Download File"
+                          title="تحميل الملف"
                         >
                           <Download size={14} />
                         </a>
@@ -507,7 +510,7 @@ export default function FilesManagerPage() {
                           onClick={() => handleToggleArchive(file)}
                           className="c-btn c-btn--secondary"
                           style={{ padding: "var(--sp-2)" }}
-                          title={file.archived ? "Restore File" : "Archive File"}
+                          title={file.archived ? "استعادة الملف" : "أرشفة الملف"}
                         >
                           {file.archived ? <RotateCcw size={14} /> : <Archive size={14} />}
                         </button>
@@ -515,7 +518,7 @@ export default function FilesManagerPage() {
                           href={`/dashboard/files/${file._id}`}
                           className="c-btn c-btn--secondary"
                           style={{ padding: "var(--sp-2)", display: "inline-flex", alignItems: "center" }}
-                          title="Audit Trail Details"
+                          title="سجل التدقيق والتغييرات"
                         >
                           <ExternalLink size={14} />
                         </Link>
@@ -523,7 +526,7 @@ export default function FilesManagerPage() {
                           onClick={() => handleDeleteFile(file._id)}
                           className="c-btn c-btn--secondary delete-btn-hover"
                           style={{ padding: "var(--sp-2)", borderColor: "rgba(229, 62, 62, 0.3)", color: "var(--clr-error)" }}
-                          title="Permanently Delete File"
+                          title="حذف الملف نهائياً"
                         >
                           <Trash2 size={14} />
                         </button>
@@ -568,18 +571,27 @@ export default function FilesManagerPage() {
           >
             <button 
               onClick={() => setIsUploadOpen(false)}
-              style={{ position: "absolute", top: "16px", right: "16px", background: "none", border: "none", color: "var(--clr-text-muted)", cursor: "pointer" }}
+              style={{
+                position: "absolute",
+                top: "16px",
+                right: isRtl ? "auto" : "16px",
+                left: isRtl ? "16px" : "auto",
+                background: "none",
+                border: "none",
+                color: "var(--clr-text-muted)",
+                cursor: "pointer"
+              }}
             >
               <X size={20} />
             </button>
 
-            <div style={{ marginBottom: "var(--sp-6)" }}>
+            <div style={{ marginBottom: "var(--sp-6)", textAlign: "right" }}>
               <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-text-primary)", display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
                 <FolderOpen size={20} style={{ color: "var(--clr-accent-primary)" }} />
-                <span>Upload Cloud File</span>
+                <span>رفع ملف سحابي جديد</span>
               </h2>
               <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-                Register documents or files on Vercel Blob cloud storage
+                تسجيل ورفع المستندات والملفات على مساحة التخزين السحابية الآمنة
               </p>
             </div>
 
@@ -592,66 +604,70 @@ export default function FilesManagerPage() {
                   borderRadius: "var(--radius-md)",
                   padding: "var(--sp-3) var(--sp-4)",
                   marginBottom: "var(--sp-4)",
-                  fontSize: "var(--fs-body-sm)"
+                  fontSize: "var(--fs-body-sm)",
+                  textAlign: "right"
                 }}
               >
                 {uploadError}
               </div>
             )}
 
-            <form onSubmit={handleUploadSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
+            <form onSubmit={handleUploadSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
               
               {/* File Input */}
               <div className="c-input">
-                <label className="c-input__label">Select File *</label>
+                <label className="c-input__label">اختر الملف *</label>
                 <input 
                   type="file" 
                   required
                   onChange={handleFileChange}
                   className="c-input__field"
-                  style={{ padding: "8px 12px" }}
+                  style={{ padding: "8px 12px", direction: "rtl", textAlign: "right" }}
                 />
               </div>
 
               {/* Tags */}
               <div className="c-input">
-                <label className="c-input__label">Tags (comma separated)</label>
+                <label className="c-input__label">الوسوم (مفصولة بفاصلة)</label>
                 <input 
                   type="text" 
-                  placeholder="e.g. invoice, q3, contract"
+                  placeholder="مثال: فاتورة، عقد، عرض_سعر"
                   value={tagsInput}
                   onChange={(e) => setTagsInput(e.target.value)}
                   className="c-input__field" 
+                  style={{ textAlign: "right" }}
                 />
               </div>
 
               {/* Related Module */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
                 <div className="c-input">
-                  <label className="c-input__label">Link Entity Module</label>
+                  <label className="c-input__label">ربط بالقسم / الكيان</label>
                   <select
                     value={relatedModule}
                     onChange={(e) => { setRelatedModule(e.target.value); setRelatedId(""); }}
                     className="c-input__field" 
+                    style={{ background: "var(--clr-bg-primary)" }}
                   >
-                    <option value="">-- Choose Module (None) --</option>
-                    <option value="Clients">Clients 👥</option>
-                    <option value="Tasks">Tasks 📋</option>
-                    <option value="Employees">Staff Employees 💼</option>
+                    <option value="">-- اختر القسم (لا يوجد ارتباط) --</option>
+                    <option value="Clients">العملاء 👥</option>
+                    <option value="Tasks">المهام 📋</option>
+                    <option value="Employees">الموظفين 💼</option>
                   </select>
                 </div>
 
                 {/* Related ID selection dynamic */}
                 {relatedModule && (
                   <div className="c-input">
-                    <label className="c-input__label">Select Target Link *</label>
+                    <label className="c-input__label">اختر الكيان المرتبط بالتحديد *</label>
                     <select
                       value={relatedId}
                       onChange={(e) => setRelatedId(e.target.value)}
                       className="c-input__field"
+                      style={{ background: "var(--clr-bg-primary)" }}
                       required
                     >
-                      <option value="">-- Choose Link --</option>
+                      <option value="">-- اختر الارتباط --</option>
                       {relatedModule === "Clients" && clients.map(c => (
                         <option key={c._id} value={c._id}>{c.firstName} {c.lastName}</option>
                       ))}
@@ -673,7 +689,7 @@ export default function FilesManagerPage() {
                   onClick={() => setIsUploadOpen(false)}
                   className="c-btn c-btn--secondary"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </button>
                 <button 
                   type="submit" 
@@ -682,7 +698,7 @@ export default function FilesManagerPage() {
                   style={{ minWidth: "120px", gap: "var(--sp-2)" }}
                 >
                   {uploadLoading ? <div className="btn-spinner" /> : null}
-                  <span>Upload File</span>
+                  <span>رفع وحفظ الملف</span>
                 </button>
               </div>
             </form>
@@ -726,12 +742,12 @@ export default function FilesManagerPage() {
           >
             {/* Header */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "var(--sp-4)", borderBottom: "1px solid var(--clr-border)", backgroundColor: "rgba(4, 13, 33, 0.4)" }}>
-              <div>
+              <div style={{ textAlign: "right" }}>
                 <h3 style={{ fontSize: "var(--fs-body-lg)", fontWeight: "var(--fw-bold)", margin: 0 }}>
-                  Preview: {previewFile.fileName}
+                  معاينة: {previewFile.fileName}
                 </h3>
                 <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>
-                  MIME Format: {previewFile.mimeType} | Size: {formatBytes(previewFile.fileSize)}
+                  صيغة الملف: {previewFile.mimeType} | الحجم: {formatBytes(previewFile.fileSize)}
                 </span>
               </div>
               <button 
@@ -762,9 +778,9 @@ export default function FilesManagerPage() {
                     {getCategoryIcon(previewFile.category)}
                   </div>
                   <div>
-                    <h4 style={{ marginBottom: "2px" }}>No visual browser preview available</h4>
+                    <h4 style={{ marginBottom: "2px" }}>لا تتوفر معاينة مرئية لهذا الملف في المتصفح</h4>
                     <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)", lineHeight: "1.4" }}>
-                      This file format cannot be rendered inline by the browser engine. Please download the document package locally to inspect contents.
+                      لا يمكن عرض صيغة هذا الملف مباشرة داخل نافذة المتصفح. يرجى تحميل ملف المستند محلياً لمعاينة محتوياته.
                     </p>
                   </div>
                   <a 
@@ -775,7 +791,7 @@ export default function FilesManagerPage() {
                     style={{ gap: "var(--sp-2)" }}
                   >
                     <Download size={16} />
-                    <span>Download File Package</span>
+                    <span>تحميل حزمة الملف</span>
                   </a>
                 </div>
               )}

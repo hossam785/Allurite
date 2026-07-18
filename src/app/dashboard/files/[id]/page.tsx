@@ -4,8 +4,10 @@ import React, { useEffect, useState, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../layout";
+import { useLanguage } from "@/context/LanguageContext";
 import { 
   ArrowLeft, 
+  ChevronRight,
   Clock, 
   Calendar, 
   User, 
@@ -60,6 +62,7 @@ export default function FileDetailPage({ params }: { params: Promise<{ id: strin
   const router = useRouter();
   const { id } = use(params);
   const { user: currentUser } = useAuth();
+  const { t, isRtl } = useLanguage();
   const isSuperAdmin = currentUser?.role === "SuperAdmin";
 
   const [file, setFile] = useState<FileDetail | null>(null);
@@ -180,7 +183,7 @@ export default function FileDetailPage({ params }: { params: Promise<{ id: strin
     return (
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyItems: "center", justifyContent: "center", minHeight: "80vh", gap: "var(--sp-4)" }}>
         <div style={{ width: "32px", height: "32px", border: "3px solid var(--clr-border)", borderTop: "3px solid var(--clr-accent-primary)", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
-        <span style={{ color: "var(--clr-text-muted)" }}>Loading file metadata properties...</span>
+        <span style={{ color: "var(--clr-text-muted)" }}>جاري تحميل تفاصيل وخصائص الملف...</span>
       </div>
     );
   }
@@ -190,7 +193,7 @@ export default function FileDetailPage({ params }: { params: Promise<{ id: strin
       <main style={{ flex: 1, padding: "var(--sp-8)" }}>
         <div className="c-card" style={{ borderColor: "var(--clr-error)", textAlign: "center", padding: "var(--sp-8)" }}>
           <p style={{ color: "var(--clr-error)", fontWeight: "var(--fw-medium)", marginBottom: "var(--sp-4)" }}>{error}</p>
-          <Link href="/dashboard/files" className="c-btn c-btn--secondary">Back to Files Manager</Link>
+          <Link href="/dashboard/files" className="c-btn c-btn--secondary">العودة لمدير الملفات</Link>
         </div>
       </main>
     );
@@ -207,8 +210,8 @@ export default function FileDetailPage({ params }: { params: Promise<{ id: strin
           style={{ display: "inline-flex", alignItems: "center", gap: "var(--sp-2)", color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}
           className="hover-bright"
         >
-          <ArrowLeft size={16} />
-          <span>Back to Files Manager</span>
+          {isRtl ? <ChevronRight size={16} /> : <ArrowLeft size={16} />}
+          <span>العودة لمدير الملفات</span>
         </Link>
       </div>
 
@@ -227,14 +230,14 @@ export default function FileDetailPage({ params }: { params: Promise<{ id: strin
             {file.fileName}
           </h1>
           <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)", display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
-            <span>Original Upload Name: {file.originalName}</span>
+            <span>اسم الملف الأصلي عند الرفع: {file.originalName}</span>
           </p>
         </div>
         <div>
           {file.archived ? (
-            <span className="c-badge c-badge--warning">Archived</span>
+            <span className="c-badge c-badge--warning">مؤرشف</span>
           ) : (
-            <span className="c-badge c-badge--success">Active</span>
+            <span className="c-badge c-badge--success">نشط</span>
           )}
         </div>
       </header>
@@ -245,42 +248,44 @@ export default function FileDetailPage({ params }: { params: Promise<{ id: strin
         {/* Left Column: Edit Form & Metadata Details */}
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-6)" }}>
           {/* Metadata Card */}
-          <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
+          <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
             <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-accent-primary)", borderBottom: "1px solid var(--clr-border)", paddingBottom: "var(--sp-2)" }}>
-              File Properties
+              خصائص الملف
             </h2>
 
             <div style={{ display: "grid", gridTemplateColumns: "150px 1fr", gap: "var(--sp-3)", fontSize: "var(--fs-body-sm)" }}>
-              <span style={{ color: "var(--clr-text-muted)" }}>Format Category:</span>
+              <span style={{ color: "var(--clr-text-muted)" }}>نوع وصيغة الملف:</span>
               <span style={{ fontWeight: "var(--fw-bold)" }}>{file.category}</span>
 
-              <span style={{ color: "var(--clr-text-muted)" }}>File Size:</span>
+              <span style={{ color: "var(--clr-text-muted)" }}>حجم الملف:</span>
               <span>{formatBytes(file.fileSize)}</span>
 
-              <span style={{ color: "var(--clr-text-muted)" }}>MIME Header:</span>
+              <span style={{ color: "var(--clr-text-muted)" }}>ترويسة MIME:</span>
               <span style={{ fontFamily: "monospace", fontSize: "11px" }}>{file.mimeType}</span>
 
-              <span style={{ color: "var(--clr-text-muted)" }}>Upload Date:</span>
-              <span>{new Date(file.createdAt).toLocaleString()}</span>
+              <span style={{ color: "var(--clr-text-muted)" }}>تاريخ الرفع:</span>
+              <span>{new Date(file.createdAt).toLocaleString("ar-EG")}</span>
 
-              <span style={{ color: "var(--clr-text-muted)" }}>Uploader:</span>
+              <span style={{ color: "var(--clr-text-muted)" }}>قام بالرفع:</span>
               <span>{file.uploadedEmail}</span>
 
-              <span style={{ color: "var(--clr-text-muted)" }}>File Owner:</span>
+              <span style={{ color: "var(--clr-text-muted)" }}>مالك الملف:</span>
               <span>{file.owner?.firstName} {file.owner?.lastName}</span>
 
               {file.relatedModule && (
                 <>
-                  <span style={{ color: "var(--clr-text-muted)" }}>Bound Module:</span>
-                  <span>{file.relatedModule} (Link ID: {file.relatedId?.toString()})</span>
+                  <span style={{ color: "var(--clr-text-muted)" }}>الارتباط بالنظام:</span>
+                  <span>
+                    {file.relatedModule === "Clients" ? "العملاء" : file.relatedModule === "Tasks" ? "المهام" : "الموظفين"} (رقم الكيان: {file.relatedId?.toString()})
+                  </span>
                 </>
               )}
             </div>
           </section>
 
           {/* Edit Form */}
-          <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
-            <h3 style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-accent-primary)" }}>Update File Settings</h3>
+          <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
+            <h3 style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-accent-primary)", borderBottom: "1px solid var(--clr-border)", paddingBottom: "var(--sp-2)" }}>تحديث إعدادات الملف</h3>
 
             {updateError && (
               <div style={{ color: "var(--clr-error)", fontSize: "var(--fs-body-sm)", backgroundColor: "rgba(229,62,62,0.12)", border: "1px solid var(--clr-error)", padding: "var(--sp-2)", borderRadius: "var(--radius-sm)" }}>
@@ -291,30 +296,32 @@ export default function FileDetailPage({ params }: { params: Promise<{ id: strin
             {updateSuccess && (
               <div style={{ color: "var(--clr-success)", fontSize: "var(--fs-body-sm)", backgroundColor: "rgba(56,161,105,0.12)", border: "1px solid var(--clr-success)", padding: "var(--sp-2)", borderRadius: "var(--radius-sm)", display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
                 <CheckCircle2 size={14} />
-                <span>{updateSuccess}</span>
+                <span>تم تحديث تفاصيل الملف بنجاح!</span>
               </div>
             )}
 
             <form onSubmit={handleUpdateSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
               <div className="c-input">
-                <label className="c-input__label">File Display Name *</label>
+                <label className="c-input__label">اسم عرض الملف *</label>
                 <input 
                   type="text" 
                   required
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   className="c-input__field"
+                  style={{ textAlign: "right" }}
                 />
               </div>
 
               <div className="c-input">
-                <label className="c-input__label">Tags (comma separated)</label>
+                <label className="c-input__label">الوسوم (مفصولة بفاصلة)</label>
                 <input 
                   type="text" 
                   value={tagsInput}
                   onChange={(e) => setTagsInput(e.target.value)}
                   className="c-input__field"
-                  placeholder="e.g. invoice, report, doc"
+                  placeholder="مثال: فاتورة، عقد، وثيقة"
+                  style={{ textAlign: "right" }}
                 />
               </div>
 
@@ -328,7 +335,7 @@ export default function FileDetailPage({ params }: { params: Promise<{ id: strin
                   style={{ gap: "var(--sp-2)", display: "inline-flex", alignItems: "center" }}
                 >
                   <Download size={16} />
-                  <span>Download file</span>
+                  <span>تحميل الملف</span>
                 </a>
 
                 <button 
@@ -338,7 +345,7 @@ export default function FileDetailPage({ params }: { params: Promise<{ id: strin
                   style={{ gap: "var(--sp-2)" }}
                 >
                   {file.archived ? <RotateCcw size={16} /> : <Archive size={16} />}
-                  <span>{file.archived ? "Restore File" : "Archive File"}</span>
+                  <span>{file.archived ? "استعادة الملف" : "أرشفة الملف"}</span>
                 </button>
 
                 <button 
@@ -348,17 +355,17 @@ export default function FileDetailPage({ params }: { params: Promise<{ id: strin
                   style={{ borderColor: "rgba(229, 62, 62, 0.4)", color: "var(--clr-error)", gap: "var(--sp-2)" }}
                 >
                   <Trash2 size={16} />
-                  <span>Delete File</span>
+                  <span>حذف الملف</span>
                 </button>
 
                 <button
                   type="submit"
                   disabled={updateLoading}
                   className="c-btn c-btn--primary"
-                  style={{ gap: "var(--sp-2)", marginLeft: "auto", minWidth: "110px" }}
+                  style={{ gap: "var(--sp-2)", marginRight: "auto", marginLeft: "0", minWidth: "110px" }}
                 >
                   {updateLoading ? <div className="btn-spinner" /> : <Save size={16} />}
-                  <span>Save</span>
+                  <span>حفظ</span>
                 </button>
               </div>
             </form>
@@ -366,19 +373,19 @@ export default function FileDetailPage({ params }: { params: Promise<{ id: strin
         </div>
 
         {/* Right Column: Activity log timeline */}
-        <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-5)" }}>
+        <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-5)", textAlign: "right" }}>
           <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-accent-primary)", borderBottom: "1px solid var(--clr-border)", paddingBottom: "var(--sp-2)", display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
             <History size={18} />
-            <span>File Activity History ({file.activityLogs.length})</span>
+            <span>سجل العمليات التاريخي للملف ({file.activityLogs.length})</span>
           </h2>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", paddingLeft: "var(--sp-2)", overflowY: "auto", maxHeight: "600px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", paddingRight: "var(--sp-2)", overflowY: "auto", maxHeight: "600px" }}>
             {[...file.activityLogs].reverse().map((log, index) => (
               <div 
                 key={index}
                 style={{
-                  borderLeft: "2px solid var(--clr-border)",
-                  paddingLeft: "var(--sp-4)",
+                  borderRight: "2px solid var(--clr-border)",
+                  paddingRight: "var(--sp-4)",
                   position: "relative",
                   paddingBottom: "var(--sp-3)"
                 }}
@@ -387,7 +394,7 @@ export default function FileDetailPage({ params }: { params: Promise<{ id: strin
                 <div
                   style={{
                     position: "absolute",
-                    left: "-7px",
+                    right: "-7px",
                     top: "4px",
                     width: "12px",
                     height: "12px",
@@ -405,10 +412,10 @@ export default function FileDetailPage({ params }: { params: Promise<{ id: strin
 
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "10px" }}>
                   <span style={{ fontWeight: "var(--fw-bold)", color: "var(--clr-text-primary)" }}>
-                    Action: {log.action}
+                    العملية: {log.action === "Upload" ? "رفع الملف" : log.action === "Rename" ? "إعادة تسمية" : log.action === "Archive" ? "أرشفة" : log.action === "Restore" ? "استعادة" : "حذف"}
                   </span>
                   <span style={{ color: "var(--clr-text-muted)" }}>
-                    {new Date(log.performedAt).toLocaleString()}
+                    {new Date(log.performedAt).toLocaleString("ar-EG")}
                   </span>
                 </div>
                 {log.details && (
@@ -416,8 +423,8 @@ export default function FileDetailPage({ params }: { params: Promise<{ id: strin
                     {log.details}
                   </p>
                 )}
-                <div style={{ fontSize: "9px", color: "var(--clr-text-muted)", textAlign: "right" }}>
-                  By: {log.performedEmail}
+                <div style={{ fontSize: "9px", color: "var(--clr-text-muted)", marginTop: "4px", textAlign: "left" }}>
+                  بواسطة: {log.performedEmail}
                 </div>
               </div>
             ))}
