@@ -108,6 +108,7 @@ export default function DashboardPage() {
   
   // Dashboard Metrics & Streams State
   const [kpis, setKpis] = useState<KPIData | null>(null);
+  const [chartsData, setChartsData] = useState<any>(null);
   const [recentClients, setRecentClients] = useState<Client[]>([]);
   const [recentTasks, setRecentTasks] = useState<Task[]>([]);
   const [recentFollowups, setRecentFollowups] = useState<FollowUp[]>([]);
@@ -143,6 +144,7 @@ export default function DashboardPage() {
         if (reportsRes.ok) {
           const reportsJson = await reportsRes.json();
           setKpis(reportsJson.data?.kpis || null);
+          setChartsData(reportsJson.data?.chartsData || null);
         }
 
         // 2. Fetch recent clients
@@ -243,11 +245,11 @@ export default function DashboardPage() {
 
   // Safe fallback KPI values if API fails/loads
   const defaultKPIs: KPIData = {
-    avgProductivityScore: 92.5,
-    totalEmployeesCount: 8,
+    avgProductivityScore: 0,
+    totalEmployeesCount: 0,
     tasks: { total: 0, completed: 0, pending: 0, inProgress: 0, overdue: 0 },
     followups: { total: 0, completed: 0, scheduled: 0, pending: 0, missed: 0, overdue: 0 },
-    clients: { total: 0, active: 0, inactive: 0, pending: 0, conversionRate: 85 }
+    clients: { total: 0, active: 0, inactive: 0, pending: 0, conversionRate: 0 }
   };
 
   const activeKPIs = kpis || defaultKPIs;
@@ -255,11 +257,11 @@ export default function DashboardPage() {
   // Calculative Performance Rates
   const taskCompletionRate = activeKPIs.tasks.total > 0 
     ? Math.round((activeKPIs.tasks.completed / activeKPIs.tasks.total) * 100)
-    : 78; // Fallback or mock default
+    : 0;
 
   const followupSuccessRate = activeKPIs.followups.total > 0
     ? Math.round((activeKPIs.followups.completed / activeKPIs.followups.total) * 100)
-    : 84; // Fallback or mock default
+    : 0;
 
   return (
     <main style={{ flex: 1, padding: "var(--sp-8)", overflowY: "auto", display: "flex", flexDirection: "column", gap: "var(--sp-6)" }}>
@@ -643,38 +645,46 @@ export default function DashboardPage() {
                 <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-3)" }}>
                   <span style={{ fontSize: "11px", color: "var(--clr-text-muted)" }}>أهم قنوات استقطاب العملاء</span>
                   
-                  {/* Source 1: Google Search */}
-                  <div>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", marginBottom: "3px" }}>
-                      <span>45%</span>
-                      <span>البحث المباشر (Google)</span>
-                    </div>
-                    <div style={{ width: "100%", height: "4px", backgroundColor: "var(--clr-border)", borderRadius: "2px" }}>
-                      <div style={{ width: "45%", height: "100%", backgroundColor: "var(--clr-accent-primary)", borderRadius: "2px" }} />
-                    </div>
-                  </div>
+                  {(() => {
+                    const totalSources = chartsData?.sources?.reduce((acc: number, curr: any) => acc + curr.value, 0) || 0;
+                    
+                    if (chartsData?.sources && chartsData.sources.length > 0) {
+                      return chartsData.sources.map((src: any, index: number) => {
+                        const pct = totalSources > 0 ? Math.round((src.value / totalSources) * 100) : 0;
+                        const colors = ["var(--clr-accent-primary)", "var(--clr-success)", "#805ad5", "#319795", "var(--clr-warning)"];
+                        const barColor = colors[index % colors.length];
 
-                  {/* Source 2: Referral */}
-                  <div>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", marginBottom: "3px" }}>
-                      <span>35%</span>
-                      <span>إحالات وتوصيات مباشرة</span>
-                    </div>
-                    <div style={{ width: "100%", height: "4px", backgroundColor: "var(--clr-border)", borderRadius: "2px" }}>
-                      <div style={{ width: "35%", height: "100%", backgroundColor: "var(--clr-success)", borderRadius: "2px" }} />
-                    </div>
-                  </div>
+                        const translateSource = (name: string) => {
+                          const mapping: Record<string, string> = {
+                            "Google": "البحث المباشر (Google)",
+                            "Social": "شبكات التواصل الاجتماعي",
+                            "Referral": "إحالة صديق / توصية",
+                            "Other": "أخرى / غير محدد",
+                            "Website": "الموقع الإلكتروني"
+                          };
+                          return mapping[name] || name;
+                        };
 
-                  {/* Source 3: Social Media */}
-                  <div>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", marginBottom: "3px" }}>
-                      <span>20%</span>
-                      <span>حملات التواصل الاجتماعي</span>
-                    </div>
-                    <div style={{ width: "100%", height: "4px", backgroundColor: "var(--clr-border)", borderRadius: "2px" }}>
-                      <div style={{ width: "20%", height: "100%", backgroundColor: "#805ad5", borderRadius: "2px" }} />
-                    </div>
-                  </div>
+                        return (
+                          <div key={src.name}>
+                            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", marginBottom: "3px" }}>
+                              <span>{pct}% ({src.value})</span>
+                              <span>{translateSource(src.name)}</span>
+                            </div>
+                            <div style={{ width: "100%", height: "4px", backgroundColor: "var(--clr-border)", borderRadius: "2px" }}>
+                              <div style={{ width: `${pct}%`, height: "100%", backgroundColor: barColor, borderRadius: "2px" }} />
+                            </div>
+                          </div>
+                        );
+                      });
+                    }
+
+                    return (
+                      <div style={{ fontSize: "11px", color: "var(--clr-text-muted)", textAlign: "center", padding: "var(--sp-4)" }}>
+                        لا توجد بيانات قنوات استقطاب مسجلة حالياً.
+                      </div>
+                    );
+                  })()}
                 </div>
 
               </div>
