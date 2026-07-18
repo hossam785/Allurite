@@ -1,0 +1,166 @@
+"use client";
+
+import React, { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { LanguageProvider, useLanguage } from "@/context/LanguageContext";
+
+function LoginFormContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect") || "/dashboard";
+  const { t } = useLanguage();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState<{ email?: string; password?: string; form?: string }>({});
+  const [loading, setLoading] = useState(false);
+
+  const validate = () => {
+    const newErrors: typeof errors = {};
+    if (!email) {
+      newErrors.email = t("auth.email_label");
+    } else if (!/^\S+@\S+\.\S+$/.test(email)) {
+      newErrors.email = t("auth.invalid_credentials");
+    }
+    if (!password) {
+      newErrors.password = t("auth.password_label");
+    } else if (password.length < 6) {
+      newErrors.password = t("auth.invalid_credentials");
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrors({});
+    if (!validate()) return;
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/v1/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const json = await res.json();
+      if (!res.ok) {
+        setErrors({
+          form: json.error?.message || t("auth.invalid_credentials"),
+        });
+      } else {
+        router.push(redirect);
+        router.refresh();
+      }
+    } catch (err) {
+      setErrors({ form: t("auth.invalid_credentials") });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="c-card c-card--glow" style={{ width: "100%", maxWidth: "420px" }}>
+      <div style={{ textAlign: "center", marginBottom: "var(--sp-6)" }}>
+        {/* Brand Logo Symbol */}
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "56px",
+            height: "56px",
+            borderRadius: "var(--radius-lg)",
+            border: "2px solid var(--clr-accent-primary)",
+            boxShadow: "var(--shadow-glow-accent)",
+            marginBottom: "var(--sp-4)",
+            background: "rgba(0, 210, 255, 0.05)",
+          }}
+        >
+          {/* Cyan Triangle Maze logo mark */}
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--clr-accent-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 20h18L12 4z" />
+            <path d="M12 9v4h-3" />
+          </svg>
+        </div>
+        <h1 style={{ fontSize: "var(--fs-h2)", color: "var(--clr-text-primary)", marginBottom: "var(--sp-1)" }}>
+          Allurite
+        </h1>
+        <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
+          {t("auth.title")}
+        </p>
+      </div>
+
+      {errors.form && (
+        <div
+          style={{
+            backgroundColor: "rgba(229, 62, 62, 0.15)",
+            border: "1px solid var(--clr-error)",
+            borderRadius: "var(--radius-md)",
+            color: "var(--clr-error)",
+            padding: "var(--sp-3) var(--sp-4)",
+            fontSize: "var(--fs-body-sm)",
+            marginBottom: "var(--sp-4)",
+            fontWeight: "var(--fw-medium)",
+          }}
+        >
+          {errors.form}
+        </div>
+      )}
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", marginBottom: "var(--sp-6)" }}>
+        <div className="c-input">
+          <label className="c-input__label">{t("auth.email_label")}</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={loading}
+            className={`c-input__field ${errors.email ? "c-input__field--error" : ""}`}
+            placeholder="name@allurite.com"
+          />
+          {errors.email && <span className="c-input__error-msg">{errors.email}</span>}
+        </div>
+
+        <div className="c-input">
+          <label className="c-input__label">{t("auth.password_label")}</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={loading}
+            className={`c-input__field ${errors.password ? "c-input__field--error" : ""}`}
+            placeholder="••••••••"
+          />
+          {errors.password && <span className="c-input__error-msg">{errors.password}</span>}
+        </div>
+      </div>
+
+      <button type="submit" disabled={loading} className="c-btn c-btn--primary" style={{ width: "100%" }}>
+        {loading ? t("auth.loading_session") : t("auth.login_btn")}
+      </button>
+    </form>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <LanguageProvider>
+      <main
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "100vh",
+          padding: "var(--sp-4)",
+          background: "radial-gradient(circle at center, #0a1f4d 0%, var(--clr-bg-primary) 70%)",
+        }}
+      >
+        <Suspense fallback={<div style={{ color: "var(--clr-text-muted)" }}>Loading components...</div>}>
+          <LoginFormContent />
+        </Suspense>
+      </main>
+    </LanguageProvider>
+  );
+}
