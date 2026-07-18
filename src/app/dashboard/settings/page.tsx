@@ -510,12 +510,11 @@ export default function SettingsDashboardPage() {
                     <label className="c-input__label">{t("settings_view.language")}</label>
                     <select 
                       value={settingsForm.language}
-                      onChange={(e) => setSettingsForm(p => ({ ...p, language: e.target.value }))}
+                      onChange={(e) => setSettingsForm(p => ({ ...p, language: "ar" }))}
                       className="c-input__field"
                       style={{ background: "var(--clr-bg-primary)" }}
                     >
-                      <option value="en">English (US)</option>
-                      <option value="ar">العربية</option>
+                      <option value="ar">العربية (افتراضية النظام)</option>
                     </select>
                   </div>
 
