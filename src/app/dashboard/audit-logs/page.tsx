@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../layout";
+import { useLanguage } from "@/context/LanguageContext";
 import { 
   ShieldAlert, 
   History, 
@@ -39,6 +40,7 @@ interface AuditLog {
 
 export default function AuditLogsPage() {
   const { user: currentUser } = useAuth();
+  const { t, isRtl } = useLanguage();
   const isSuperAdmin = currentUser?.role === "SuperAdmin";
 
   // Tab State
@@ -209,10 +211,10 @@ export default function AuditLogsPage() {
         <ServerCrash size={48} style={{ color: "var(--clr-error)" }} />
         <div style={{ textAlign: "center" }}>
           <h2 style={{ fontSize: "var(--fs-h2)", color: "var(--clr-text-primary)", marginBottom: "var(--sp-1)" }}>
-            Access Denied (403 Forbidden)
+            تم رفض الوصول (403 غير مسموح)
           </h2>
           <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-            Only System Super Administrators are authorized to view security audit logs and event tracking dashboards.
+            المشرفين العامين على النظام فقط مخول لهم بالاطلاع على سجلات التدقيق والمتابعة الأمنية للنظام.
           </p>
         </div>
       </main>
@@ -223,18 +225,18 @@ export default function AuditLogsPage() {
     <main style={{ flex: 1, padding: "var(--sp-8)", overflowY: "auto", display: "flex", flexDirection: "column", gap: "var(--sp-6)" }}>
       
       {/* Search and Filters panel */}
-      <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
+      <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
         <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr", gap: "var(--sp-4)" }}>
           
           <div style={{ position: "relative" }}>
-            <Search size={15} style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--clr-text-muted)" }} />
+            <Search size={15} style={{ position: "absolute", right: isRtl ? "12px" : "auto", left: isRtl ? "auto" : "12px", top: "50%", transform: "translateY(-50%)", color: "var(--clr-text-muted)" }} />
             <input 
               type="text" 
-              placeholder="Search actions, emails, details..."
+              placeholder="ابحث في العمليات، البريد الإلكتروني، التفاصيل..."
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1); }}
               className="c-input__field"
-              style={{ paddingLeft: "36px" }}
+              style={{ paddingRight: isRtl ? "36px" : "12px", paddingLeft: isRtl ? "12px" : "36px", textAlign: "right" }}
             />
           </div>
 
@@ -245,15 +247,15 @@ export default function AuditLogsPage() {
               className="c-input__field"
               style={{ background: "var(--clr-bg-primary)" }}
             >
-              <option value="">-- All Entities --</option>
-              <option value="User">User Account</option>
-              <option value="Employee">Employee Profile</option>
-              <option value="Client">Client Portfolio</option>
-              <option value="Follow-Up">Follow-Up Schedule</option>
-              <option value="Task">Task Board</option>
-              <option value="File">Storage File</option>
-              <option value="Backup">Database Backup</option>
-              <option value="Settings">System Settings</option>
+              <option value="">-- كل الكيانات --</option>
+              <option value="User">حساب مستخدم</option>
+              <option value="Employee">ملف موظف</option>
+              <option value="Client">ملف عميل</option>
+              <option value="Follow-Up">جدول متابعة</option>
+              <option value="Task">لوحة المهام</option>
+              <option value="File">ملف مرفق</option>
+              <option value="Backup">نسخة احتياطية</option>
+              <option value="Settings">إعدادات النظام</option>
             </select>
           </div>
 
@@ -265,31 +267,33 @@ export default function AuditLogsPage() {
               style={{ background: "var(--clr-bg-primary)" }}
               disabled={activeTab === "security"}
             >
-              <option value="">-- All Severities --</option>
-              <option value="Low">Low</option>
-              <option value="Medium">Medium</option>
-              <option value="High">High</option>
-              <option value="Critical">Critical</option>
+              <option value="">-- كل المستويات --</option>
+              <option value="Low">منخفضة</option>
+              <option value="Medium">متوسطة</option>
+              <option value="High">مرتفعة</option>
+              <option value="Critical">حرجة</option>
             </select>
           </div>
 
           <div>
             <input
               type="date"
-              placeholder="Start Date"
+              placeholder="تاريخ البدء"
               value={startDate}
               onChange={(e) => { setStartDate(e.target.value); setPage(1); }}
               className="c-input__field"
+              style={{ textAlign: "left", direction: "ltr" }}
             />
           </div>
 
           <div>
             <input
               type="date"
-              placeholder="End Date"
+              placeholder="تاريخ الانتهاء"
               value={endDate}
               onChange={(e) => { setEndDate(e.target.value); setPage(1); }}
               className="c-input__field"
+              style={{ textAlign: "left", direction: "ltr" }}
             />
           </div>
         </div>
@@ -298,19 +302,19 @@ export default function AuditLogsPage() {
           <div style={{ display: "flex", gap: "var(--sp-4)" }}>
             <input
               type="text"
-              placeholder="Filter by email: e.g. admin@..."
+              placeholder="البحث بالبريد الإلكتروني..."
               value={userEmail}
               onChange={(e) => { setUserEmail(e.target.value); setPage(1); }}
               className="c-input__field"
-              style={{ width: "240px", height: "32px", fontSize: "12px" }}
+              style={{ width: "240px", height: "32px", fontSize: "12px", textAlign: "right" }}
             />
             <input
               type="text"
-              placeholder="Filter by action: e.g. AUTH_LOGIN..."
+              placeholder="البحث بنوع العملية..."
               value={action}
               onChange={(e) => { setAction(e.target.value); setPage(1); }}
               className="c-input__field"
-              style={{ width: "240px", height: "32px", fontSize: "12px" }}
+              style={{ width: "240px", height: "32px", fontSize: "12px", textAlign: "right" }}
             />
           </div>
 
@@ -321,7 +325,7 @@ export default function AuditLogsPage() {
               style={{ padding: "6px 12px", fontSize: "11px", gap: "4px" }}
             >
               <Sliders size={13} />
-              <span>Reset Filters</span>
+              <span>إعادة تعيين الفلاتر</span>
             </button>
             <button 
               onClick={handleExportCSV}
@@ -330,7 +334,7 @@ export default function AuditLogsPage() {
               style={{ padding: "6px 12px", fontSize: "11px", gap: "4px" }}
             >
               <Download size={13} />
-              <span>Export CSV</span>
+              <span>تصدير CSV</span>
             </button>
           </div>
         </div>
@@ -343,28 +347,28 @@ export default function AuditLogsPage() {
           className={`tab-btn-header ${activeTab === "overview" ? "active" : ""}`}
         >
           <TrendingUp size={15} />
-          <span>Dashboard Overview</span>
+          <span>نظرة عامة على لوحة التحكم</span>
         </button>
         <button 
           onClick={() => { setActiveTab("timeline"); handleResetFilters(); }}
           className={`tab-btn-header ${activeTab === "timeline" ? "active" : ""}`}
         >
           <History size={15} />
-          <span>Activity Timeline</span>
+          <span>الخط الزمني للأنشطة</span>
         </button>
         <button 
           onClick={() => { setActiveTab("user"); handleResetFilters(); }}
           className={`tab-btn-header ${activeTab === "user" ? "active" : ""}`}
         >
           <User size={15} />
-          <span>User Activity Explorer</span>
+          <span>مستكشف أنشطة المستخدمين</span>
         </button>
         <button 
           onClick={() => { setActiveTab("security"); handleResetFilters(); }}
           className={`tab-btn-header ${activeTab === "security" ? "active" : ""}`}
         >
           <ShieldAlert size={15} />
-          <span>Security Audit Log</span>
+          <span>سجل التدقيق الأمني</span>
         </button>
 
         <style jsx>{`
@@ -399,98 +403,107 @@ export default function AuditLogsPage() {
       {activeTab === "overview" && (
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-6)" }}>
           {/* Stats grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "var(--sp-6)" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "var(--sp-6)", textAlign: "right" }}>
             <div className="c-card c-card--glow">
-              <span style={{ fontSize: "10px", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>TOTAL EVENTS MONITORED</span>
-              <span style={{ fontSize: "28px", fontWeight: "var(--fw-bold)", display: "block", marginTop: "4px" }}>{stats.total} Logs</span>
+              <span style={{ fontSize: "10px", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>إجمالي العمليات المراقبة</span>
+              <span style={{ fontSize: "28px", fontWeight: "var(--fw-bold)", display: "block", marginTop: "4px" }}>{stats.total} سجل</span>
             </div>
 
             <div className="c-card c-card--glow" style={{ borderColor: "rgba(229, 62, 62, 0.4)" }}>
-              <span style={{ fontSize: "10px", color: "var(--clr-error)", fontWeight: "var(--fw-bold)" }}>CRITICAL ANOMALIES</span>
-              <span style={{ fontSize: "28px", fontWeight: "var(--fw-bold)", display: "block", marginTop: "4px", color: "var(--clr-error)" }}>{stats.critical} Alerts</span>
+              <span style={{ fontSize: "10px", color: "var(--clr-error)", fontWeight: "var(--fw-bold)" }}>تنبيهات أمنية حرجة</span>
+              <span style={{ fontSize: "28px", fontWeight: "var(--fw-bold)", display: "block", marginTop: "4px", color: "var(--clr-error)" }}>{stats.critical} تنبيه</span>
             </div>
 
             <div className="c-card c-card--glow" style={{ borderColor: "rgba(221, 107, 32, 0.4)" }}>
-              <span style={{ fontSize: "10px", color: "#DD6B20", fontWeight: "var(--fw-bold)" }}>HIGH SEVERITY ACTIONS</span>
-              <span style={{ fontSize: "28px", fontWeight: "var(--fw-bold)", display: "block", marginTop: "4px", color: "#DD6B20" }}>{stats.high} Events</span>
+              <span style={{ fontSize: "10px", color: "#DD6B20", fontWeight: "var(--fw-bold)" }}>عمليات عالية الأهمية</span>
+              <span style={{ fontSize: "28px", fontWeight: "var(--fw-bold)", display: "block", marginTop: "4px", color: "#DD6B20" }}>{stats.high} حدث</span>
             </div>
 
             <div className="c-card c-card--glow">
-              <span style={{ fontSize: "10px", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>ACTIVE ADMINS/USERS</span>
-              <span style={{ fontSize: "28px", fontWeight: "var(--fw-bold)", display: "block", marginTop: "4px" }}>{stats.uniqueUsers} Users</span>
+              <span style={{ fontSize: "10px", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>المشرفين والمستخدمين النشطين</span>
+              <span style={{ fontSize: "28px", fontWeight: "var(--fw-bold)", display: "block", marginTop: "4px" }}>{stats.uniqueUsers} مستخدم</span>
             </div>
           </div>
 
           {/* Quick list of critical events */}
-          <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
+          <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
             <div style={{ borderBottom: "1px solid var(--clr-border)", paddingBottom: "var(--sp-2)" }}>
-              <h3 style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-accent-primary)", margin: 0 }}>Recent Activity Stream</h3>
+              <h3 style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-accent-primary)", margin: 0 }}>شريط العمليات الأخير</h3>
             </div>
             
             <div style={{ border: "1px solid var(--clr-border)", borderRadius: "var(--radius-md)", overflow: "hidden" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ backgroundColor: "rgba(4, 13, 33, 0.4)", borderBottom: "1px solid var(--clr-border)", fontSize: "11px", color: "var(--clr-text-muted)" }}>
-                    <th style={{ textAlign: "left", padding: "10px var(--sp-3)" }}>Severity</th>
-                    <th style={{ textAlign: "left", padding: "10px var(--sp-3)" }}>Action Code</th>
-                    <th style={{ textAlign: "left", padding: "10px var(--sp-3)" }}>User Email</th>
-                    <th style={{ textAlign: "left", padding: "10px var(--sp-3)" }}>Details</th>
-                    <th style={{ textAlign: "left", padding: "10px var(--sp-3)" }}>IP / Client Agent</th>
-                    <th style={{ textAlign: "right", padding: "10px var(--sp-3)" }}>Timestamp</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {loading ? (
-                    <tr>
-                      <td colSpan={6} style={{ padding: "var(--sp-8)", textAlign: "center", color: "var(--clr-text-muted)" }}>
-                        Loading overview telemetry stream...
-                      </td>
+              <div className="c-table-container">
+                <table className="c-table" style={{ width: "100%", borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr style={{ backgroundColor: "rgba(4, 13, 33, 0.4)", borderBottom: "2px solid var(--clr-border)", fontSize: "11px", color: "var(--clr-text-muted)" }}>
+                      <th style={{ textAlign: "right", padding: "10px var(--sp-3)" }}>مستوى الخطورة</th>
+                      <th style={{ textAlign: "right", padding: "10px var(--sp-3)" }}>رمز العملية</th>
+                      <th style={{ textAlign: "right", padding: "10px var(--sp-3)" }}>البريد الإلكتروني</th>
+                      <th style={{ textAlign: "right", padding: "10px var(--sp-3)" }}>التفاصيل</th>
+                      <th style={{ textAlign: "right", padding: "10px var(--sp-3)" }}>عنوان IP / المتصفح</th>
+                      <th style={{ textAlign: "left", padding: "10px var(--sp-3)" }}>التاريخ والوقت</th>
                     </tr>
-                  ) : logs.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} style={{ padding: "var(--sp-8)", textAlign: "center", color: "var(--clr-text-muted)" }}>
-                        No audit logs captured.
-                      </td>
-                    </tr>
-                  ) : (
-                    logs.map(log => {
-                      const sev = getSeverityStyle(log.severity);
-                      return (
-                        <tr key={log._id} style={{ borderBottom: "1px solid var(--clr-border)", fontSize: "12px" }}>
-                          <td style={{ padding: "10px var(--sp-3)" }}>
-                            <span 
-                              style={{ 
-                                display: "inline-block", 
-                                color: sev.color, 
-                                backgroundColor: sev.bg, 
-                                border: sev.border,
-                                padding: "2px 6px",
-                                borderRadius: "4px",
-                                fontSize: "10px",
-                                fontWeight: "bold"
-                              }}
-                            >
-                              {log.severity}
-                            </span>
-                          </td>
-                          <td style={{ padding: "10px var(--sp-3)" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                              {getActionIcon(log.action)}
-                              <span>{log.action}</span>
-                            </div>
-                          </td>
-                          <td style={{ padding: "10px var(--sp-3)", color: "var(--clr-text-muted)" }}>{log.performedEmail}</td>
-                          <td style={{ padding: "10px var(--sp-3)", color: "var(--clr-text-primary)" }}>{log.details || "-"}</td>
-                          <td style={{ padding: "10px var(--sp-3)", color: "var(--clr-text-muted)", fontSize: "11px" }}>
-                            <strong>{log.ipAddress}</strong> <span style={{ opacity: 0.7 }}>({log.deviceInfo?.split(" ")[0]})</span>
-                          </td>
-                          <td style={{ padding: "10px var(--sp-3)", textAlign: "right", color: "var(--clr-text-muted)" }}>{new Date(log.createdAt).toLocaleString()}</td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {loading ? (
+                      <tr>
+                        <td colSpan={6} style={{ padding: "var(--sp-8)", textAlign: "center", color: "var(--clr-text-muted)" }}>
+                          جاري تحميل سجلات التدقيق والنظام...
+                        </td>
+                      </tr>
+                    ) : logs.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} style={{ padding: "var(--sp-8)", textAlign: "center", color: "var(--clr-text-muted)" }}>
+                          لم يتم تسجيل أي عمليات حالياً.
+                        </td>
+                      </tr>
+                    ) : (
+                      logs.map(log => {
+                        const sev = getSeverityStyle(log.severity);
+                        
+                        let severityLabel: string = log.severity;
+                        if (log.severity === "Low") severityLabel = "منخفضة";
+                        else if (log.severity === "Medium") severityLabel = "متوسطة";
+                        else if (log.severity === "High") severityLabel = "مرتفعة";
+                        else if (log.severity === "Critical") severityLabel = "حرجة";
+
+                        return (
+                          <tr key={log._id} style={{ borderBottom: "1px solid var(--clr-border)", fontSize: "12px" }}>
+                            <td style={{ padding: "10px var(--sp-3)", textAlign: "right" }}>
+                              <span 
+                                style={{ 
+                                  display: "inline-block", 
+                                  color: sev.color, 
+                                  backgroundColor: sev.bg, 
+                                  border: sev.border,
+                                  padding: "2px 6px",
+                                  borderRadius: "4px",
+                                  fontSize: "10px",
+                                  fontWeight: "bold"
+                                }}
+                              >
+                                {severityLabel}
+                              </span>
+                            </td>
+                            <td style={{ padding: "10px var(--sp-3)", textAlign: "right" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                {getActionIcon(log.action)}
+                                <span>{log.action}</span>
+                              </div>
+                            </td>
+                            <td style={{ padding: "10px var(--sp-3)", color: "var(--clr-text-muted)", textAlign: "right" }}>{log.performedEmail}</td>
+                            <td style={{ padding: "10px var(--sp-3)", color: "var(--clr-text-primary)", textAlign: "right" }}>{log.details || "-"}</td>
+                            <td style={{ padding: "10px var(--sp-3)", color: "var(--clr-text-muted)", fontSize: "11px", textAlign: "right" }}>
+                              <strong>{log.ipAddress}</strong> <span style={{ opacity: 0.7 }}>({log.deviceInfo?.split(" ")[0]})</span>
+                            </td>
+                            <td style={{ padding: "10px var(--sp-3)", textAlign: "left", color: "var(--clr-text-muted)" }}>{new Date(log.createdAt).toLocaleString("ar-EG")}</td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
 
             {/* Pagination */}
@@ -505,7 +518,7 @@ export default function AuditLogsPage() {
                   <ChevronLeft size={16} />
                 </button>
                 <span style={{ alignSelf: "center", fontSize: "12px", color: "var(--clr-text-muted)" }}>
-                  Page {page} of {totalPages}
+                  الصفحة {page} من {totalPages}
                 </span>
                 <button
                   disabled={page === totalPages}
@@ -524,20 +537,20 @@ export default function AuditLogsPage() {
       {/* 2. Activity Timeline */}
       {activeTab === "timeline" && (
         <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
-          <h2 style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-accent-primary)", borderBottom: "1px solid var(--clr-border)", paddingBottom: "var(--sp-2)" }}>
-            Vertical Chronological System Activity Timeline
+          <h2 style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-accent-primary)", borderBottom: "1px solid var(--clr-border)", paddingBottom: "var(--sp-2)", textAlign: "right" }}>
+            الخط الزمني الرأسي المتسلسل لعمليات النظام
           </h2>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", position: "relative", paddingLeft: "var(--sp-8)", marginTop: "var(--sp-4)" }}>
-            <div style={{ position: "absolute", left: "15px", top: "10px", bottom: "10px", width: "2px", backgroundColor: "var(--clr-border)" }} />
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", position: "relative", paddingRight: "var(--sp-8)", paddingLeft: 0, marginTop: "var(--sp-4)", textAlign: "right" }}>
+            <div style={{ position: "absolute", right: "15px", left: "auto", top: "10px", bottom: "10px", width: "2px", backgroundColor: "var(--clr-border)" }} />
 
             {loading ? (
               <div style={{ padding: "var(--sp-12)", textAlign: "center", color: "var(--clr-text-muted)" }}>
-                Loading activity logs timeline...
+                جاري تحميل الخط الزمني للأنشطة...
               </div>
             ) : logs.length === 0 ? (
               <div style={{ padding: "var(--sp-12)", textAlign: "center", color: "var(--clr-text-muted)" }}>
-                No events captured for timeline.
+                لا توجد أحداث لعرضها في الخط الزمني.
               </div>
             ) : (
               logs.map((log) => {
@@ -548,7 +561,8 @@ export default function AuditLogsPage() {
                     <div 
                       style={{ 
                         position: "absolute", 
-                        left: "-25px", 
+                        right: "-25px", 
+                        left: "auto",
                         top: "50%", 
                         transform: "translateY(-50%)", 
                         width: "16px", 
@@ -567,16 +581,16 @@ export default function AuditLogsPage() {
                     </div>
 
                     {/* Details content */}
-                    <div style={{ flex: 1 }}>
+                    <div style={{ flex: 1, textAlign: "right" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <span style={{ fontWeight: "var(--fw-bold)", fontSize: "13px", color: "var(--clr-text-primary)" }}>{log.action}</span>
-                        <span style={{ fontSize: "11px", color: "var(--clr-text-muted)" }}>{new Date(log.createdAt).toLocaleString()}</span>
+                        <span style={{ fontSize: "11px", color: "var(--clr-text-muted)" }}>{new Date(log.createdAt).toLocaleString("ar-EG")}</span>
                       </div>
                       <p style={{ margin: "6px 0", fontSize: "12px", color: "var(--clr-text-primary)" }}>{log.details}</p>
-                      <div style={{ display: "flex", gap: "var(--sp-4)", fontSize: "11px", color: "var(--clr-text-muted)" }}>
-                        <span>Performed By: <strong>{log.performedEmail}</strong> ({log.performedRole || "Staff"})</span>
-                        <span>IP Address: <strong>{log.ipAddress}</strong></span>
-                        <span>Device: <span style={{ opacity: 0.8 }}>{log.deviceInfo}</span></span>
+                      <div style={{ display: "flex", gap: "var(--sp-4)", fontSize: "11px", color: "var(--clr-text-muted)", flexWrap: "wrap" }}>
+                        <span>منفذ بواسطة: <strong>{log.performedEmail}</strong> ({log.performedRole === "SuperAdmin" ? "مشرف عام" : "موظف"})</span>
+                        <span>عنوان IP: <strong>{log.ipAddress}</strong></span>
+                        <span>الجهاز المستخدم: <span style={{ opacity: 0.8 }}>{log.deviceInfo}</span></span>
                       </div>
                     </div>
                   </div>
@@ -597,7 +611,7 @@ export default function AuditLogsPage() {
                 <ChevronLeft size={16} />
               </button>
               <span style={{ alignSelf: "center", fontSize: "12px", color: "var(--clr-text-muted)" }}>
-                Page {page} of {totalPages}
+                الصفحة {page} من {totalPages}
               </span>
               <button
                 disabled={page === totalPages}
@@ -614,65 +628,67 @@ export default function AuditLogsPage() {
 
       {/* 3. User Activity Explorer */}
       {activeTab === "user" && (
-        <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
+        <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
           <div style={{ borderBottom: "1px solid var(--clr-border)", paddingBottom: "var(--sp-2)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <h2 style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-accent-primary)", margin: 0 }}>
-              User Action Analytics & Audit Logs
+              تحليلات وسجلات عمليات المستخدمين
             </h2>
             <div style={{ display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
-              <span style={{ fontSize: "11px", color: "var(--clr-text-muted)" }}>Filter by Email:</span>
+              <span style={{ fontSize: "11px", color: "var(--clr-text-muted)" }}>البحث بالبريد الإلكتروني:</span>
               <input
                 type="email"
-                placeholder="e.g. youssef@allurite.com"
+                placeholder="مثال: staff@allurite.com"
                 value={userEmail}
                 onChange={(e) => { setUserEmail(e.target.value); setPage(1); }}
                 className="c-input__field"
-                style={{ width: "240px", height: "30px", fontSize: "12px" }}
+                style={{ width: "240px", height: "30px", fontSize: "12px", textAlign: "right" }}
               />
             </div>
           </div>
 
           <div style={{ border: "1px solid var(--clr-border)", borderRadius: "var(--radius-md)", overflow: "hidden", marginTop: "var(--sp-2)" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr style={{ backgroundColor: "rgba(4, 13, 33, 0.4)", borderBottom: "1px solid var(--clr-border)", fontSize: "11px", color: "var(--clr-text-muted)" }}>
-                  <th style={{ textAlign: "left", padding: "10px var(--sp-3)" }}>User Name</th>
-                  <th style={{ textAlign: "left", padding: "10px var(--sp-3)" }}>Role</th>
-                  <th style={{ textAlign: "left", padding: "10px var(--sp-3)" }}>Email Address</th>
-                  <th style={{ textAlign: "left", padding: "10px var(--sp-3)" }}>Action Code</th>
-                  <th style={{ textAlign: "left", padding: "10px var(--sp-3)" }}>Event Details</th>
-                  <th style={{ textAlign: "right", padding: "10px var(--sp-3)" }}>Timestamp</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr>
-                    <td colSpan={6} style={{ padding: "var(--sp-8)", textAlign: "center", color: "var(--clr-text-muted)" }}>
-                      Loading user activity logs...
-                    </td>
+            <div className="c-table-container">
+              <table className="c-table" style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr style={{ backgroundColor: "rgba(4, 13, 33, 0.4)", borderBottom: "2px solid var(--clr-border)", fontSize: "11px", color: "var(--clr-text-muted)" }}>
+                    <th style={{ textAlign: "right", padding: "10px var(--sp-3)" }}>اسم المستخدم</th>
+                    <th style={{ textAlign: "right", padding: "10px var(--sp-3)" }}>الدور الوظيفي</th>
+                    <th style={{ textAlign: "right", padding: "10px var(--sp-3)" }}>البريد الإلكتروني</th>
+                    <th style={{ textAlign: "right", padding: "10px var(--sp-3)" }}>رمز العملية</th>
+                    <th style={{ textAlign: "right", padding: "10px var(--sp-3)" }}>تفاصيل الحدث</th>
+                    <th style={{ textAlign: "left", padding: "10px var(--sp-3)" }}>التاريخ والوقت</th>
                   </tr>
-                ) : logs.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} style={{ padding: "var(--sp-8)", textAlign: "center", color: "var(--clr-text-muted)" }}>
-                      No actions logged for the selected user email.
-                    </td>
-                  </tr>
-                ) : (
-                  logs.map(log => (
-                    <tr key={log._id} style={{ borderBottom: "1px solid var(--clr-border)", fontSize: "12px" }}>
-                      <td style={{ padding: "10px var(--sp-3)", fontWeight: "var(--fw-bold)" }}>{log.performedName || log.performedEmail.split("@")[0]}</td>
-                      <td style={{ padding: "10px var(--sp-3)", color: "var(--clr-accent-primary)" }}>{log.performedRole || "Staff"}</td>
-                      <td style={{ padding: "10px var(--sp-3)", color: "var(--clr-text-muted)" }}>{log.performedEmail}</td>
-                      <td style={{ padding: "10px var(--sp-3)" }}>
-                        <span className="c-badge" style={{ textTransform: "none" }}>{log.action}</span>
+                </thead>
+                <tbody>
+                  {loading ? (
+                    <tr>
+                      <td colSpan={6} style={{ padding: "var(--sp-8)", textAlign: "center", color: "var(--clr-text-muted)" }}>
+                        جاري تحميل سجلات المستخدمين...
                       </td>
-                      <td style={{ padding: "10px var(--sp-3)", color: "var(--clr-text-muted)" }}>{log.details || "-"}</td>
-                      <td style={{ padding: "10px var(--sp-3)", textAlign: "right", color: "var(--clr-text-muted)" }}>{new Date(log.createdAt).toLocaleString()}</td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : logs.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} style={{ padding: "var(--sp-8)", textAlign: "center", color: "var(--clr-text-muted)" }}>
+                        لا توجد عمليات مسجلة للبريد الإلكتروني المحدد.
+                      </td>
+                    </tr>
+                  ) : (
+                    logs.map(log => (
+                      <tr key={log._id} style={{ borderBottom: "1px solid var(--clr-border)", fontSize: "12px" }}>
+                        <td style={{ padding: "10px var(--sp-3)", fontWeight: "var(--fw-bold)", textAlign: "right" }}>{log.performedName || log.performedEmail.split("@")[0]}</td>
+                        <td style={{ padding: "10px var(--sp-3)", color: "var(--clr-accent-primary)", textAlign: "right" }}>{log.performedRole === "SuperAdmin" ? "مشرف عام" : "موظف"}</td>
+                        <td style={{ padding: "10px var(--sp-3)", color: "var(--clr-text-muted)", textAlign: "right" }}>{log.performedEmail}</td>
+                        <td style={{ padding: "10px var(--sp-3)", textAlign: "right" }}>
+                          <span className="c-badge" style={{ textTransform: "none" }}>{log.action}</span>
+                        </td>
+                        <td style={{ padding: "10px var(--sp-3)", color: "var(--clr-text-muted)", textAlign: "right" }}>{log.details || "-"}</td>
+                        <td style={{ padding: "10px var(--sp-3)", textAlign: "left", color: "var(--clr-text-muted)" }}>{new Date(log.createdAt).toLocaleString("ar-EG")}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           {/* Pagination */}
@@ -687,7 +703,7 @@ export default function AuditLogsPage() {
                 <ChevronLeft size={16} />
               </button>
               <span style={{ alignSelf: "center", fontSize: "12px", color: "var(--clr-text-muted)" }}>
-                Page {page} of {totalPages}
+                الصفحة {page} من {totalPages}
               </span>
               <button
                 disabled={page === totalPages}
@@ -704,82 +720,91 @@ export default function AuditLogsPage() {
 
       {/* 4. Security Events Page */}
       {activeTab === "security" && (
-        <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
+        <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
           <div style={{ borderBottom: "1px solid var(--clr-border)", paddingBottom: "var(--sp-2)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
               <ShieldAlert size={18} style={{ color: "var(--clr-error)" }} />
               <h2 style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-error)", margin: 0 }}>
-                High-Severity and Security Log Events
+                الأحداث الأمنية والعمليات عالية الخطورة
               </h2>
             </div>
-            <span style={{ fontSize: "10px", color: "var(--clr-text-muted)", backgroundColor: "rgba(229,62,62,0.1)", border: "1px dashed var(--clr-error)", padding: "2px 8px", borderRadius: "4px" }}>
-              High & Critical Events Locked View
+            <span style={{ fontSize: "10px", color: "var(--clr-error)", backgroundColor: "rgba(229,62,62,0.1)", border: "1px dashed var(--clr-error)", padding: "2px 8px", borderRadius: "4px" }}>
+              عرض مخصص للأحداث الحرجة والمرتفعة فقط
             </span>
           </div>
 
           <div style={{ border: "1px solid var(--clr-border)", borderRadius: "var(--radius-md)", overflow: "hidden", marginTop: "var(--sp-2)" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr style={{ backgroundColor: "rgba(229, 62, 62, 0.03)", borderBottom: "1px solid var(--clr-border)", fontSize: "11px", color: "var(--clr-text-muted)" }}>
-                  <th style={{ textAlign: "left", padding: "10px var(--sp-3)" }}>Severity</th>
-                  <th style={{ textAlign: "left", padding: "10px var(--sp-3)" }}>Event Code</th>
-                  <th style={{ textAlign: "left", padding: "10px var(--sp-3)" }}>Operator Email</th>
-                  <th style={{ textAlign: "left", padding: "10px var(--sp-3)" }}>Anomalies Details</th>
-                  <th style={{ textAlign: "left", padding: "10px var(--sp-3)" }}>Source IP Address</th>
-                  <th style={{ textAlign: "right", padding: "10px var(--sp-3)" }}>Occurred At</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr>
-                    <td colSpan={6} style={{ padding: "var(--sp-8)", textAlign: "center", color: "var(--clr-text-muted)" }}>
-                      Loading critical security events logs...
-                    </td>
+            <div className="c-table-container">
+              <table className="c-table" style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr style={{ backgroundColor: "rgba(229, 62, 62, 0.03)", borderBottom: "2px solid var(--clr-border)", fontSize: "11px", color: "var(--clr-text-muted)" }}>
+                    <th style={{ textAlign: "right", padding: "10px var(--sp-3)" }}>مستوى الخطورة</th>
+                    <th style={{ textAlign: "right", padding: "10px var(--sp-3)" }}>رمز الحدث</th>
+                    <th style={{ textAlign: "right", padding: "10px var(--sp-3)" }}>البريد الإلكتروني للمنفذ</th>
+                    <th style={{ textAlign: "right", padding: "10px var(--sp-3)" }}>تفاصيل الحدث الأمني</th>
+                    <th style={{ textAlign: "right", padding: "10px var(--sp-3)" }}>عنوان IP المصدر</th>
+                    <th style={{ textAlign: "left", padding: "10px var(--sp-3)" }}>وقت الحدوث</th>
                   </tr>
-                ) : logs.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} style={{ padding: "var(--sp-8)", textAlign: "center", color: "var(--clr-text-muted)" }}>
-                      No critical anomalies or high-severity events found in the audit trail.
-                    </td>
-                  </tr>
-                ) : (
-                  logs.map(log => {
-                    const sev = getSeverityStyle(log.severity);
-                    return (
-                      <tr key={log._id} style={{ borderBottom: "1px solid var(--clr-border)", fontSize: "12px", backgroundColor: "rgba(229, 62, 62, 0.01)" }}>
-                        <td style={{ padding: "10px var(--sp-3)" }}>
-                          <span 
-                            style={{ 
-                              color: sev.color, 
-                              backgroundColor: sev.bg, 
-                              border: sev.border,
-                              padding: "2px 6px",
-                              borderRadius: "4px",
-                              fontSize: "10px",
-                              fontWeight: "bold"
-                            }}
-                          >
-                            {log.severity}
-                          </span>
-                        </td>
-                        <td style={{ padding: "10px var(--sp-3)" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                            <AlertTriangle size={14} style={{ color: sev.color }} />
-                            <span style={{ fontWeight: "bold", color: "var(--clr-text-primary)" }}>{log.action}</span>
-                          </div>
-                        </td>
-                        <td style={{ padding: "10px var(--sp-3)" }}>{log.performedEmail}</td>
-                        <td style={{ padding: "10px var(--sp-3)", color: "var(--clr-text-primary)" }}>{log.details || "-"}</td>
-                        <td style={{ padding: "10px var(--sp-3)", color: "var(--clr-text-muted)" }}>
-                          <strong>{log.ipAddress}</strong>
-                        </td>
-                        <td style={{ padding: "10px var(--sp-3)", textAlign: "right", color: "var(--clr-text-muted)" }}>{new Date(log.createdAt).toLocaleString()}</td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {loading ? (
+                    <tr>
+                      <td colSpan={6} style={{ padding: "var(--sp-8)", textAlign: "center", color: "var(--clr-text-muted)" }}>
+                        جاري تحميل سجلات الأحداث الأمنية الحرجة...
+                      </td>
+                    </tr>
+                  ) : logs.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} style={{ padding: "var(--sp-8)", textAlign: "center", color: "var(--clr-text-muted)" }}>
+                        لم يتم العثور على أي أحداث أمنية حرجة أو مشبوهة.
+                      </td>
+                    </tr>
+                  ) : (
+                    logs.map(log => {
+                      const sev = getSeverityStyle(log.severity);
+                      
+                      let severityLabel: string = log.severity;
+                      if (log.severity === "Low") severityLabel = "منخفضة";
+                      else if (log.severity === "Medium") severityLabel = "متوسطة";
+                      else if (log.severity === "High") severityLabel = "مرتفعة";
+                      else if (log.severity === "Critical") severityLabel = "حرجة";
+
+                      return (
+                        <tr key={log._id} style={{ borderBottom: "1px solid var(--clr-border)", fontSize: "12px", backgroundColor: "rgba(229, 62, 62, 0.01)" }}>
+                          <td style={{ padding: "10px var(--sp-3)", textAlign: "right" }}>
+                            <span 
+                              style={{ 
+                                color: sev.color, 
+                                backgroundColor: sev.bg, 
+                                border: sev.border,
+                                padding: "2px 6px",
+                                borderRadius: "4px",
+                                fontSize: "10px",
+                                fontWeight: "bold"
+                              }}
+                            >
+                              {severityLabel}
+                            </span>
+                          </td>
+                          <td style={{ padding: "10px var(--sp-3)", textAlign: "right" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                              <AlertTriangle size={14} style={{ color: sev.color }} />
+                              <span style={{ fontWeight: "bold", color: "var(--clr-text-primary)" }}>{log.action}</span>
+                            </div>
+                          </td>
+                          <td style={{ padding: "10px var(--sp-3)", textAlign: "right" }}>{log.performedEmail}</td>
+                          <td style={{ padding: "10px var(--sp-3)", color: "var(--clr-text-primary)", textAlign: "right" }}>{log.details || "-"}</td>
+                          <td style={{ padding: "10px var(--sp-3)", color: "var(--clr-text-muted)", textAlign: "right" }}>
+                            <strong>{log.ipAddress}</strong>
+                          </td>
+                          <td style={{ padding: "10px var(--sp-3)", textAlign: "left", color: "var(--clr-text-muted)" }}>{new Date(log.createdAt).toLocaleString("ar-EG")}</td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           {/* Pagination */}
@@ -794,7 +819,7 @@ export default function AuditLogsPage() {
                 <ChevronLeft size={16} />
               </button>
               <span style={{ alignSelf: "center", fontSize: "12px", color: "var(--clr-text-muted)" }}>
-                Page {page} of {totalPages}
+                الصفحة {page} من {totalPages}
               </span>
               <button
                 disabled={page === totalPages}
