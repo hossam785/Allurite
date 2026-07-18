@@ -173,7 +173,7 @@ export default function Sidebar({
                     alignItems: "center",
                     transition: "var(--transition-fast)"
                   }}
-                  title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+                  title={isCollapsed ? "توسيع القائمة" : "طي القائمة"}
                 >
                   {isRtl ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
                 </button>
@@ -220,7 +220,7 @@ export default function Sidebar({
                       cursor: "not-allowed",
                       opacity: 0.5,
                     }}
-                    title="Coming Soon"
+                    title="قريباً"
                   >
                     <Icon size={18} />
                     <span style={{ fontWeight: "var(--fw-medium)" }}>{item.name}</span>

@@ -213,7 +213,7 @@ export default function Header({
             transition: "var(--transition-fast)"
           }}
           className="bell-btn-hover"
-          title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          title={theme === "dark" ? "التبديل إلى الوضع الفاتح" : "التبديل إلى الوضع الداكن"}
         >
           {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
         </button>
@@ -294,7 +294,7 @@ export default function Header({
                   backgroundColor: "var(--clr-bg-dropdown-header)"
                 }}
               >
-                <span style={{ fontWeight: "var(--fw-bold)", fontSize: "var(--fs-body-sm)" }}>Reminders Center</span>
+                <span style={{ fontWeight: "var(--fw-bold)", fontSize: "var(--fs-body-sm)" }}>مركز التذكيرات</span>
                 {notifications.length > 0 && (
                   <button
                     onClick={markAllRead}
@@ -308,7 +308,7 @@ export default function Header({
                     }}
                     className="hover-bright"
                   >
-                    Clear All
+                    مسح الكل
                   </button>
                 )}
               </div>
@@ -318,7 +318,7 @@ export default function Header({
                 {notifications.length === 0 ? (
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "var(--sp-8)", gap: "var(--sp-2)", color: "var(--clr-text-muted)" }}>
                     <Bell size={24} style={{ opacity: 0.3 }} />
-                    <span style={{ fontSize: "var(--fs-caption)" }}>You have no unread notifications</span>
+                    <span style={{ fontSize: "var(--fs-caption)" }}>لا توجد تنبيهات غير مقروءة</span>
                   </div>
                 ) : (
                   notifications.map((notif) => {
@@ -369,7 +369,7 @@ export default function Header({
                             alignItems: "center"
                           }}
                           className="check-btn-hover"
-                          title="Mark as read"
+                          title="تعليم كمقروء"
                         >
                           <Check size={14} />
                         </button>
@@ -401,7 +401,7 @@ export default function Header({
                   }}
                   className="hover-bright"
                 >
-                  View All Notifications
+                  عرض جميع التنبيهات
                 </Link>
               </div>
             </div>

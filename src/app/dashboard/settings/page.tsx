@@ -215,12 +215,12 @@ export default function SettingsDashboardPage() {
         body: JSON.stringify(settingsForm),
       });
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error?.message || "Failed to save settings");
+      if (!res.ok) throw new Error(json.error?.message || "فشل في حفظ الإعدادات");
 
-      setSettingsSuccess("System configurations saved successfully!");
+      setSettingsSuccess("تم حفظ إعدادات النظام بنجاح!");
       setSettingsForm(json.data);
     } catch (err: any) {
-      setSettingsError(err.message || "Error saving settings");
+      setSettingsError(err.message || "خطأ أثناء حفظ الإعدادات");
     } finally {
       setSavingSettings(false);
     }
@@ -238,13 +238,13 @@ export default function SettingsDashboardPage() {
         body: JSON.stringify(deptForm),
       });
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error?.message || "Failed to create department");
+      if (!res.ok) throw new Error(json.error?.message || "فشل في إنشاء القسم");
 
       setIsDeptModalOpen(false);
       setDeptForm({ name: "", code: "", manager: "", status: "Active" });
       fetchDepartments();
     } catch (err: any) {
-      setDeptError(err.message || "Error creating department");
+      setDeptError(err.message || "خطأ أثناء إنشاء القسم");
     } finally {
       setDeptLoading(false);
     }
@@ -313,7 +313,7 @@ export default function SettingsDashboardPage() {
         }),
       });
       if (res.ok) {
-        setRoleSuccess(`Permissions for role "${role.name}" updated successfully!`);
+        setRoleSuccess(`تم تحديث صلاحيات الدور "${role.name === "SuperAdmin" ? "مدير النظام" : "موظف"}" بنجاح!`);
       }
     } catch (err) {
       console.error(err);

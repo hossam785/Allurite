@@ -198,12 +198,12 @@ export default function NotificationCenterPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ preferences: prefsForm }),
       });
-      if (!res.ok) throw new Error("Failed to update preferences");
+      if (!res.ok) throw new Error("فشل في تحديث التفضيلات");
       
-      setPrefsSuccess("Preferences saved successfully!");
+      setPrefsSuccess("تم حفظ تفضيلات التنبيهات بنجاح!");
       refreshUser(); // Refresh user details in Auth context
     } catch (err: any) {
-      setError(err.message || "Failed saving preferences");
+      setError(err.message || "فشل حفظ التفضيلات");
     } finally {
       setPrefsLoading(false);
     }
