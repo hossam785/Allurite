@@ -184,3 +184,79 @@ export async function PUT(
     );
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const admin = await verifySuperAdmin(request);
+    if (!admin) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "UNAUTHORIZED",
+            message: "Super Admin privileges are required to perform this action",
+          },
+        },
+        { status: 403 }
+      );
+    }
+
+    const { id } = await params;
+    await dbConnect();
+
+    const employee = await Employee.findById(id);
+    if (!employee) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "EMPLOYEE_NOT_FOUND",
+            message: "Employee profile does not exist",
+          },
+        },
+        { status: 404 }
+      );
+    }
+
+    // 1. Delete associated User account
+    if (employee.user) {
+      await User.deleteOne({ _id: employee.user });
+    }
+
+    // 2. Delete Employee record
+    await Employee.deleteOne({ _id: id });
+
+    // 3. Log audit event
+    const { logAuditEvent } = require("@/lib/audit-logger");
+    await logAuditEvent({
+      action: "EMPLOYEE_DELETE",
+      entityType: "Employee",
+      entityId: employee._id,
+      details: `Permanently deleted employee: "${employee.firstName} ${employee.lastName}" and associated login account.`,
+      performedBy: admin.user._id,
+      performedEmail: admin.user.email,
+      performedRole: admin.role,
+      severity: "High",
+    }, request);
+
+    return NextResponse.json({
+      success: true,
+      message: "Employee profile and associated user account have been deleted successfully",
+    });
+  } catch (error: any) {
+    console.error("Delete employee error:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          code: "INTERNAL_SERVER_ERROR",
+          message: error.message || "An unexpected error occurred",
+        },
+      },
+      { status: 500 }
+    );
+  }
+}

@@ -6,6 +6,8 @@ export interface IUser extends Document {
   role: "SuperAdmin" | "Employee";
   status: "Active" | "Suspended" | "Pending";
   theme: "dark" | "light";
+  loginAttempts: number;
+  lockoutUntil?: Date;
   notificationPreferences: {
     taskAlerts: boolean;
     followUpAlerts: boolean;
@@ -45,6 +47,14 @@ const UserSchema: Schema<IUser> = new Schema(
       type: String,
       enum: ["dark", "light"],
       default: "dark",
+    },
+    loginAttempts: {
+      type: Number,
+      default: 0,
+      required: true,
+    },
+    lockoutUntil: {
+      type: Date,
     },
     notificationPreferences: {
       taskAlerts: { type: Boolean, default: true },

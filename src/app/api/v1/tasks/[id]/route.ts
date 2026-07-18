@@ -141,6 +141,20 @@ export async function PUT(
       );
     }
 
+    // Verify completed/cancelled task restriction for employees
+    if (auth.role === "Employee" && (task.status === "Completed" || task.status === "Cancelled")) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "RULE_VIOLATION",
+            message: "Completed or Cancelled tasks cannot be modified by employees",
+          },
+        },
+        { status: 400 }
+      );
+    }
+
     const previousStatus = task.status;
     const previousPriority = task.priority;
     const previousDueDate = new Date(task.dueDate);
@@ -381,6 +395,74 @@ export async function PUT(
     });
   } catch (error: any) {
     console.error("Update task details error:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          code: "INTERNAL_SERVER_ERROR",
+          message: error.message || "An unexpected error occurred",
+        },
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const auth = await verifyClientAccess(request);
+    if (!auth || auth.role !== "SuperAdmin") {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "FORBIDDEN",
+            message: "Super Admin privileges are required to delete task records",
+          },
+        },
+        { status: 403 }
+      );
+    }
+
+    const { id } = await params;
+    await dbConnect();
+
+    const deletedTask = await Task.findByIdAndDelete(id);
+    if (!deletedTask) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "TASK_NOT_FOUND",
+            message: "Task profile does not exist",
+          },
+        },
+        { status: 404 }
+      );
+    }
+
+    // Log audit event
+    const { logAuditEvent } = require("@/lib/audit-logger");
+    await logAuditEvent({
+      action: "TASK_DELETE",
+      entityType: "Task",
+      entityId: deletedTask._id,
+      details: `Permanently deleted task: "${deletedTask.title}"`,
+      performedBy: auth.user._id,
+      performedEmail: auth.user.email,
+      performedRole: auth.role,
+      severity: "Medium",
+    }, request);
+
+    return NextResponse.json({
+      success: true,
+      message: "Task profile has been deleted successfully",
+    });
+  } catch (error: any) {
+    console.error("Delete task error:", error);
     return NextResponse.json(
       {
         success: false,

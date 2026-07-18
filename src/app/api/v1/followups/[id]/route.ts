@@ -176,7 +176,12 @@ export async function PUT(
       }
       
       // Allow reschedule if changing date (must be in future)
-      if (parsedDate.getTime() !== previousDate.getTime() && parsedDate < new Date()) {
+      const todayMidnight = new Date();
+      todayMidnight.setHours(0, 0, 0, 0);
+      const parsedMidnight = new Date(parsedDate);
+      parsedMidnight.setHours(0, 0, 0, 0);
+
+      if (parsedDate.getTime() !== previousDate.getTime() && parsedMidnight < todayMidnight) {
         return NextResponse.json(
           {
             success: false,

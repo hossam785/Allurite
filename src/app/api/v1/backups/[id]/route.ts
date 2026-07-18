@@ -84,6 +84,21 @@ export async function POST(
       );
     }
 
+    const collections = data.collections;
+    if (
+      !collections.users || 
+      !collections.employees || 
+      !collections.clients || 
+      !collections.followups || 
+      !collections.tasks || 
+      !collections.settings
+    ) {
+      return NextResponse.json(
+        { success: false, error: { code: "INTEGRITY_CHECK_FAILED", message: "Backup file is missing required database collections" } },
+        { status: 400 }
+      );
+    }
+
     // 3. Execute Restore
     console.log("Executing database recovery. Wiping current collections...");
     await User.deleteMany({});
@@ -96,8 +111,6 @@ export async function POST(
     await CompanySettings.deleteMany({});
 
     // Populating database collections
-    const collections = data.collections;
-    
     if (collections.users?.length > 0) await User.insertMany(collections.users);
     if (collections.employees?.length > 0) await Employee.insertMany(collections.employees);
     if (collections.clients?.length > 0) await Client.insertMany(collections.clients);
@@ -111,15 +124,26 @@ export async function POST(
     // Ensure the default SuperAdmin is re-seeded if missing from the backup users
     const hasAdmin = await User.findOne({ role: "SuperAdmin", status: "Active" });
     if (!hasAdmin) {
-      console.log("No active SuperAdmin found after restore. Re-seeding default credentials...");
+      console.log("No active SuperAdmin found after restore. Checking email presence to prevent E11000 clash...");
+      const existingYoussef = await User.findOne({ email: "youssef@allurite.com" });
       const salt = await bcrypt.genSalt(12);
       const passwordHash = await bcrypt.hash("Youssef2005", salt);
-      await User.create({
-        email: "youssef@allurite.com",
-        passwordHash,
-        role: "SuperAdmin",
-        status: "Active",
-      });
+
+      if (existingYoussef) {
+        existingYoussef.status = "Active";
+        existingYoussef.role = "SuperAdmin";
+        existingYoussef.passwordHash = passwordHash;
+        await existingYoussef.save();
+        console.log("Re-activated existing youssef@allurite.com account as SuperAdmin.");
+      } else {
+        await User.create({
+          email: "youssef@allurite.com",
+          passwordHash,
+          role: "SuperAdmin",
+          status: "Active",
+        });
+        console.log("Created default youssef@allurite.com superadmin account.");
+      }
     }
 
     // 5. Update Backup Record Status

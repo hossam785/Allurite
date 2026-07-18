@@ -319,6 +319,18 @@ export async function DELETE(
       );
     }
 
+    const { logAuditEvent } = require("@/lib/audit-logger");
+    await logAuditEvent({
+      action: "CLIENT_DELETE",
+      entityType: "Client",
+      entityId: deletedClient._id,
+      details: `Permanently deleted client profile: ${deletedClient.firstName} ${deletedClient.lastName} (${deletedClient.email})`,
+      performedBy: auth.user._id,
+      performedEmail: auth.user.email,
+      performedRole: auth.role,
+      severity: "Medium",
+    }, request);
+
     return NextResponse.json({
       success: true,
       message: "Client profile has been deleted successfully",

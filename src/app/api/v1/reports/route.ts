@@ -28,8 +28,12 @@ export async function GET(request: NextRequest) {
 
     await dbConnect();
 
-    // Default dates: last 30 days
-    const endDate = endDateParam ? new Date(endDateParam) : new Date();
+    // Default dates: last 30 days (Round to nearest 5 minutes for caching compatibility)
+    let endDate = endDateParam ? new Date(endDateParam) : new Date();
+    if (!endDateParam) {
+      const coeff = 1000 * 60 * 5;
+      endDate = new Date(Math.floor(endDate.getTime() / coeff) * coeff);
+    }
     const startDate = startDateParam 
       ? new Date(startDateParam) 
       : new Date(endDate.getTime() - 30 * 24 * 60 * 60 * 1000);

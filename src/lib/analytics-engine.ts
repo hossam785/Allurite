@@ -34,7 +34,7 @@ export async function calculateAnalytics(
   };
 
   // 2. Follow-Up Metrics
-  const fuQuery: any = { date: { $gte: start, $lte: end } };
+  const fuQuery: any = { scheduledAt: { $gte: start, $lte: end } };
   if (employeeFilterObj) fuQuery.assignedAgent = employeeFilterObj;
   const followups = await FollowUp.find(fuQuery);
 
@@ -50,7 +50,7 @@ export async function calculateAnalytics(
 
   // 3. Client Metrics
   const cliQuery: any = { createdAt: { $gte: start, $lte: end } };
-  if (employeeFilterObj) cliQuery.manager = employeeFilterObj;
+  if (employeeFilterObj) cliQuery.assignedAgent = employeeFilterObj;
   const clients = await Client.find(cliQuery);
 
   const sourceCounts: Record<string, number> = {};
@@ -84,7 +84,7 @@ export async function calculateAnalytics(
   const productivityDetails = await Promise.all(
     employeesList.map(async emp => {
       const empTasks = await Task.find({ assignedTo: emp._id, createdAt: { $gte: start, $lte: end } });
-      const empFUs = await FollowUp.find({ assignedAgent: emp._id, date: { $gte: start, $lte: end } });
+      const empFUs = await FollowUp.find({ assignedAgent: emp._id, scheduledAt: { $gte: start, $lte: end } });
 
       const tComp = empTasks.filter(t => t.status === "Completed").length;
       const fComp = empFUs.filter(f => f.status === "Completed").length;
@@ -106,7 +106,7 @@ export async function calculateAnalytics(
         tasksOverdue: tOver,
         followupsCompleted: fComp,
         followupsMissed: fMiss,
-        clientsCount: await Client.countDocuments({ manager: emp._id }),
+        clientsCount: await Client.countDocuments({ assignedAgent: emp._id }),
         productivityScore: Math.min(100, Math.max(0, score)),
       };
     })

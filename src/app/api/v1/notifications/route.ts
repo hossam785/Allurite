@@ -29,84 +29,44 @@ export async function GET(request: NextRequest) {
 
     await dbConnect();
 
-    // Query builder
-    const query: any = { deleted: false };
+    // Standardized Query Builder to resolve soft-deletion and RBAC filter bypasses
+    const andConditions: any[] = [{ deleted: false }];
 
     // Role-based filtering
     if (auth.role === "Employee" || personalOnly) {
-      query.recipient = auth.user._id;
+      andConditions.push({ recipient: auth.user._id });
     } else {
-      // SuperAdmin: can view their own personal notifications AND system/security alerts
-      query.$or = [
-        { recipient: auth.user._id },
-        { category: { $in: ["System", "Security"] } },
-      ];
+      andConditions.push({
+        $or: [
+          { recipient: auth.user._id },
+          { category: { $in: ["System", "Security"] } },
+        ]
+      });
     }
 
-    // Apply specific filters
     if (category) {
-      // If $or is active, merge the filter inside it or apply normally
-      if (query.$or) {
-        query.$and = [
-          { $or: query.$or },
-          { category }
-        ];
-        delete query.$or;
-      } else {
-        query.category = category;
-      }
+      andConditions.push({ category });
     }
 
     if (priority) {
-      if (query.$and) {
-        query.$and.push({ priority });
-      } else if (query.$or) {
-        query.$and = [
-          { $or: query.$or },
-          { priority }
-        ];
-        delete query.$or;
-      } else {
-        query.priority = priority;
-      }
+      andConditions.push({ priority });
     }
 
     if (read) {
-      const isRead = read === "true";
-      if (query.$and) {
-        query.$and.push({ read: isRead });
-      } else if (query.$or) {
-        query.$and = [
-          { $or: query.$or },
-          { read: isRead }
-        ];
-        delete query.$or;
-      } else {
-        query.read = isRead;
-      }
+      andConditions.push({ read: read === "true" });
     }
 
-    // Apply text search
     if (search) {
       const searchRegex = { $regex: search, $options: "i" };
-      const searchFilter = {
+      andConditions.push({
         $or: [
           { title: searchRegex },
           { message: searchRegex }
         ]
-      };
-      if (query.$and) {
-        query.$and.push(searchFilter);
-      } else if (query.$or) {
-        query.$and = [
-          { $or: query.$or },
-          searchFilter
-        ];
-        delete query.$or;
-      } else {
-        query.$or = searchFilter.$or;
-      }
+      });
     }
+
+    const query = { $and: andConditions };
 
     const notifications = await Notification.find(query)
       .sort({ createdAt: -1 })

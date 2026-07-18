@@ -21,25 +21,18 @@ export async function POST(request: NextRequest) {
         status: "Active",
       });
       console.log(`Seeded youssef@allurite.com superadmin account`);
-    } else {
-      const matches = await comparePassword("Youssef2005", youssefUser.passwordHash);
-      if (!matches) {
-        youssefUser.passwordHash = await hashPassword("Youssef2005");
-        await youssefUser.save();
-        console.log("Updated Youssef@allurite.com password in database");
-      }
     }
 
-    const body = await request.json();
+    const body = await request.json().catch(() => ({}));
     const { email, password } = body;
 
-    if (!email || !password) {
+    if (!email || !password || typeof email !== "string" || typeof password !== "string") {
       return NextResponse.json(
         {
           success: false,
           error: {
             code: "VALIDATION_FAILED",
-            message: "Email and password are required",
+            message: "Email and password are required and must be strings",
           },
         },
         { status: 400 }
@@ -60,6 +53,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Lockout verification check
+    if (user.lockoutUntil && user.lockoutUntil > new Date()) {
+      const remainSecs = Math.ceil((user.lockoutUntil.getTime() - Date.now()) / 1000);
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "ACCOUNT_LOCKED",
+            message: `Too many login attempts. Please try again in ${remainSecs} seconds.`,
+          },
+        },
+        { status: 403 }
+      );
+    }
+
     if (user.status !== "Active") {
       return NextResponse.json(
         {
@@ -75,11 +83,29 @@ export async function POST(request: NextRequest) {
 
     const passwordMatches = await comparePassword(password, user.passwordHash);
     if (!passwordMatches) {
+      // Load lockout policies from CompanySettings
+      let maxAttempts = 5;
+      try {
+        const CompanySettings = require("@/models/CompanySettings").default;
+        const settings = await CompanySettings.findOne({ key: "global_settings" });
+        if (settings && settings.maxLoginAttempts) {
+          maxAttempts = settings.maxLoginAttempts;
+        }
+      } catch (e) {
+        console.error("Failed to load max attempts setting:", e);
+      }
+
+      user.loginAttempts = (user.loginAttempts || 0) + 1;
+      if (user.loginAttempts >= maxAttempts) {
+        user.lockoutUntil = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes lockout
+      }
+      await user.save();
+
       await logAuditEvent({
         action: "AUTH_LOGIN_FAILED",
         entityType: "User",
         entityId: user._id,
-        details: `Failed login attempt for user: ${email}`,
+        details: `Failed login attempt for user: ${email}. Attempt count: ${user.loginAttempts}`,
         performedBy: user._id,
         performedEmail: user.email,
         performedRole: user.role,
@@ -97,6 +123,11 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
+
+    // Success login: reset attempts
+    user.loginAttempts = 0;
+    user.lockoutUntil = undefined;
+    await user.save();
 
     const token = await signToken({
       userId: user._id.toString(),

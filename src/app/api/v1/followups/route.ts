@@ -143,7 +143,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (parsedDate < new Date()) {
+    const todayMidnight = new Date();
+    todayMidnight.setHours(0, 0, 0, 0);
+    const parsedMidnight = new Date(parsedDate);
+    parsedMidnight.setHours(0, 0, 0, 0);
+
+    if (parsedMidnight < todayMidnight) {
       return NextResponse.json(
         {
           success: false,
