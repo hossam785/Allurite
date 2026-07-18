@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "../layout";
+import { useLanguage } from "@/context/LanguageContext";
 import { 
   Search, 
   Filter, 
@@ -40,6 +41,7 @@ interface EmployeeItem {
 
 export default function EmployeesPage() {
   const { user: currentUser } = useAuth();
+  const { t, isRtl } = useLanguage();
   
   // State for data
   const [employees, setEmployees] = useState<EmployeeItem[]>([]);
@@ -190,9 +192,9 @@ export default function EmployeesPage() {
         }}
       >
         <div>
-          <h1 style={{ fontSize: "var(--fs-h1)", marginBottom: "var(--sp-1)" }}>Employee Directory</h1>
+          <h1 style={{ fontSize: "var(--fs-h1)", marginBottom: "var(--sp-1)" }}>{t("common.employees")}</h1>
           <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-            Manage staff credentials, department mappings, and security states
+            إدارة الموظفين، وهيكل الأقسام الإدارية، وتعديل صلاحياتهم الأمنية في النظام
           </p>
         </div>
         
@@ -202,7 +204,7 @@ export default function EmployeesPage() {
           style={{ gap: "var(--sp-2)", boxShadow: "var(--shadow-glow-accent)" }}
         >
           <UserPlus size={16} />
-          <span>Onboard Staff</span>
+          <span>{t("employees_view.create_modal_title")}</span>
         </button>
       </header>
 
@@ -227,7 +229,8 @@ export default function EmployeesPage() {
               size={18} 
               style={{ 
                 position: "absolute", 
-                left: "12px", 
+                right: isRtl ? "12px" : "auto",
+                left: isRtl ? "auto" : "12px", 
                 top: "50%", 
                 transform: "translateY(-50%)", 
                 color: "var(--clr-text-muted)" 
@@ -235,18 +238,19 @@ export default function EmployeesPage() {
             />
             <input 
               type="text" 
-              placeholder="Search by name, email, department..." 
+              placeholder="ابحث بالاسم، البريد الإلكتروني، القسم..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="c-input__field"
-              style={{ paddingLeft: "40px", width: "100%", height: "42px" }}
+              style={{ paddingLeft: isRtl ? "12px" : "40px", paddingRight: isRtl ? "40px" : "12px", width: "100%", height: "42px", textAlign: "right" }}
             />
             {searchTerm && (
               <button 
                 onClick={() => setSearchTerm("")}
                 style={{ 
                   position: "absolute", 
-                  right: "12px", 
+                  left: isRtl ? "12px" : "auto",
+                  right: isRtl ? "auto" : "12px",
                   top: "50%", 
                   transform: "translateY(-50%)", 
                   background: "none", 
@@ -262,17 +266,17 @@ export default function EmployeesPage() {
         </div>
 
         {/* Filter Selection Dropdowns */}
-        <div style={{ display: "flex", gap: "var(--sp-3)", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: "var(--sp-4)", flexWrap: "wrap", alignItems: "center" }}>
           {/* Department Filter */}
           <div style={{ display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
-            <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>Dept:</span>
+            <span style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)" }}>{t("employees_view.department")}:</span>
             <select
               value={selectedDept}
               onChange={(e) => { setSelectedDept(e.target.value); setPage(1); }}
               className="c-input__field"
-              style={{ height: "42px", padding: "0 var(--sp-3)", minWidth: "130px", background: "var(--clr-bg-primary)" }}
+              style={{ height: "42px", padding: "0 var(--sp-3)", minWidth: "140px", background: "var(--clr-bg-primary)" }}
             >
-              <option value="">All Departments</option>
+              <option value="">كل الأقسام</option>
               {departments.map(dept => (
                 <option key={dept} value={dept}>{dept}</option>
               ))}
@@ -281,16 +285,16 @@ export default function EmployeesPage() {
 
           {/* Status Filter */}
           <div style={{ display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
-            <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>Status:</span>
+            <span style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)" }}>{t("common.status")}:</span>
             <select
               value={selectedStatus}
               onChange={(e) => { setSelectedStatus(e.target.value); setPage(1); }}
               className="c-input__field"
               style={{ height: "42px", padding: "0 var(--sp-3)", minWidth: "120px", background: "var(--clr-bg-primary)" }}
             >
-              <option value="">All Status</option>
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
+              <option value="">{t("common.all")}</option>
+              <option value="Active">نشط (Active)</option>
+              <option value="Inactive">غير نشط (Inactive)</option>
             </select>
           </div>
         </div>
@@ -317,15 +321,15 @@ export default function EmployeesPage() {
       ) : error ? (
         <div className="c-card" style={{ borderColor: "var(--clr-error)", textAlign: "center", padding: "var(--sp-8)" }}>
           <p style={{ color: "var(--clr-error)", fontWeight: "var(--fw-medium)", marginBottom: "var(--sp-4)" }}>{error}</p>
-          <button onClick={fetchEmployees} className="c-btn c-btn--secondary">Retry Loading</button>
+          <button onClick={fetchEmployees} className="c-btn c-btn--secondary">إعادة المحاولة</button>
         </div>
       ) : employees.length === 0 ? (
         <div className="c-card" style={{ textAlign: "center", padding: "var(--sp-12)", display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--sp-4)" }}>
           <UserX size={48} style={{ color: "var(--clr-text-muted)" }} />
           <div>
-            <h3 style={{ fontSize: "var(--fs-h3)", marginBottom: "var(--sp-1)" }}>No staff members found</h3>
+            <h3 style={{ fontSize: "var(--fs-h3)", marginBottom: "var(--sp-1)" }}>لم يتم العثور على موظفين</h3>
             <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-              No matches found matching "{searchTerm}" or selected filters.
+              لا توجد أي نتائج مطابقة لكلمة البحث "{searchTerm}" أو الفلاتر المحددة.
             </p>
           </div>
         </div>
@@ -344,13 +348,13 @@ export default function EmployeesPage() {
             <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "800px" }}>
               <thead>
                 <tr style={{ borderBottom: "2px solid var(--clr-border)", backgroundColor: "rgba(4, 13, 33, 0.4)" }}>
-                  <th style={{ textAlign: "left", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Name</th>
-                  <th style={{ textAlign: "left", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Email</th>
-                  <th style={{ textAlign: "left", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Department</th>
-                  <th style={{ textAlign: "left", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Position</th>
-                  <th style={{ textAlign: "center", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Status</th>
-                  <th style={{ textAlign: "left", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Joined Date</th>
-                  <th style={{ textAlign: "center", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Actions</th>
+                  <th style={{ textAlign: "right", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>الاسم</th>
+                  <th style={{ textAlign: "right", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>البريد الإلكتروني</th>
+                  <th style={{ textAlign: "right", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>القسم</th>
+                  <th style={{ textAlign: "right", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>المسمى الوظيفي</th>
+                  <th style={{ textAlign: "center", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>الحالة</th>
+                  <th style={{ textAlign: "right", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>تاريخ الانضمام</th>
+                  <th style={{ textAlign: "center", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>الإجراءات</th>
                 </tr>
               </thead>
               <tbody>
@@ -363,25 +367,25 @@ export default function EmployeesPage() {
                     }}
                     className="table-row-hover"
                   >
-                    <td style={{ padding: "var(--sp-4)", fontWeight: "var(--fw-medium)" }}>
+                    <td style={{ padding: "var(--sp-4)", fontWeight: "var(--fw-medium)", textAlign: "right" }}>
                       {emp.firstName} {emp.lastName}
                     </td>
-                    <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)" }}>
-                      {emp.user?.email || "No email linked"}
+                    <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)", textAlign: "right" }}>
+                      {emp.user?.email || "لا يوجد بريد مرتبط"}
                     </td>
-                    <td style={{ padding: "var(--sp-4)" }}>
+                    <td style={{ padding: "var(--sp-4)", textAlign: "right" }}>
                       <span className="c-badge c-badge--info" style={{ textTransform: "none" }}>{emp.department}</span>
                     </td>
-                    <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)" }}>
+                    <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)", textAlign: "right" }}>
                       {emp.position}
                     </td>
                     <td style={{ padding: "var(--sp-4)", textAlign: "center" }}>
                       <span className={`c-badge ${emp.status === "Active" ? "c-badge--success" : "c-badge--error"}`}>
-                        {emp.status}
+                        {emp.status === "Active" ? "نشط" : "غير نشط"}
                       </span>
                     </td>
-                    <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)" }}>
-                      {new Date(emp.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}
+                    <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)", textAlign: "right" }}>
+                      {new Date(emp.createdAt).toLocaleDateString("ar-EG", { year: "numeric", month: "long", day: "numeric" })}
                     </td>
                     <td style={{ padding: "var(--sp-4)", textAlign: "center" }}>
                       <Link 
@@ -390,7 +394,7 @@ export default function EmployeesPage() {
                         style={{ padding: "var(--sp-2) var(--sp-3)", display: "inline-flex", gap: "var(--sp-2)" }}
                       >
                         <Eye size={14} />
-                        <span style={{ fontSize: "var(--fs-caption)" }}>Details</span>
+                        <span style={{ fontSize: "var(--fs-caption)" }}>التفاصيل</span>
                       </Link>
                     </td>
                   </tr>
@@ -418,7 +422,7 @@ export default function EmployeesPage() {
             }}
           >
             <span style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-caption)" }}>
-              Showing {employees.length} of {totalRecords} employees
+              عرض {employees.length} من أصل {totalRecords} موظف
             </span>
             
             <div style={{ display: "flex", gap: "var(--sp-2)" }}>
@@ -428,7 +432,7 @@ export default function EmployeesPage() {
                 className="c-btn c-btn--secondary"
                 style={{ padding: "var(--sp-2) var(--sp-3)" }}
               >
-                <ChevronLeft size={16} />
+                {isRtl ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
               </button>
               <div 
                 style={{ 
@@ -442,7 +446,7 @@ export default function EmployeesPage() {
                   backgroundColor: "var(--clr-bg-primary)"
                 }}
               >
-                Page {page} of {totalPages}
+                الصفحة {page} من {totalPages}
               </div>
               <button 
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
@@ -450,7 +454,7 @@ export default function EmployeesPage() {
                 className="c-btn c-btn--secondary"
                 style={{ padding: "var(--sp-2) var(--sp-3)" }}
               >
-                <ChevronRight size={16} />
+                {isRtl ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
               </button>
             </div>
           </div>
@@ -494,7 +498,8 @@ export default function EmployeesPage() {
               style={{
                 position: "absolute",
                 top: "16px",
-                right: "16px",
+                right: isRtl ? "auto" : "16px",
+                left: isRtl ? "16px" : "auto",
                 background: "none",
                 border: "none",
                 color: "var(--clr-text-muted)",
@@ -505,13 +510,13 @@ export default function EmployeesPage() {
             </button>
 
             {/* Modal Title */}
-            <div style={{ marginBottom: "var(--sp-6)" }}>
+            <div style={{ marginBottom: "var(--sp-6)", textAlign: "right" }}>
               <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-text-primary)", display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
                 <UserPlus size={20} style={{ color: "var(--clr-accent-primary)" }} />
-                <span>Onboard New Employee</span>
+                <span>{t("employees_view.create_modal_title")}</span>
               </h2>
               <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-                Create their core system profile and authorization credentials
+                إنشاء الملف التعريفي وسجل الموظف الجديد وصلاحياته للولوج للمنصة
               </p>
             </div>
 
@@ -524,7 +529,8 @@ export default function EmployeesPage() {
                   borderRadius: "var(--radius-md)",
                   padding: "var(--sp-3) var(--sp-4)",
                   marginBottom: "var(--sp-4)",
-                  fontSize: "var(--fs-body-sm)"
+                  fontSize: "var(--fs-body-sm)",
+                  textAlign: "right"
                 }}
               >
                 {modalError}
@@ -532,32 +538,34 @@ export default function EmployeesPage() {
             )}
 
             {/* Modal Form */}
-            <form onSubmit={handleOnboardSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
+            <form onSubmit={handleOnboardSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
                 <div className="c-input">
-                  <label className="c-input__label">First Name *</label>
+                  <label className="c-input__label">{t("employees_view.first_name")}</label>
                   <input 
                     type="text" 
                     required
                     value={formFields.firstName}
                     onChange={(e) => setFormFields(f => ({ ...f, firstName: e.target.value }))}
                     className="c-input__field" 
+                    style={{ textAlign: "right" }}
                   />
                 </div>
                 <div className="c-input">
-                  <label className="c-input__label">Last Name *</label>
+                  <label className="c-input__label">{t("employees_view.last_name")}</label>
                   <input 
                     type="text" 
                     required
                     value={formFields.lastName}
                     onChange={(e) => setFormFields(f => ({ ...f, lastName: e.target.value }))}
                     className="c-input__field" 
+                    style={{ textAlign: "right" }}
                   />
                 </div>
               </div>
 
               <div className="c-input">
-                <label className="c-input__label">Email Address *</label>
+                <label className="c-input__label">البريد الإلكتروني *</label>
                 <input 
                   type="email" 
                   required
@@ -565,39 +573,43 @@ export default function EmployeesPage() {
                   value={formFields.email}
                   onChange={(e) => setFormFields(f => ({ ...f, email: e.target.value }))}
                   className="c-input__field" 
+                  style={{ textAlign: "left", direction: "ltr" }}
                 />
               </div>
 
               <div className="c-input">
-                <label className="c-input__label">Temporary Password *</label>
+                <label className="c-input__label">كلمة المرور المؤقتة *</label>
                 <input 
                   type="password" 
                   required
-                  placeholder="Min 6 characters"
+                  placeholder="6 أحرف أو أرقام على الأقل"
                   value={formFields.password}
                   onChange={(e) => setFormFields(f => ({ ...f, password: e.target.value }))}
                   className="c-input__field" 
+                  style={{ textAlign: "left", direction: "ltr" }}
                 />
               </div>
 
               <div className="c-input">
-                <label className="c-input__label">Phone Number</label>
+                <label className="c-input__label">{t("employees_view.phone")}</label>
                 <input 
                   type="tel" 
-                  placeholder="+1 (555) 000-0000"
+                  placeholder="010XXXXXXXX"
                   value={formFields.phone}
                   onChange={(e) => setFormFields(f => ({ ...f, phone: e.target.value }))}
                   className="c-input__field" 
+                  style={{ textAlign: "left", direction: "ltr" }}
                 />
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
                 <div className="c-input">
-                  <label className="c-input__label">Department *</label>
+                  <label className="c-input__label">{t("employees_view.department")}</label>
                   <select
                     value={formFields.department}
                     onChange={(e) => setFormFields(f => ({ ...f, department: e.target.value }))}
                     className="c-input__field" 
+                    style={{ background: "var(--clr-bg-primary)" }}
                   >
                     {departments.map(dept => (
                       <option key={dept} value={dept}>{dept}</option>
@@ -605,14 +617,15 @@ export default function EmployeesPage() {
                   </select>
                 </div>
                 <div className="c-input">
-                  <label className="c-input__label">Position Title *</label>
+                  <label className="c-input__label">{t("employees_view.position")}</label>
                   <input 
                     type="text" 
                     required
-                    placeholder="e.g. Sales Agent"
+                    placeholder="مثال: مسؤول مبيعات"
                     value={formFields.position}
                     onChange={(e) => setFormFields(f => ({ ...f, position: e.target.value }))}
                     className="c-input__field" 
+                    style={{ textAlign: "right" }}
                   />
                 </div>
               </div>
@@ -624,7 +637,7 @@ export default function EmployeesPage() {
                   onClick={() => setIsModalOpen(false)}
                   className="c-btn c-btn--secondary"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </button>
                 <button 
                   type="submit" 
@@ -635,10 +648,10 @@ export default function EmployeesPage() {
                   {modalLoading ? (
                     <>
                       <div className="btn-spinner" />
-                      <span>Onboarding...</span>
+                      <span>جاري التسجيل...</span>
                     </>
                   ) : (
-                    <span>Onboard Staff</span>
+                    <span>تسجيل الموظف</span>
                   )}
                 </button>
               </div>
