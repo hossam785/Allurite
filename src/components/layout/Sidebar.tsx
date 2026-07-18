@@ -142,11 +142,12 @@ export default function Sidebar({ user, currentPath, isMobileOpen, onClose }: Si
                 borderRadius: "var(--radius-md)",
                 border: "1px solid var(--clr-accent-primary)",
                 boxShadow: "var(--shadow-glow-accent)",
-                background: "rgba(0, 210, 255, 0.05)",
+                background: "rgba(0, 210, 255, 0.04)",
               }}
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--clr-accent-primary)" strokeWidth="2.5">
-                <path d="M3 20h18L12 4z" />
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--clr-accent-primary)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 3.5L3.5 19.5h17L12 3.5z" opacity="0.25" />
+                <path d="M12 6L18 17H6L12 6L15.5 14H9L12 9L13.5 12h-2" />
               </svg>
             </div>
             <span style={{ fontSize: "1.25rem", fontWeight: "var(--fw-bold)", fontFamily: "Outfit", letterSpacing: "0.5px" }}>
@@ -212,7 +213,8 @@ export default function Sidebar({ user, currentPath, isMobileOpen, onClose }: Si
                   alignItems: "center",
                   gap: "var(--sp-3)",
                   padding: "var(--sp-3) var(--sp-4)",
-                  backgroundColor: isActive ? "var(--clr-border)" : "transparent",
+                  backgroundColor: isActive ? "rgba(0, 210, 255, 0.06)" : "transparent",
+                  boxShadow: isActive ? "inset 0 0 0 1px rgba(0, 210, 255, 0.15)" : "none",
                   borderRadius: "var(--radius-md)",
                   borderLeft: isRtl ? "4px solid transparent" : (isActive ? "4px solid var(--clr-accent-primary)" : "4px solid transparent"),
                   borderRight: isRtl ? (isActive ? "4px solid var(--clr-accent-primary)" : "4px solid transparent") : "4px solid transparent",

@@ -132,7 +132,7 @@ export default function Header({ title, toggleMobileSidebar }: HeaderProps) {
         justifyContent: "space-between",
         alignItems: "center",
         borderBottom: "1px solid var(--clr-border)",
-        background: "rgba(4, 13, 33, 0.85)",
+        background: "rgba(3, 7, 18, 0.8)",
         backdropFilter: "blur(12px)",
         position: "sticky",
         top: 0,

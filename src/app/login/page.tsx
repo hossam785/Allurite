@@ -61,7 +61,7 @@ function LoginFormContent() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="c-card c-card--glow" style={{ width: "100%", maxWidth: "420px" }}>
+    <form onSubmit={handleSubmit} className="c-card c-card--glow" style={{ width: "100%", maxWidth: "420px", boxShadow: "0 8px 30px rgba(0, 0, 0, 0.4), var(--shadow-glow-accent)" }}>
       <div style={{ textAlign: "center", marginBottom: "var(--sp-6)" }}>
         {/* Brand Logo Symbol */}
         <div
@@ -69,25 +69,25 @@ function LoginFormContent() {
             display: "inline-flex",
             alignItems: "center",
             justifyContent: "center",
-            width: "56px",
-            height: "56px",
+            width: "64px",
+            height: "64px",
             borderRadius: "var(--radius-lg)",
             border: "2px solid var(--clr-accent-primary)",
             boxShadow: "var(--shadow-glow-accent)",
             marginBottom: "var(--sp-4)",
-            background: "rgba(0, 210, 255, 0.05)",
+            background: "rgba(0, 210, 255, 0.04)",
           }}
         >
           {/* Cyan Triangle Maze logo mark */}
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--clr-accent-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 20h18L12 4z" />
-            <path d="M12 9v4h-3" />
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--clr-accent-primary)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 3.5L3.5 19.5h17L12 3.5z" opacity="0.25" />
+            <path d="M12 6L18 17H6L12 6L15.5 14H9L12 9L13.5 12h-2" />
           </svg>
         </div>
-        <h1 style={{ fontSize: "var(--fs-h2)", color: "var(--clr-text-primary)", marginBottom: "var(--sp-1)" }}>
+        <h1 style={{ fontSize: "var(--fs-h2)", color: "var(--clr-text-primary)", marginBottom: "var(--sp-1)", fontWeight: "var(--fw-bold)", fontFamily: "Outfit", letterSpacing: "0.5px" }}>
           Allurite
         </h1>
-        <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
+        <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)", fontFamily: "Outfit" }}>
           {t("auth.title")}
         </p>
       </div>
@@ -154,7 +154,7 @@ export default function LoginPage() {
           justifyContent: "center",
           minHeight: "100vh",
           padding: "var(--sp-4)",
-          background: "radial-gradient(circle at center, #0a1f4d 0%, var(--clr-bg-primary) 70%)",
+          background: "radial-gradient(circle at center, rgba(0, 210, 255, 0.08) 0%, var(--clr-bg-primary) 80%)",
         }}
       >
         <Suspense fallback={<div style={{ color: "var(--clr-text-muted)" }}>Loading components...</div>}>
