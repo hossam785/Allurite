@@ -53,7 +53,7 @@ export async function GET(
       let isAuthorized = false;
       if (file.relatedModule === "Clients" && file.relatedId) {
         const client = await mongoose.model("Client").findById(file.relatedId);
-        if (client && client.manager.toString() === auth.employeeId) isAuthorized = true;
+        if (client && client.assignedAgent.toString() === auth.employeeId) isAuthorized = true;
       } else if (file.relatedModule === "Tasks" && file.relatedId) {
         const task = await mongoose.model("Task").findById(file.relatedId);
         if (task && task.assignedTo.toString() === auth.employeeId) isAuthorized = true;

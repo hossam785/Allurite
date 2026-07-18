@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
     // Apply Employee scoping constraints
     if (auth.role === "Employee") {
       // Find Client IDs managed by the employee
-      const managedClients = await Client.find({ manager: auth.employeeId }).select("_id");
+      const managedClients = await Client.find({ assignedAgent: auth.employeeId }).select("_id");
       const clientIds = managedClients.map(c => c._id);
 
       // Find Task IDs assigned to the employee
@@ -204,7 +204,7 @@ export async function POST(request: NextRequest) {
       // SuperAdmin uploads: resolve from linked module manager/assignee, otherwise fetch first Employee
       if (relatedModule === "Clients" && relatedId) {
         const client = await Client.findById(relatedId);
-        if (client) ownerId = client.manager.toString();
+        if (client) ownerId = client.assignedAgent.toString();
       } else if (relatedModule === "Tasks" && relatedId) {
         const task = await Task.findById(relatedId);
         if (task) ownerId = task.assignedTo.toString();
