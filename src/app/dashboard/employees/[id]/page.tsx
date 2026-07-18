@@ -3,8 +3,10 @@
 import React, { useEffect, useState, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/context/LanguageContext";
 import { 
   ArrowLeft, 
+  ChevronRight,
   Edit, 
   Key, 
   Calendar, 
@@ -43,6 +45,7 @@ interface EmployeeDetail {
 
 export default function EmployeeDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
+  const { t, isRtl } = useLanguage();
   const { id } = use(params);
 
   const [employee, setEmployee] = useState<EmployeeDetail | null>(null);
@@ -209,7 +212,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
     return (
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "80vh", gap: "var(--sp-4)" }}>
         <div style={{ width: "32px", height: "32px", border: "3px solid var(--clr-border)", borderTop: "3px solid var(--clr-accent-primary)", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
-        <span style={{ color: "var(--clr-text-muted)" }}>Loading profile details...</span>
+        <span style={{ color: "var(--clr-text-muted)" }}>جاري تحميل تفاصيل ملف الموظف...</span>
       </div>
     );
   }
@@ -219,7 +222,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
       <main style={{ flex: 1, padding: "var(--sp-8)" }}>
         <div className="c-card" style={{ borderColor: "var(--clr-error)", textAlign: "center", padding: "var(--sp-8)" }}>
           <p style={{ color: "var(--clr-error)", fontWeight: "var(--fw-medium)", marginBottom: "var(--sp-4)" }}>{error}</p>
-          <Link href="/dashboard/employees" className="c-btn c-btn--secondary">Back to Directory</Link>
+          <Link href="/dashboard/employees" className="c-btn c-btn--secondary">العودة لدليل الموظفين</Link>
         </div>
       </main>
     );
@@ -236,8 +239,8 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
           style={{ display: "inline-flex", alignItems: "center", gap: "var(--sp-2)", color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}
           className="hover-bright"
         >
-          <ArrowLeft size={16} />
-          <span>Back to Directory</span>
+          {isRtl ? <ChevronRight size={16} /> : <ArrowLeft size={16} />}
+          <span>العودة لدليل الموظفين</span>
         </Link>
       </div>
 
@@ -268,7 +271,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
             style={{ gap: "var(--sp-2)" }}
           >
             {employee.status === "Active" ? <UserX size={16} /> : <UserCheck size={16} />}
-            <span>{employee.status === "Active" ? "Disable Employee" : "Enable Employee"}</span>
+            <span>{employee.status === "Active" ? "تعطيل حساب الموظف" : "تفعيل حساب الموظف"}</span>
           </button>
 
           <button 
@@ -277,7 +280,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
             style={{ gap: "var(--sp-2)", boxShadow: "var(--shadow-glow-accent)" }}
           >
             <Edit size={16} />
-            <span>Edit Profile</span>
+            <span>تعديل البيانات</span>
           </button>
         </div>
       </header>
@@ -285,9 +288,9 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
       {/* Grid split */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))", gap: "var(--sp-6)" }}>
         {/* Left Column: General profile details */}
-        <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-6)" }}>
+        <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-6)", textAlign: "right" }}>
           <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-accent-primary)", borderBottom: "1px solid var(--clr-border)", paddingBottom: "var(--sp-2)" }}>
-            Employee Profile
+            ملف الموظف التعريفي
           </h2>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
@@ -296,7 +299,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                 <User size={20} />
               </div>
               <div>
-                <div style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)" }}>Full Name</div>
+                <div style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)" }}>الاسم الكامل</div>
                 <div style={{ fontSize: "var(--fs-body-lg)", fontWeight: "var(--fw-bold)", marginTop: "2px" }}>
                   {employee.firstName} {employee.lastName}
                 </div>
@@ -308,7 +311,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                 <Building2 size={20} />
               </div>
               <div>
-                <div style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)" }}>Department</div>
+                <div style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)" }}>القسم</div>
                 <div style={{ fontSize: "var(--fs-body-lg)", fontWeight: "var(--fw-bold)", marginTop: "2px" }}>
                   {employee.department}
                 </div>
@@ -320,7 +323,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                 <Briefcase size={20} />
               </div>
               <div>
-                <div style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)" }}>Position Title</div>
+                <div style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)" }}>المسمى الوظيفي</div>
                 <div style={{ fontSize: "var(--fs-body-lg)", fontWeight: "var(--fw-bold)", marginTop: "2px" }}>
                   {employee.position}
                 </div>
@@ -332,9 +335,9 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                 <Smartphone size={20} />
               </div>
               <div>
-                <div style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)" }}>Phone Number</div>
-                <div style={{ fontSize: "var(--fs-body-lg)", fontWeight: "var(--fw-bold)", marginTop: "2px" }}>
-                  {employee.phone || "No phone provided"}
+                <div style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)" }}>رقم الهاتف</div>
+                <div style={{ fontSize: "var(--fs-body-lg)", fontWeight: "var(--fw-bold)", marginTop: "2px", textAlign: "left", direction: "ltr" }}>
+                  {employee.phone || "لا يوجد هاتف"}
                 </div>
               </div>
             </div>
@@ -344,9 +347,9 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                 <Calendar size={20} />
               </div>
               <div>
-                <div style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)" }}>Date Registered</div>
+                <div style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)" }}>تاريخ التسجيل</div>
                 <div style={{ fontSize: "var(--fs-body-lg)", fontWeight: "var(--fw-bold)", marginTop: "2px" }}>
-                  {new Date(employee.createdAt).toLocaleString(undefined, { dateStyle: "long", timeStyle: "short" })}
+                  {new Date(employee.createdAt).toLocaleString("ar-EG", { dateStyle: "long", timeStyle: "short" })}
                 </div>
               </div>
             </div>
@@ -354,9 +357,9 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
         </section>
 
         {/* Right Column: User Account & Security */}
-        <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-6)" }}>
+        <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-6)", textAlign: "right" }}>
           <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-accent-primary)", borderBottom: "1px solid var(--clr-border)", paddingBottom: "var(--sp-2)" }}>
-            Credentials & Authorization
+            صلاحيات الوصول وبيانات الولوج
           </h2>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", flex: 1 }}>
@@ -365,9 +368,9 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                 <Mail size={20} />
               </div>
               <div>
-                <div style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)" }}>Email Address</div>
-                <div style={{ fontSize: "var(--fs-body-lg)", fontWeight: "var(--fw-bold)", marginTop: "2px" }}>
-                  {employee.user?.email || "No user linked"}
+                <div style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)" }}>البريد الإلكتروني</div>
+                <div style={{ fontSize: "var(--fs-body-lg)", fontWeight: "var(--fw-bold)", marginTop: "2px", textAlign: "left", direction: "ltr" }}>
+                  {employee.user?.email || "لا يوجد حساب مرتبط"}
                 </div>
               </div>
             </div>
@@ -377,9 +380,11 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                 <Shield size={20} />
               </div>
               <div>
-                <div style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)" }}>CRM Access Role</div>
+                <div style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)" }}>صلاحية الوصول للـ CRM</div>
                 <div style={{ fontSize: "var(--fs-body-lg)", fontWeight: "var(--fw-bold)", marginTop: "2px" }}>
-                  {employee.user?.role || "N/A"}
+                  {employee.user?.role === "SuperAdmin" && "مدير النظام (SuperAdmin)"}
+                  {employee.user?.role === "Admin" && "مشرف (Admin)"}
+                  {employee.user?.role === "Employee" && "موظف (Employee)"}
                 </div>
               </div>
             </div>
@@ -389,10 +394,10 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                 <Tag size={20} />
               </div>
               <div>
-                <div style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)" }}>Employment Status</div>
+                <div style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)" }}>حالة الموظف</div>
                 <div style={{ marginTop: "4px" }}>
                   <span className={`c-badge ${employee.status === "Active" ? "c-badge--success" : "c-badge--error"}`}>
-                    {employee.status}
+                    {employee.status === "Active" ? "نشط" : "غير نشط"}
                   </span>
                 </div>
               </div>
@@ -413,7 +418,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
             >
               <div style={{ display: "flex", gap: "var(--sp-2)", color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
                 <Lock size={16} style={{ flexShrink: 0, marginTop: "2px" }} />
-                <span>Need to reset temporary or forgotten passwords for this user?</span>
+                <span>هل تحتاج إلى إعادة تعيين كلمة المرور المؤقتة أو المنسية لهذا المستخدم؟</span>
               </div>
               <button 
                 onClick={() => { setIsResetOpen(true); setResetSuccess(""); setResetError(""); }}
@@ -421,7 +426,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                 style={{ alignSelf: "flex-start", gap: "var(--sp-2)" }}
               >
                 <Key size={14} />
-                <span>Reset User Password</span>
+                <span>إعادة تعيين كلمة المرور</span>
               </button>
             </div>
           </div>
@@ -459,18 +464,27 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
           >
             <button 
               onClick={() => setIsEditOpen(false)}
-              style={{ position: "absolute", top: "16px", right: "16px", background: "none", border: "none", color: "var(--clr-text-muted)", cursor: "pointer" }}
+              style={{
+                position: "absolute",
+                top: "16px",
+                right: isRtl ? "auto" : "16px",
+                left: isRtl ? "16px" : "auto",
+                background: "none",
+                border: "none",
+                color: "var(--clr-text-muted)",
+                cursor: "pointer"
+              }}
             >
               <X size={20} />
             </button>
 
-            <div style={{ marginBottom: "var(--sp-6)" }}>
+            <div style={{ marginBottom: "var(--sp-6)", textAlign: "right" }}>
               <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-text-primary)", display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
                 <Edit size={20} style={{ color: "var(--clr-accent-primary)" }} />
-                <span>Edit Employee Profile</span>
+                <span>تعديل ملف الموظف</span>
               </h2>
               <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-                Modify database fields and roles for this account
+                تحديث معلومات الملف الشخصي والأقسام الوظيفية للموظف
               </p>
             </div>
 
@@ -483,54 +497,59 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                   borderRadius: "var(--radius-md)",
                   padding: "var(--sp-3) var(--sp-4)",
                   marginBottom: "var(--sp-4)",
-                  fontSize: "var(--fs-body-sm)"
+                  fontSize: "var(--fs-body-sm)",
+                  textAlign: "right"
                 }}
               >
                 {editError}
               </div>
             )}
 
-            <form onSubmit={handleEditSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
+            <form onSubmit={handleEditSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
                 <div className="c-input">
-                  <label className="c-input__label">First Name *</label>
+                  <label className="c-input__label">الاسم الأول *</label>
                   <input 
                     type="text" 
                     required
                     value={editFields.firstName}
                     onChange={(e) => setEditFields(f => ({ ...f, firstName: e.target.value }))}
                     className="c-input__field" 
+                    style={{ textAlign: "right" }}
                   />
                 </div>
                 <div className="c-input">
-                  <label className="c-input__label">Last Name *</label>
+                  <label className="c-input__label">الاسم الأخير *</label>
                   <input 
                     type="text" 
                     required
                     value={editFields.lastName}
                     onChange={(e) => setEditFields(f => ({ ...f, lastName: e.target.value }))}
                     className="c-input__field" 
+                    style={{ textAlign: "right" }}
                   />
                 </div>
               </div>
 
               <div className="c-input">
-                <label className="c-input__label">Phone Number</label>
+                <label className="c-input__label">رقم الهاتف</label>
                 <input 
                   type="tel" 
                   value={editFields.phone}
                   onChange={(e) => setEditFields(f => ({ ...f, phone: e.target.value }))}
                   className="c-input__field" 
+                  style={{ textAlign: "left", direction: "ltr" }}
                 />
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
                 <div className="c-input">
-                  <label className="c-input__label">Department *</label>
+                  <label className="c-input__label">القسم *</label>
                   <select
                     value={editFields.department}
                     onChange={(e) => setEditFields(f => ({ ...f, department: e.target.value }))}
                     className="c-input__field" 
+                    style={{ background: "var(--clr-bg-primary)" }}
                   >
                     {departments.map(dept => (
                       <option key={dept} value={dept}>{dept}</option>
@@ -538,26 +557,28 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                   </select>
                 </div>
                 <div className="c-input">
-                  <label className="c-input__label">Position Title *</label>
+                  <label className="c-input__label">المسمى الوظيفي *</label>
                   <input 
                     type="text" 
                     required
                     value={editFields.position}
                     onChange={(e) => setEditFields(f => ({ ...f, position: e.target.value }))}
                     className="c-input__field" 
+                    style={{ textAlign: "right" }}
                   />
                 </div>
               </div>
 
               <div className="c-input">
-                <label className="c-input__label">Employment Status *</label>
+                <label className="c-input__label">حالة الحساب *</label>
                 <select
                   value={editFields.status}
                   onChange={(e) => setEditFields(f => ({ ...f, status: e.target.value as "Active" | "Inactive" }))}
                   className="c-input__field" 
+                  style={{ background: "var(--clr-bg-primary)" }}
                 >
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
+                  <option value="Active">نشط</option>
+                  <option value="Inactive">غير نشط</option>
                 </select>
               </div>
 
@@ -567,7 +588,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                   onClick={() => setIsEditOpen(false)}
                   className="c-btn c-btn--secondary"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </button>
                 <button 
                   type="submit" 
@@ -576,7 +597,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                   style={{ minWidth: "100px", gap: "var(--sp-2)" }}
                 >
                   {editLoading ? <div className="btn-spinner" /> : null}
-                  <span>Save Changes</span>
+                  <span>حفظ التعديلات</span>
                 </button>
               </div>
             </form>
@@ -615,18 +636,27 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
           >
             <button 
               onClick={() => setIsResetOpen(false)}
-              style={{ position: "absolute", top: "16px", right: "16px", background: "none", border: "none", color: "var(--clr-text-muted)", cursor: "pointer" }}
+              style={{
+                position: "absolute",
+                top: "16px",
+                right: isRtl ? "auto" : "16px",
+                left: isRtl ? "16px" : "auto",
+                background: "none",
+                border: "none",
+                color: "var(--clr-text-muted)",
+                cursor: "pointer"
+              }}
             >
               <X size={20} />
             </button>
 
-            <div style={{ marginBottom: "var(--sp-6)" }}>
+            <div style={{ marginBottom: "var(--sp-6)", textAlign: "right" }}>
               <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-text-primary)", display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
                 <Key size={20} style={{ color: "var(--clr-accent-primary)" }} />
-                <span>Reset User Password</span>
+                <span>إعادة تعيين كلمة المرور للموظف</span>
               </h2>
               <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-                Assign a new authentication credential for this employee account
+                تعيين كلمة مرور جديدة لهذا الحساب للتمكن من الولوج مجدداً
               </p>
             </div>
 
@@ -634,15 +664,15 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", alignItems: "center", textAlign: "center", padding: "var(--sp-4) 0" }}>
                 <CheckCircle2 size={48} style={{ color: "var(--clr-success)" }} />
                 <div>
-                  <h3 style={{ color: "var(--clr-success)", marginBottom: "var(--sp-1)" }}>Success</h3>
+                  <h3 style={{ color: "var(--clr-success)", marginBottom: "var(--sp-1)" }}>تمت العملية بنجاح</h3>
                   <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>{resetSuccess}</p>
                 </div>
                 <button onClick={() => setIsResetOpen(false)} className="c-btn c-btn--primary" style={{ width: "100%" }}>
-                  Close Modal
+                  إغلاق النافذة
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleResetSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
+              <form onSubmit={handleResetSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
                 {resetError && (
                   <div 
                     style={{ 
@@ -651,7 +681,8 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                       color: "var(--clr-error)",
                       borderRadius: "var(--radius-md)",
                       padding: "var(--sp-3) var(--sp-4)",
-                      fontSize: "var(--fs-body-sm)"
+                      fontSize: "var(--fs-body-sm)",
+                      textAlign: "right"
                     }}
                   >
                     {resetError}
@@ -659,14 +690,15 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                 )}
 
                 <div className="c-input">
-                  <label className="c-input__label">New Password *</label>
+                  <label className="c-input__label">كلمة المرور الجديدة *</label>
                   <input 
                     type="password" 
                     required
-                    placeholder="Minimum 6 characters"
+                    placeholder="6 أحرف أو أرقام على الأقل"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     className="c-input__field" 
+                    style={{ textAlign: "left", direction: "ltr" }}
                   />
                 </div>
 
@@ -676,7 +708,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                     onClick={() => setIsResetOpen(false)}
                     className="c-btn c-btn--secondary"
                   >
-                    Cancel
+                    {t("common.cancel")}
                   </button>
                   <button 
                     type="submit" 
@@ -685,7 +717,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                     style={{ minWidth: "120px", gap: "var(--sp-2)" }}
                   >
                     {resetLoading ? <div className="btn-spinner" /> : null}
-                    <span>Update Password</span>
+                    <span>تحديث كلمة المرور</span>
                   </button>
                 </div>
               </form>

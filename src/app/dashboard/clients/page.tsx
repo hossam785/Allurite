@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "../layout";
+import { useLanguage } from "@/context/LanguageContext";
 import { 
   Search, 
   Plus, 
@@ -52,6 +53,7 @@ interface EmployeeSummary {
 
 export default function ClientsPage() {
   const { user: currentUser } = useAuth();
+  const { t, isRtl } = useLanguage();
   
   // Scoping & auth flag
   const isSuperAdmin = currentUser?.role === "SuperAdmin";
@@ -224,11 +226,11 @@ export default function ClientsPage() {
         }}
       >
         <div>
-          <h1 style={{ fontSize: "var(--fs-h1)", marginBottom: "var(--sp-1)" }}>Client Pipeline</h1>
+          <h1 style={{ fontSize: "var(--fs-h1)", marginBottom: "var(--sp-1)" }}>{t("clients_view.pipeline_title")}</h1>
           <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
             {isSuperAdmin 
-              ? "Oversee organizational leads, acquisition states, and accounts" 
-              : "Manage your assigned client accounts and communication notes"}
+              ? "إشراف ومتابعة فرص العمل، مراحل الاستحواذ، وحسابات العملاء للشركة" 
+              : "إدارة حسابات عملائك المسندين إليك وملاحظات التواصل معهم"}
           </p>
         </div>
         
@@ -238,7 +240,7 @@ export default function ClientsPage() {
           style={{ gap: "var(--sp-2)", boxShadow: "var(--shadow-glow-accent)" }}
         >
           <UserPlus size={16} />
-          <span>Add Client</span>
+          <span>{t("clients_view.create_client")}</span>
         </button>
       </header>
 
@@ -263,7 +265,8 @@ export default function ClientsPage() {
               size={18} 
               style={{ 
                 position: "absolute", 
-                left: "12px", 
+                right: isRtl ? "12px" : "auto",
+                left: isRtl ? "auto" : "12px", 
                 top: "50%", 
                 transform: "translateY(-50%)", 
                 color: "var(--clr-text-muted)" 
@@ -271,18 +274,19 @@ export default function ClientsPage() {
             />
             <input 
               type="text" 
-              placeholder="Search clients by name, email, company..." 
+              placeholder="ابحث عن عميل بالاسم، البريد الإلكتروني، الشركة..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="c-input__field"
-              style={{ paddingLeft: "40px", width: "100%", height: "42px" }}
+              style={{ paddingLeft: isRtl ? "12px" : "40px", paddingRight: isRtl ? "40px" : "12px", width: "100%", height: "42px", textAlign: "right" }}
             />
             {searchTerm && (
               <button 
                 onClick={() => setSearchTerm("")}
                 style={{ 
                   position: "absolute", 
-                  right: "12px", 
+                  left: isRtl ? "12px" : "auto",
+                  right: isRtl ? "auto" : "12px",
                   top: "50%", 
                   transform: "translateY(-50%)", 
                   background: "none", 
@@ -298,52 +302,58 @@ export default function ClientsPage() {
         </div>
 
         {/* Filter dropdowns */}
-        <div style={{ display: "flex", gap: "var(--sp-3)", flexWrap: "wrap", alignItems: "center" }}>
-          {/* Status Dropdown */}
+        <div style={{ display: "flex", gap: "var(--sp-4)", flexWrap: "wrap", alignItems: "center" }}>
+          {/* Status Filter */}
           <div style={{ display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
-            <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>Status:</span>
+            <span style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)" }}>{t("common.status")}:</span>
             <select
               value={selectedStatus}
               onChange={(e) => { setSelectedStatus(e.target.value); setPage(1); }}
               className="c-input__field"
-              style={{ height: "42px", padding: "0 var(--sp-3)", minWidth: "120px", background: "var(--clr-bg-primary)" }}
+              style={{ height: "42px", padding: "0 var(--sp-3)", minWidth: "135px", background: "var(--clr-bg-primary)" }}
             >
-              <option value="">All Statuses</option>
-              {statuses.map(st => (
-                <option key={st} value={st}>{st === "ActiveCustomer" ? "Active Customer" : st}</option>
-              ))}
+              <option value="">{t("common.all")}</option>
+              <option value="Lead">عميل محتمل (Lead)</option>
+              <option value="Qualified">عميل مؤهل (Qualified)</option>
+              <option value="ActiveCustomer">عميل نشط (Active)</option>
+              <option value="Churned">منسحب (Churned)</option>
             </select>
           </div>
 
-          {/* Source Dropdown */}
+          {/* Source Filter */}
           <div style={{ display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
-            <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>Source:</span>
+            <span style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)" }}>المصدر:</span>
             <select
               value={selectedSource}
               onChange={(e) => { setSelectedSource(e.target.value); setPage(1); }}
               className="c-input__field"
-              style={{ height: "42px", padding: "0 var(--sp-3)", minWidth: "120px", background: "var(--clr-bg-primary)" }}
+              style={{ height: "42px", padding: "0 var(--sp-3)", minWidth: "125px", background: "var(--clr-bg-primary)" }}
             >
-              <option value="">All Sources</option>
-              {sources.map(src => (
-                <option key={src} value={src}>{src}</option>
-              ))}
+              <option value="">كل المصادر</option>
+              <option value="Website">الموقع الإلكتروني</option>
+              <option value="Referral">توصية / ترشيح</option>
+              <option value="ColdOutreach">تواصل بارد</option>
+              <option value="LinkedIn">لينكد إن</option>
+              <option value="Advertisement">إعلان ممول</option>
+              <option value="Other">مصادر أخرى</option>
             </select>
           </div>
 
-          {/* Agent Dropdown (SuperAdmin only) */}
+          {/* Agent Filter (Admin scoping only) */}
           {isSuperAdmin && (
             <div style={{ display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
-              <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>Agent:</span>
+              <span style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)" }}>المسؤول:</span>
               <select
                 value={selectedAgent}
                 onChange={(e) => { setSelectedAgent(e.target.value); setPage(1); }}
                 className="c-input__field"
-                style={{ height: "42px", padding: "0 var(--sp-3)", minWidth: "130px", background: "var(--clr-bg-primary)" }}
+                style={{ height: "42px", padding: "0 var(--sp-3)", minWidth: "150px", background: "var(--clr-bg-primary)" }}
               >
-                <option value="">All Agents</option>
-                {agents.map(ag => (
-                  <option key={ag._id} value={ag._id}>{ag.firstName} {ag.lastName}</option>
+                <option value="">كل المسؤولين</option>
+                {agents.map((agent) => (
+                  <option key={agent._id} value={agent._id}>
+                    {agent.firstName} {agent.lastName}
+                  </option>
                 ))}
               </select>
             </div>
@@ -351,7 +361,7 @@ export default function ClientsPage() {
         </div>
       </div>
 
-      {/* Main Grid View / List */}
+      {/* Grid table */}
       {loading ? (
         <div className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", padding: "var(--sp-8)" }}>
           {[...Array(5)].map((_, i) => (
@@ -372,15 +382,15 @@ export default function ClientsPage() {
       ) : error ? (
         <div className="c-card" style={{ borderColor: "var(--clr-error)", textAlign: "center", padding: "var(--sp-8)" }}>
           <p style={{ color: "var(--clr-error)", fontWeight: "var(--fw-medium)", marginBottom: "var(--sp-4)" }}>{error}</p>
-          <button onClick={fetchClients} className="c-btn c-btn--secondary">Retry Loading</button>
+          <button onClick={fetchClients} className="c-btn c-btn--secondary">إعادة المحاولة</button>
         </div>
       ) : clients.length === 0 ? (
         <div className="c-card" style={{ textAlign: "center", padding: "var(--sp-12)", display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--sp-4)" }}>
           <UserX size={48} style={{ color: "var(--clr-text-muted)" }} />
           <div>
-            <h3 style={{ fontSize: "var(--fs-h3)", marginBottom: "var(--sp-1)" }}>No clients registered</h3>
+            <h3 style={{ fontSize: "var(--fs-h3)", marginBottom: "var(--sp-1)" }}>لم يتم العثور على عملاء</h3>
             <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-              No clients found matching the query criteria.
+              لا توجد أي نتائج مطابقة لكلمة البحث "{searchTerm}" أو الفلاتر المحددة.
             </p>
           </div>
         </div>
@@ -394,65 +404,98 @@ export default function ClientsPage() {
             boxShadow: "var(--shadow-md)"
           }}
         >
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "900px" }}>
+          {/* Scrollable table container */}
+          <div className="c-table-container">
+            <table className="c-table" style={{ width: "100%", borderCollapse: "collapse", minWidth: "1000px" }}>
               <thead>
                 <tr style={{ borderBottom: "2px solid var(--clr-border)", backgroundColor: "rgba(4, 13, 33, 0.4)" }}>
-                  <th style={{ textAlign: "left", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Client Name</th>
-                  <th style={{ textAlign: "left", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Company</th>
-                  <th style={{ textAlign: "left", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Email Address</th>
-                  <th style={{ textAlign: "center", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Status</th>
-                  <th style={{ textAlign: "left", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Source</th>
-                  <th style={{ textAlign: "left", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Assigned Agent</th>
-                  <th style={{ textAlign: "center", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Actions</th>
+                  <th style={{ textAlign: "right", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>الاسم</th>
+                  <th style={{ textAlign: "right", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>الشركة / القطاع</th>
+                  <th style={{ textAlign: "right", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>البريد الإلكتروني</th>
+                  <th style={{ textAlign: "right", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>رقم الهاتف</th>
+                  <th style={{ textAlign: "right", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>المصدر</th>
+                  <th style={{ textAlign: "center", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>الحالة</th>
+                  <th style={{ textAlign: "right", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>الموظف المتابع</th>
+                  <th style={{ textAlign: "center", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>الإجراءات</th>
                 </tr>
               </thead>
               <tbody>
-                {clients.map((cli) => {
+                {clients.map((client) => {
                   let statusBadgeClass = "c-badge--info";
-                  if (cli.status === "Qualified") statusBadgeClass = "c-badge--warning";
-                  if (cli.status === "ActiveCustomer") statusBadgeClass = "c-badge--success";
-                  if (cli.status === "Churned") statusBadgeClass = "c-badge--error";
+                  let statusText: string = client.status;
+                  if (client.status === "Lead") {
+                    statusBadgeClass = "c-badge--info";
+                    statusText = "عميل محتمل (Lead)";
+                  } else if (client.status === "Qualified") {
+                    statusBadgeClass = "c-badge--warning";
+                    statusText = "مؤهل (Qualified)";
+                  } else if (client.status === "ActiveCustomer") {
+                    statusBadgeClass = "c-badge--success";
+                    statusText = "نشط (Active)";
+                  } else if (client.status === "Churned") {
+                    statusBadgeClass = "c-badge--error";
+                    statusText = "منسحب (Churned)";
+                  }
+
+                  let sourceText = client.source;
+                  if (client.source === "Website") sourceText = "الموقع الإلكتروني";
+                  else if (client.source === "Referral") sourceText = "توصية / ترشيح";
+                  else if (client.source === "ColdOutreach") sourceText = "تواصل بارد";
+                  else if (client.source === "LinkedIn") sourceText = "لينكد إن";
+                  else if (client.source === "Advertisement") sourceText = "إعلان ممول";
+                  else if (client.source === "Other") sourceText = "مصادر أخرى";
 
                   return (
                     <tr 
-                      key={cli._id} 
+                      key={client._id} 
                       style={{ 
                         borderBottom: "1px solid var(--clr-border)",
                         transition: "var(--transition-fast)" 
                       }}
                       className="table-row-hover"
                     >
-                      <td style={{ padding: "var(--sp-4)", fontWeight: "var(--fw-medium)" }}>
-                        {cli.firstName} {cli.lastName}
+                      <td style={{ padding: "var(--sp-4)", fontWeight: "var(--fw-medium)", textAlign: "right" }}>
+                        {client.firstName} {client.lastName}
                       </td>
-                      <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)" }}>
-                        {cli.companyName || "Personal"}
+                      <td style={{ padding: "var(--sp-4)", textAlign: "right" }}>
+                        {client.companyName ? (
+                          <div style={{ display: "flex", flexDirection: "column" }}>
+                            <span style={{ fontWeight: "var(--fw-medium)" }}>{client.companyName}</span>
+                            <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>{client.industry || "لم يحدد"}</span>
+                          </div>
+                        ) : (
+                          <span style={{ color: "var(--clr-text-muted)" }}>لا توجد شركة</span>
+                        )}
                       </td>
-                      <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)" }}>
-                        {cli.email}
+                      <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)", textAlign: "right" }}>
+                        {client.email}
+                      </td>
+                      <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)", textAlign: "right", direction: "ltr" }}>
+                        {client.phone || "—"}
+                      </td>
+                      <td style={{ padding: "var(--sp-4)", textAlign: "right" }}>
+                        <span className="c-badge c-badge--info" style={{ textTransform: "none" }}>{sourceText}</span>
                       </td>
                       <td style={{ padding: "var(--sp-4)", textAlign: "center" }}>
                         <span className={`c-badge ${statusBadgeClass}`}>
-                          {cli.status === "ActiveCustomer" ? "Customer" : cli.status}
+                          {statusText}
                         </span>
                       </td>
-                      <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)" }}>
-                        {cli.source}
-                      </td>
-                      <td style={{ padding: "var(--sp-4)", fontWeight: "var(--fw-medium)" }}>
-                        {cli.assignedAgent 
-                          ? `${cli.assignedAgent.firstName} ${cli.assignedAgent.lastName}` 
-                          : "Unassigned"}
+                      <td style={{ padding: "var(--sp-4)", textAlign: "right" }}>
+                        {client.assignedAgent ? (
+                          <span>{client.assignedAgent.firstName} {client.assignedAgent.lastName}</span>
+                        ) : (
+                          <span style={{ color: "var(--clr-text-muted)" }}>غير مسند</span>
+                        )}
                       </td>
                       <td style={{ padding: "var(--sp-4)", textAlign: "center" }}>
                         <Link 
-                          href={`/dashboard/clients/${cli._id}`}
+                          href={`/dashboard/clients/${client._id}`}
                           className="c-btn c-btn--secondary"
                           style={{ padding: "var(--sp-2) var(--sp-3)", display: "inline-flex", gap: "var(--sp-2)" }}
                         >
                           <Eye size={14} />
-                          <span style={{ fontSize: "var(--fs-caption)" }}>View Profile</span>
+                          <span style={{ fontSize: "var(--fs-caption)" }}>التفاصيل</span>
                         </Link>
                       </td>
                     </tr>
@@ -480,7 +523,7 @@ export default function ClientsPage() {
             }}
           >
             <span style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-caption)" }}>
-              Showing {clients.length} of {totalRecords} clients
+              عرض {clients.length} من أصل {totalRecords} عميل
             </span>
             
             <div style={{ display: "flex", gap: "var(--sp-2)" }}>
@@ -490,7 +533,7 @@ export default function ClientsPage() {
                 className="c-btn c-btn--secondary"
                 style={{ padding: "var(--sp-2) var(--sp-3)" }}
               >
-                <ChevronLeft size={16} />
+                {isRtl ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
               </button>
               <div 
                 style={{ 
@@ -504,7 +547,7 @@ export default function ClientsPage() {
                   backgroundColor: "var(--clr-bg-primary)"
                 }}
               >
-                Page {page} of {totalPages}
+                الصفحة {page} من {totalPages}
               </div>
               <button 
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
@@ -512,14 +555,14 @@ export default function ClientsPage() {
                 className="c-btn c-btn--secondary"
                 style={{ padding: "var(--sp-2) var(--sp-3)" }}
               >
-                <ChevronRight size={16} />
+                {isRtl ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Add Client Modal */}
+      {/* Onboard Client Modal */}
       {isModalOpen && (
         <div 
           style={{
@@ -542,7 +585,7 @@ export default function ClientsPage() {
             className="c-card c-card--glow"
             style={{ 
               width: "100%", 
-              maxWidth: "560px", 
+              maxWidth: "540px", 
               maxHeight: "90vh", 
               overflowY: "auto",
               position: "relative",
@@ -550,20 +593,31 @@ export default function ClientsPage() {
             }}
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Close Button */}
             <button 
               onClick={() => setIsModalOpen(false)}
-              style={{ position: "absolute", top: "16px", right: "16px", background: "none", border: "none", color: "var(--clr-text-muted)", cursor: "pointer" }}
+              style={{
+                position: "absolute",
+                top: "16px",
+                right: isRtl ? "auto" : "16px",
+                left: isRtl ? "16px" : "auto",
+                background: "none",
+                border: "none",
+                color: "var(--clr-text-muted)",
+                cursor: "pointer"
+              }}
             >
               <X size={20} />
             </button>
 
-            <div style={{ marginBottom: "var(--sp-6)" }}>
+            {/* Modal title */}
+            <div style={{ marginBottom: "var(--sp-6)", textAlign: "right" }}>
               <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-text-primary)", display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
                 <UserPlus size={20} style={{ color: "var(--clr-accent-primary)" }} />
-                <span>Register New Client</span>
+                <span>{t("clients_view.create_client")}</span>
               </h2>
               <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-                Fill out contact, business, and source pipeline configurations
+                إنشاء ملف العميل الشخصي وتعيين المسؤولية الإدارية له
               </p>
             </div>
 
@@ -576,155 +630,164 @@ export default function ClientsPage() {
                   borderRadius: "var(--radius-md)",
                   padding: "var(--sp-3) var(--sp-4)",
                   marginBottom: "var(--sp-4)",
-                  fontSize: "var(--fs-body-sm)"
+                  fontSize: "var(--fs-body-sm)",
+                  textAlign: "right"
                 }}
               >
                 {modalError}
               </div>
             )}
 
-            <form onSubmit={handleCreateSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
-              {/* Contact Grid */}
-              <div style={{ borderBottom: "1px solid var(--clr-border)", display: "flex", flexDirection: "column", gap: "var(--sp-4)", paddingBottom: "var(--sp-4)" }}>
-                <h3 style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-accent-primary)" }}>Contact Details</h3>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
-                  <div className="c-input">
-                    <label className="c-input__label">First Name *</label>
-                    <input 
-                      type="text" 
-                      required
-                      value={formFields.firstName}
-                      onChange={(e) => setFormFields(f => ({ ...f, firstName: e.target.value }))}
-                      className="c-input__field" 
-                    />
-                  </div>
-                  <div className="c-input">
-                    <label className="c-input__label">Last Name *</label>
-                    <input 
-                      type="text" 
-                      required
-                      value={formFields.lastName}
-                      onChange={(e) => setFormFields(f => ({ ...f, lastName: e.target.value }))}
-                      className="c-input__field" 
-                    />
-                  </div>
-                </div>
-
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
-                  <div className="c-input">
-                    <label className="c-input__label">Email Address *</label>
-                    <input 
-                      type="email" 
-                      required
-                      value={formFields.email}
-                      onChange={(e) => setFormFields(f => ({ ...f, email: e.target.value }))}
-                      className="c-input__field" 
-                    />
-                  </div>
-                  <div className="c-input">
-                    <label className="c-input__label">Phone Number</label>
-                    <input 
-                      type="tel" 
-                      placeholder="+1 (555) 000-0000"
-                      value={formFields.phone}
-                      onChange={(e) => setFormFields(f => ({ ...f, phone: e.target.value }))}
-                      className="c-input__field" 
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Company Info */}
-              <div style={{ borderBottom: "1px solid var(--clr-border)", display: "flex", flexDirection: "column", gap: "var(--sp-4)", paddingBottom: "var(--sp-4)" }}>
-                <h3 style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-accent-primary)" }}>Company Info</h3>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
-                  <div className="c-input">
-                    <label className="c-input__label">Company Name</label>
-                    <input 
-                      type="text" 
-                      value={formFields.companyName}
-                      onChange={(e) => setFormFields(f => ({ ...f, companyName: e.target.value }))}
-                      className="c-input__field" 
-                    />
-                  </div>
-                  <div className="c-input">
-                    <label className="c-input__label">Industry</label>
-                    <input 
-                      type="text" 
-                      placeholder="e.g. Technology, Healthcare"
-                      value={formFields.industry}
-                      onChange={(e) => setFormFields(f => ({ ...f, industry: e.target.value }))}
-                      className="c-input__field" 
-                    />
-                  </div>
-                </div>
+            {/* Form */}
+            <form onSubmit={handleCreateSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
                 <div className="c-input">
-                  <label className="c-input__label">Website URL</label>
+                  <label className="c-input__label">الاسم الأول *</label>
                   <input 
                     type="text" 
-                    placeholder="https://example.com"
-                    value={formFields.website}
-                    onChange={(e) => setFormFields(f => ({ ...f, website: e.target.value }))}
+                    required
+                    value={formFields.firstName}
+                    onChange={(e) => setFormFields(f => ({ ...f, firstName: e.target.value }))}
                     className="c-input__field" 
+                    style={{ textAlign: "right" }}
+                  />
+                </div>
+                <div className="c-input">
+                  <label className="c-input__label">الاسم الأخير *</label>
+                  <input 
+                    type="text" 
+                    required
+                    value={formFields.lastName}
+                    onChange={(e) => setFormFields(f => ({ ...f, lastName: e.target.value }))}
+                    className="c-input__field" 
+                    style={{ textAlign: "right" }}
                   />
                 </div>
               </div>
 
-              {/* Meta details */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
-                <h3 style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-accent-primary)" }}>Pipeline Configuration</h3>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
-                  <div className="c-input">
-                    <label className="c-input__label">Lead Status *</label>
-                    <select
-                      value={formFields.status}
-                      onChange={(e) => setFormFields(f => ({ ...f, status: e.target.value }))}
-                      className="c-input__field" 
-                    >
-                      {statuses.map(st => (
-                        <option key={st} value={st}>{st === "ActiveCustomer" ? "Active Customer" : st}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="c-input">
-                    <label className="c-input__label">Source Channel *</label>
-                    <select
-                      value={formFields.source}
-                      onChange={(e) => setFormFields(f => ({ ...f, source: e.target.value }))}
-                      className="c-input__field" 
-                    >
-                      {sources.map(src => (
-                        <option key={src} value={src}>{src}</option>
-                      ))}
-                    </select>
-                  </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
+                <div className="c-input">
+                  <label className="c-input__label">البريد الإلكتروني *</label>
+                  <input 
+                    type="email" 
+                    required
+                    placeholder="example@mail.com"
+                    value={formFields.email}
+                    onChange={(e) => setFormFields(f => ({ ...f, email: e.target.value }))}
+                    className="c-input__field" 
+                    style={{ textAlign: "left", direction: "ltr" }}
+                  />
                 </div>
-
-                {isSuperAdmin && (
-                  <div className="c-input">
-                    <label className="c-input__label">Assigned Account Manager (Agent) *</label>
-                    <select
-                      value={formFields.assignedAgentId}
-                      onChange={(e) => setFormFields(f => ({ ...f, assignedAgentId: e.target.value }))}
-                      className="c-input__field" 
-                    >
-                      <option value="">-- Select Employee --</option>
-                      {agents.map(ag => (
-                        <option key={ag._id} value={ag._id}>{ag.firstName} {ag.lastName} ({ag.user?.email})</option>
-                      ))}
-                    </select>
-                  </div>
-                )}
+                <div className="c-input">
+                  <label className="c-input__label">رقم الهاتف</label>
+                  <input 
+                    type="tel" 
+                    placeholder="010XXXXXXXX"
+                    value={formFields.phone}
+                    onChange={(e) => setFormFields(f => ({ ...f, phone: e.target.value }))}
+                    className="c-input__field" 
+                    style={{ textAlign: "left", direction: "ltr" }}
+                  />
+                </div>
               </div>
 
-              {/* Buttons */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
+                <div className="c-input">
+                  <label className="c-input__label">{t("clients_view.company_name")}</label>
+                  <input 
+                    type="text" 
+                    value={formFields.companyName}
+                    onChange={(e) => setFormFields(f => ({ ...f, companyName: e.target.value }))}
+                    className="c-input__field" 
+                    style={{ textAlign: "right" }}
+                  />
+                </div>
+                <div className="c-input">
+                  <label className="c-input__label">{t("clients_view.industry")}</label>
+                  <input 
+                    type="text" 
+                    placeholder="مثال: عقارات / تقنية"
+                    value={formFields.industry}
+                    onChange={(e) => setFormFields(f => ({ ...f, industry: e.target.value }))}
+                    className="c-input__field" 
+                    style={{ textAlign: "right" }}
+                  />
+                </div>
+              </div>
+
+              <div className="c-input">
+                <label className="c-input__label">{t("clients_view.website")}</label>
+                <input 
+                  type="url" 
+                  placeholder="https://example.com"
+                  value={formFields.website}
+                  onChange={(e) => setFormFields(f => ({ ...f, website: e.target.value }))}
+                  className="c-input__field" 
+                  style={{ textAlign: "left", direction: "ltr" }}
+                />
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
+                <div className="c-input">
+                  <label className="c-input__label">{t("clients_view.source")}</label>
+                  <select
+                    value={formFields.source}
+                    onChange={(e) => setFormFields(f => ({ ...f, source: e.target.value }))}
+                    className="c-input__field" 
+                    style={{ background: "var(--clr-bg-primary)" }}
+                  >
+                    <option value="Website">الموقع الإلكتروني</option>
+                    <option value="Referral">توصية / ترشيح</option>
+                    <option value="ColdOutreach">تواصل بارد</option>
+                    <option value="LinkedIn">لينكد إن</option>
+                    <option value="Advertisement">إعلان ممول</option>
+                    <option value="Other">مصادر أخرى</option>
+                  </select>
+                </div>
+                <div className="c-input">
+                  <label className="c-input__label">حالة العميل الحالي</label>
+                  <select
+                    value={formFields.status}
+                    onChange={(e) => setFormFields(f => ({ ...f, status: e.target.value as any }))}
+                    className="c-input__field" 
+                    style={{ background: "var(--clr-bg-primary)" }}
+                  >
+                    <option value="Lead">عميل محتمل (Lead)</option>
+                    <option value="Qualified">عميل مؤهل (Qualified)</option>
+                    <option value="ActiveCustomer">عميل نشط (Active)</option>
+                    <option value="Churned">منسحب (Churned)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Ownership Assignment Dropdown (Admin scoping only) */}
+              {isSuperAdmin && (
+                <div className="c-input">
+                  <label className="c-input__label">{t("clients_view.assigned_agent")} *</label>
+                  <select
+                    value={formFields.assignedAgentId}
+                    onChange={(e) => setFormFields(f => ({ ...f, assignedAgentId: e.target.value }))}
+                    className="c-input__field" 
+                    style={{ background: "var(--clr-bg-primary)" }}
+                  >
+                    <option value="">-- اختر الموظف المسؤول --</option>
+                    {agents.map((agent) => (
+                      <option key={agent._id} value={agent._id}>
+                        {agent.firstName} {agent.lastName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Form Buttons */}
               <div style={{ display: "flex", gap: "var(--sp-3)", justifyContent: "flex-end", marginTop: "var(--sp-4)" }}>
                 <button 
                   type="button" 
                   onClick={() => setIsModalOpen(false)}
                   className="c-btn c-btn--secondary"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </button>
                 <button 
                   type="submit" 
@@ -733,7 +796,7 @@ export default function ClientsPage() {
                   style={{ minWidth: "120px", gap: "var(--sp-2)" }}
                 >
                   {modalLoading ? <div className="btn-spinner" /> : null}
-                  <span>Save Client</span>
+                  <span>حفظ بيانات العميل</span>
                 </button>
               </div>
             </form>
