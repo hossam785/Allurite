@@ -53,6 +53,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState("");
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [hasSyncedTheme, setHasSyncedTheme] = useState(false);
 
   // Load sidebar collapse preference from localStorage on mount
   useEffect(() => {
@@ -96,12 +97,13 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
     fetchMe();
   }, [router]);
 
-  // Sync theme preference from user profile
+  // Sync theme preference from user profile (only once on initial load)
   useEffect(() => {
-    if (user?.theme) {
+    if (user?.theme && !hasSyncedTheme) {
       setTheme(user.theme as any);
+      setHasSyncedTheme(true);
     }
-  }, [user, setTheme]);
+  }, [user, setTheme, hasSyncedTheme]);
 
   // Resolve Header Title dynamically based on current path
   const getHeaderTitle = () => {

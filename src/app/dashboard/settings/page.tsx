@@ -329,10 +329,10 @@ export default function SettingsDashboardPage() {
         <AlertOctagon size={48} style={{ color: "var(--clr-error)" }} />
         <div style={{ textAlign: "center" }}>
           <h2 style={{ fontSize: "var(--fs-h2)", color: "var(--clr-text-primary)", marginBottom: "var(--sp-1)" }}>
-            Access Denied (403 Forbidden)
+            {t("settings_view.access_denied")}
           </h2>
           <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-            Only System Super Administrators have permissions to access administration settings dashboards.
+            {t("settings_view.access_denied_msg")}
           </p>
         </div>
       </main>
@@ -352,42 +352,42 @@ export default function SettingsDashboardPage() {
             className={`tab-side-btn ${activeTab === "company" ? "active" : ""}`}
           >
             <Building2 size={16} />
-            <span>Company Profile</span>
+            <span>{t("settings_view.profile_tab")}</span>
           </button>
           <button
             onClick={() => setActiveTab("departments")}
             className={`tab-side-btn ${activeTab === "departments" ? "active" : ""}`}
           >
             <Users2 size={16} />
-            <span>Departments</span>
+            <span>{t("settings_view.depts_tab")}</span>
           </button>
           <button
             onClick={() => setActiveTab("roles")}
             className={`tab-side-btn ${activeTab === "roles" ? "active" : ""}`}
           >
             <ShieldAlert size={16} />
-            <span>Roles & Permissions</span>
+            <span>{t("settings_view.roles_tab")}</span>
           </button>
           <button
             onClick={() => setActiveTab("rules")}
             className={`tab-side-btn ${activeTab === "rules" ? "active" : ""}`}
           >
             <Clock size={16} />
-            <span>Follow-Up Rules</span>
+            <span>{t("settings_view.rules_tab")}</span>
           </button>
           <button
             onClick={() => setActiveTab("security")}
             className={`tab-side-btn ${activeTab === "security" ? "active" : ""}`}
           >
             <Lock size={16} />
-            <span>Security Policies</span>
+            <span>{t("settings_view.security_tab")}</span>
           </button>
           <button
             onClick={() => setActiveTab("logs")}
             className={`tab-side-btn ${activeTab === "logs" ? "active" : ""}`}
           >
             <History size={16} />
-            <span>Audit Trail Logs</span>
+            <span>{t("settings_view.logs_tab")}</span>
           </button>
 
           <style jsx>{`
@@ -425,7 +425,7 @@ export default function SettingsDashboardPage() {
           {activeTab === "company" && (
             <section className="c-card">
               <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-accent-primary)", borderBottom: "1px solid var(--clr-border)", paddingBottom: "var(--sp-2)", marginBottom: "var(--sp-4)" }}>
-                Organization Profile Settings
+                {t("settings_view.org_profile_title")}
               </h2>
               
               {settingsSuccess && (
@@ -438,7 +438,7 @@ export default function SettingsDashboardPage() {
               <form onSubmit={handleSaveSettings} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
                   <div className="c-input">
-                    <label className="c-input__label">Company Name *</label>
+                    <label className="c-input__label">{t("settings_view.company_name")}</label>
                     <input 
                       type="text" 
                       required
@@ -448,7 +448,7 @@ export default function SettingsDashboardPage() {
                     />
                   </div>
                   <div className="c-input">
-                    <label className="c-input__label">Company Email</label>
+                    <label className="c-input__label">{t("settings_view.company_email")}</label>
                     <input 
                       type="email" 
                       value={settingsForm.companyEmail}
@@ -460,7 +460,7 @@ export default function SettingsDashboardPage() {
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
                   <div className="c-input">
-                    <label className="c-input__label">Company Phone</label>
+                    <label className="c-input__label">{t("settings_view.company_phone")}</label>
                     <input 
                       type="text" 
                       value={settingsForm.companyPhone}
@@ -600,7 +600,7 @@ export default function SettingsDashboardPage() {
             <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-accent-primary)", margin: 0 }}>
-                  Departments Directory
+                  {t("settings_view.depts_directory")}
                 </h2>
                 <button 
                   onClick={() => setIsDeptModalOpen(true)}
@@ -608,7 +608,7 @@ export default function SettingsDashboardPage() {
                   style={{ gap: "var(--sp-1)", fontSize: "12px", padding: "8px 12px" }}
                 >
                   <Plus size={14} />
-                  <span>Create Department</span>
+                  <span>{t("settings_view.create_dept")}</span>
                 </button>
               </div>
 
@@ -616,17 +616,17 @@ export default function SettingsDashboardPage() {
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead>
                     <tr style={{ backgroundColor: "rgba(4, 13, 33, 0.4)", borderBottom: "1px solid var(--clr-border)", fontSize: "11px", color: "var(--clr-text-muted)" }}>
-                      <th style={{ textAlign: "left", padding: "var(--sp-3)" }}>Code</th>
-                      <th style={{ textAlign: "left", padding: "var(--sp-3)" }}>Department Name</th>
-                      <th style={{ textAlign: "left", padding: "var(--sp-3)" }}>Assigned Manager</th>
-                      <th style={{ textAlign: "center", padding: "var(--sp-3)" }}>Status</th>
+                      <th style={{ textAlign: "right", padding: "var(--sp-3)" }}>{t("settings_view.dept_code")}</th>
+                      <th style={{ textAlign: "right", padding: "var(--sp-3)" }}>{t("settings_view.dept_name")}</th>
+                      <th style={{ textAlign: "right", padding: "var(--sp-3)" }}>{t("settings_view.dept_manager")}</th>
+                      <th style={{ textAlign: "center", padding: "var(--sp-3)" }}>{t("common.status")}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {departments.length === 0 ? (
                       <tr>
                         <td colSpan={4} style={{ padding: "var(--sp-8)", textAlign: "center", color: "var(--clr-text-muted)" }}>
-                          No departments created. Click 'Create Department' to initialize one.
+                          {t("settings_view.no_depts")}
                         </td>
                       </tr>
                     ) : (
@@ -660,7 +660,7 @@ export default function SettingsDashboardPage() {
             <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-accent-primary)", margin: 0 }}>
-                  Roles & Permissions Configuration
+                  {t("settings_view.roles_config")}
                 </h2>
                 <button
                   onClick={handleSaveRolePermissions}
@@ -669,7 +669,7 @@ export default function SettingsDashboardPage() {
                   style={{ gap: "var(--sp-2)", fontSize: "12px", padding: "8px 12px" }}
                 >
                   {savingRole ? <div className="btn-spinner" /> : <Save size={14} />}
-                  <span>Save Permissions</span>
+                  <span>{t("settings_view.save_permissions")}</span>
                 </button>
               </div>
 
@@ -707,7 +707,7 @@ export default function SettingsDashboardPage() {
                   <table style={{ width: "100%", borderCollapse: "collapse" }}>
                     <thead>
                       <tr style={{ backgroundColor: "rgba(4, 13, 33, 0.4)", borderBottom: "1px solid var(--clr-border)", fontSize: "11px", color: "var(--clr-text-muted)" }}>
-                        <th style={{ textAlign: "left", padding: "10px var(--sp-4)" }}>Permission Category</th>
+                        <th style={{ textAlign: "right", padding: "10px var(--sp-4)" }}>فئة الصلاحية</th>
                         {ACTIONS.map(action => (
                           <th key={action} style={{ textAlign: "center", padding: "10px" }}>{action}</th>
                         ))}
@@ -749,7 +749,7 @@ export default function SettingsDashboardPage() {
           {activeTab === "rules" && (
             <section className="c-card">
               <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-accent-primary)", borderBottom: "1px solid var(--clr-border)", paddingBottom: "var(--sp-2)", marginBottom: "var(--sp-4)" }}>
-                Follow-Up & Notifications Configuration Rules
+                {t("settings_view.rules_title")}
               </h2>
 
               {settingsSuccess && (
@@ -764,8 +764,8 @@ export default function SettingsDashboardPage() {
                 {/* Interval slider */}
                 <div className="c-input">
                   <label className="c-input__label" style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span>Default Follow-Up Interval Days</span>
-                    <span style={{ color: "var(--clr-accent-primary)" }}>{settingsForm.followupIntervalDays} Days</span>
+                    <span>{t("settings_view.followup_interval")}</span>
+                    <span style={{ color: "var(--clr-accent-primary)" }}>{settingsForm.followupIntervalDays} {t("settings_view.days")}</span>
                   </label>
                   <input 
                     type="range" 
@@ -775,14 +775,14 @@ export default function SettingsDashboardPage() {
                     onChange={(e) => setSettingsForm(p => ({ ...p, followupIntervalDays: parseInt(e.target.value) }))}
                     style={{ width: "100%", accentColor: "var(--clr-accent-primary)", cursor: "pointer" }}
                   />
-                  <span style={{ fontSize: "10px", color: "var(--clr-text-muted)" }}>Interval before rescheduling completed follow-up cycles</span>
+                  <span style={{ fontSize: "10px", color: "var(--clr-text-muted)" }}>{t("settings_view.followup_interval_desc")}</span>
                 </div>
 
                 {/* Reminder offset slider */}
                 <div className="c-input">
                   <label className="c-input__label" style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span>Reminder Offset Minutes</span>
-                    <span style={{ color: "var(--clr-accent-primary)" }}>{settingsForm.reminderOffsetMinutes} Mins</span>
+                    <span>{t("settings_view.reminder_offset")}</span>
+                    <span style={{ color: "var(--clr-accent-primary)" }}>{settingsForm.reminderOffsetMinutes} {t("settings_view.mins")}</span>
                   </label>
                   <input 
                     type="range" 
@@ -793,12 +793,12 @@ export default function SettingsDashboardPage() {
                     onChange={(e) => setSettingsForm(p => ({ ...p, reminderOffsetMinutes: parseInt(e.target.value) }))}
                     style={{ width: "100%", accentColor: "var(--clr-accent-primary)", cursor: "pointer" }}
                   />
-                  <span style={{ fontSize: "10px", color: "var(--clr-text-muted)" }}>Lead time to trigger notifications prior to appointments</span>
+                  <span style={{ fontSize: "10px", color: "var(--clr-text-muted)" }}>{t("settings_view.reminder_offset_desc")}</span>
                 </div>
 
                 {/* Notification retention input */}
                 <div className="c-input">
-                  <label className="c-input__label">Notification Retention Log Days</label>
+                  <label className="c-input__label">{t("settings_view.notif_retention")}</label>
                   <input 
                     type="number" 
                     value={settingsForm.notificationRetentionDays}
@@ -811,10 +811,10 @@ export default function SettingsDashboardPage() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: "var(--sp-2)" }}>
                   <div>
                     <label style={{ fontWeight: "var(--fw-bold)", fontSize: "var(--fs-body-sm)", display: "block" }}>
-                      Dispatch Email Notifications
+                      {t("settings_view.email_notif_label")}
                     </label>
                     <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>
-                      Relay real-time critical system notifications to user mailboxes
+                      {t("settings_view.email_notif_desc")}
                     </span>
                   </div>
                   <input 
@@ -832,7 +832,7 @@ export default function SettingsDashboardPage() {
                   style={{ gap: "var(--sp-2)", width: "160px", justifyContent: "center", alignSelf: "flex-end", marginTop: "var(--sp-4)" }}
                 >
                   {savingSettings ? <div className="btn-spinner" /> : <Save size={16} />}
-                  <span>Save Rules</span>
+                  <span>{t("settings_view.save_rules")}</span>
                 </button>
               </form>
             </section>
@@ -842,7 +842,7 @@ export default function SettingsDashboardPage() {
           {activeTab === "security" && (
             <section className="c-card">
               <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-accent-primary)", borderBottom: "1px solid var(--clr-border)", paddingBottom: "var(--sp-2)", marginBottom: "var(--sp-4)" }}>
-                Security & Authentication Policies
+                {t("settings_view.security_title")}
               </h2>
 
               {settingsSuccess && (
@@ -855,7 +855,7 @@ export default function SettingsDashboardPage() {
               <form onSubmit={handleSaveSettings} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "var(--sp-4)" }}>
                   <div className="c-input">
-                    <label className="c-input__label">Password Min Length</label>
+                    <label className="c-input__label">{t("settings_view.password_min_length")}</label>
                     <input 
                       type="number" 
                       min="6"
@@ -867,7 +867,7 @@ export default function SettingsDashboardPage() {
                   </div>
 
                   <div className="c-input">
-                    <label className="c-input__label">Max Login Attempts (Lockout)</label>
+                    <label className="c-input__label">{t("settings_view.max_login_lockout")}</label>
                     <input 
                       type="number" 
                       min="3"
@@ -879,7 +879,7 @@ export default function SettingsDashboardPage() {
                   </div>
 
                   <div className="c-input">
-                    <label className="c-input__label">Session Timeout (Minutes)</label>
+                    <label className="c-input__label">{t("settings_view.session_timeout_mins")}</label>
                     <input 
                       type="number" 
                       min="10"
@@ -904,7 +904,7 @@ export default function SettingsDashboardPage() {
                 >
                   <ShieldAlert size={18} style={{ color: "var(--clr-error)", flexShrink: 0, marginTop: "2px" }} />
                   <p style={{ margin: 0, fontSize: "11px", color: "var(--clr-text-muted)", lineHeight: "1.4" }}>
-                    <strong>Advisory:</strong> Account Lock rules automatically disable user login access upon exceeding maximum attempts. Setting strict lockout margins protects staff accounts from brute force threats.
+                    <strong>{t("settings_view.security_advisory")}</strong> {t("settings_view.security_advisory_text")}
                   </p>
                 </div>
 
@@ -915,7 +915,7 @@ export default function SettingsDashboardPage() {
                   style={{ gap: "var(--sp-2)", width: "160px", justifyContent: "center", alignSelf: "flex-end", marginTop: "var(--sp-4)" }}
                 >
                   {savingSettings ? <div className="btn-spinner" /> : <Save size={16} />}
-                  <span>Save Policies</span>
+                  <span>{t("settings_view.save_policies")}</span>
                 </button>
               </form>
             </section>
@@ -926,7 +926,7 @@ export default function SettingsDashboardPage() {
             <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-accent-primary)", margin: 0 }}>
-                  Security & Audit Log Trail
+                  {t("settings_view.audit_trail_title")}
                 </h2>
 
                 {/* Log Search */}
@@ -934,7 +934,7 @@ export default function SettingsDashboardPage() {
                   <Search size={15} style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "var(--clr-text-muted)" }} />
                   <input
                     type="text"
-                    placeholder="Search logs by email, action..."
+                    placeholder={t("settings_view.search_logs")}
                     value={logSearch}
                     onChange={(e) => { setLogSearch(e.target.value); setLogPage(1); }}
                     className="c-input__field"
@@ -947,24 +947,24 @@ export default function SettingsDashboardPage() {
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead>
                     <tr style={{ backgroundColor: "rgba(4, 13, 33, 0.4)", borderBottom: "1px solid var(--clr-border)", fontSize: "11px", color: "var(--clr-text-muted)" }}>
-                      <th style={{ textAlign: "left", padding: "10px var(--sp-3)" }}>Performed By</th>
-                      <th style={{ textAlign: "left", padding: "10px var(--sp-3)" }}>Action Code</th>
-                      <th style={{ textAlign: "left", padding: "10px var(--sp-3)" }}>Entity</th>
-                      <th style={{ textAlign: "left", padding: "10px var(--sp-3)" }}>Audit Details</th>
-                      <th style={{ textAlign: "right", padding: "10px var(--sp-3)" }}>Date Time</th>
+                      <th style={{ textAlign: "right", padding: "10px var(--sp-3)" }}>{t("settings_view.performed_by")}</th>
+                      <th style={{ textAlign: "right", padding: "10px var(--sp-3)" }}>{t("settings_view.action_code")}</th>
+                      <th style={{ textAlign: "right", padding: "10px var(--sp-3)" }}>{t("settings_view.entity")}</th>
+                      <th style={{ textAlign: "right", padding: "10px var(--sp-3)" }}>{t("settings_view.audit_details")}</th>
+                      <th style={{ textAlign: "left", padding: "10px var(--sp-3)" }}>{t("settings_view.date_time")}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {logsLoading ? (
                       <tr>
                         <td colSpan={5} style={{ padding: "var(--sp-8)", textAlign: "center", color: "var(--clr-text-muted)" }}>
-                          Loading audit trail history...
+                           {t("settings_view.loading_logs")}
                         </td>
                       </tr>
                     ) : logs.length === 0 ? (
                       <tr>
                         <td colSpan={5} style={{ padding: "var(--sp-8)", textAlign: "center", color: "var(--clr-text-muted)" }}>
-                          No audit event records captured matching criteria.
+                           {t("settings_view.no_logs")}
                         </td>
                       </tr>
                     ) : (
@@ -1008,7 +1008,7 @@ export default function SettingsDashboardPage() {
                     <ChevronLeft size={16} />
                   </button>
                   <span style={{ alignSelf: "center", fontSize: "12px", color: "var(--clr-text-muted)" }}>
-                    Page {logPage} of {logTotalPages}
+                    {t("settings_view.page_of")} {logPage} {t("settings_view.of")} {logTotalPages}
                   </span>
                   <button
                     disabled={logPage === logTotalPages}
@@ -1064,10 +1064,10 @@ export default function SettingsDashboardPage() {
 
             <div style={{ marginBottom: "var(--sp-6)" }}>
               <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-text-primary)" }}>
-                Create Department
+                {t("settings_view.create_dept_title")}
               </h2>
               <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-                Add a new staff group to track tasks and hierarchy
+                {t("settings_view.create_dept_desc")}
               </p>
             </div>
 
@@ -1079,11 +1079,11 @@ export default function SettingsDashboardPage() {
 
             <form onSubmit={handleCreateDept} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
               <div className="c-input">
-                <label className="c-input__label">Department Name *</label>
+                <label className="c-input__label">{t("settings_view.dept_name_label")}</label>
                 <input 
                   type="text" 
                   required
-                  placeholder="e.g. Sales, Marketing"
+                  placeholder={t("settings_view.dept_name_placeholder")}
                   value={deptForm.name}
                   onChange={(e) => setDeptForm(p => ({ ...p, name: e.target.value }))}
                   className="c-input__field"
@@ -1091,11 +1091,11 @@ export default function SettingsDashboardPage() {
               </div>
 
               <div className="c-input">
-                <label className="c-input__label">Code * (Uppercase Unique ID)</label>
+                <label className="c-input__label">{t("settings_view.dept_code_label")}</label>
                 <input 
                   type="text" 
                   required
-                  placeholder="e.g. SLS, MKT"
+                  placeholder={t("settings_view.dept_code_placeholder")}
                   value={deptForm.code}
                   onChange={(e) => setDeptForm(p => ({ ...p, code: e.target.value }))}
                   className="c-input__field"
@@ -1103,14 +1103,14 @@ export default function SettingsDashboardPage() {
               </div>
 
               <div className="c-input">
-                <label className="c-input__label">Manager Employee</label>
+                <label className="c-input__label">{t("settings_view.dept_manager_label")}</label>
                 <select
                   value={deptForm.manager}
                   onChange={(e) => setDeptForm(p => ({ ...p, manager: e.target.value }))}
                   className="c-input__field"
                   style={{ background: "var(--clr-bg-primary)" }}
                 >
-                  <option value="">-- Unassigned --</option>
+                  <option value="">{t("settings_view.unassigned")}</option>
                   {employees.map(emp => (
                     <option key={emp._id} value={emp._id}>{emp.firstName} {emp.lastName}</option>
                   ))}
@@ -1123,7 +1123,7 @@ export default function SettingsDashboardPage() {
                   onClick={() => setIsDeptModalOpen(false)}
                   className="c-btn c-btn--secondary"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </button>
                 <button 
                   type="submit" 
@@ -1132,7 +1132,7 @@ export default function SettingsDashboardPage() {
                   style={{ minWidth: "110px", gap: "var(--sp-2)" }}
                 >
                   {deptLoading ? <div className="btn-spinner" /> : null}
-                  <span>Create</span>
+                  <span>{t("common.create")}</span>
                 </button>
               </div>
             </form>

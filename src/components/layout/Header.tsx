@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Bell, Shield, User, Check, Trash2, Calendar, AlertCircle, Clock, ShieldAlert, FileText, CheckCircle, Sun, Moon, Menu } from "lucide-react";
+import { Bell, Shield, User, Check, Trash2, Calendar, AlertCircle, Clock, ShieldAlert, FileText, CheckCircle, Sun, Moon, Menu, LogOut, Settings } from "lucide-react";
 import { useAuth } from "@/app/dashboard/layout";
 import { useLanguage } from "@/context/LanguageContext";
 import { useTheme } from "@/context/ThemeContext";
@@ -38,7 +38,9 @@ export default function Header({
   const router = useRouter();
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
 
   // Fetch unread notifications
   const fetchNotifications = async () => {
@@ -53,6 +55,17 @@ export default function Header({
     }
   };
 
+  // Logout handler
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/v1/auth/logout", { method: "POST" });
+    } catch (err) {
+      console.error("Logout error", err);
+    } finally {
+      router.push("/login");
+    }
+  };
+
   useEffect(() => {
     fetchNotifications();
     // Poll notifications every 30 seconds for real-time reminders
@@ -60,11 +73,14 @@ export default function Header({
     return () => clearInterval(interval);
   }, []);
 
-  // Close dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setIsProfileOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -392,32 +408,160 @@ export default function Header({
           )}
         </div>
 
-        {/* User Card */}
+        {/* User Card with Profile Dropdown */}
         {user && (
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--sp-3)", borderLeft: "1px solid var(--clr-border)", paddingLeft: "var(--sp-6)" }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
-              <span style={{ fontSize: "var(--fs-body-sm)", fontWeight: "var(--fw-bold)", color: "var(--clr-text-primary)" }}>
-                {user.email.split("@")[0]}
-              </span>
-              <span className="c-badge c-badge--info" style={{ padding: "0 var(--sp-2)", fontSize: "9px", textTransform: "none", marginTop: "2px" }}>
-                {user.role}
-              </span>
-            </div>
-            <div
+          <div style={{ position: "relative" }} ref={profileRef}>
+            <button
+              onClick={() => { setIsProfileOpen(!isProfileOpen); setIsOpen(false); }}
+              className="bell-btn-hover"
               style={{
-                width: "36px",
-                height: "36px",
-                borderRadius: "50%",
-                backgroundColor: "var(--clr-border)",
-                border: "1px solid var(--clr-accent-primary)",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
-                color: "var(--clr-accent-primary)"
+                gap: "var(--sp-3)",
+                background: "none",
+                border: "none",
+                borderInlineStart: "1px solid var(--clr-border)",
+                cursor: "pointer",
+                transition: "var(--transition-fast)",
+                borderRadius: "var(--radius-md)",
+                padding: "var(--sp-2) var(--sp-3)",
+                paddingInlineStart: "var(--sp-6)"
               }}
             >
-              <User size={18} />
-            </div>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: isRtl ? "flex-start" : "flex-end" }}>
+                <span style={{ fontSize: "var(--fs-body-sm)", fontWeight: "var(--fw-bold)", color: "var(--clr-text-primary)" }}>
+                  {user.email.split("@")[0]}
+                </span>
+                <span className="c-badge c-badge--info" style={{ padding: "0 var(--sp-2)", fontSize: "9px", textTransform: "none", marginTop: "2px" }}>
+                  {user.role}
+                </span>
+              </div>
+              <div
+                style={{
+                  width: "36px",
+                  height: "36px",
+                  borderRadius: "50%",
+                  backgroundColor: isProfileOpen ? "rgba(0, 210, 255, 0.15)" : "var(--clr-border)",
+                  border: "1px solid var(--clr-accent-primary)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "var(--clr-accent-primary)",
+                  transition: "var(--transition-fast)"
+                }}
+              >
+                <User size={18} />
+              </div>
+            </button>
+
+            {/* Profile Dropdown Panel */}
+            {isProfileOpen && (
+              <div
+                className="c-card c-card--glow"
+                style={{
+                  position: "absolute",
+                  left: isRtl ? 0 : "auto",
+                  right: isRtl ? "auto" : 0,
+                  top: "55px",
+                  width: "280px",
+                  display: "flex",
+                  flexDirection: "column",
+                  padding: 0,
+                  zIndex: 200,
+                  overflow: "hidden",
+                  boxShadow: "var(--shadow-lg)",
+                  animation: "fadeSlide 0.2s ease-out"
+                }}
+              >
+                {/* Profile Info */}
+                <div style={{
+                  padding: "var(--sp-5) var(--sp-4)",
+                  borderBottom: "1px solid var(--clr-border)",
+                  backgroundColor: "var(--clr-bg-dropdown-header)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--sp-3)"
+                }}>
+                  <div
+                    style={{
+                      width: "42px",
+                      height: "42px",
+                      borderRadius: "50%",
+                      backgroundColor: "rgba(0, 210, 255, 0.12)",
+                      border: "2px solid var(--clr-accent-primary)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "var(--clr-accent-primary)",
+                      flexShrink: 0
+                    }}
+                  >
+                    <User size={20} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: "var(--fw-bold)", fontSize: "var(--fs-body-sm)", color: "var(--clr-text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {user.email.split("@")[0]}
+                    </div>
+                    <div style={{ fontSize: "11px", color: "var(--clr-text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginTop: "2px" }}>
+                      {user.email}
+                    </div>
+                    <span className="c-badge c-badge--info" style={{ padding: "0 var(--sp-2)", fontSize: "9px", textTransform: "none", marginTop: "4px", display: "inline-block" }}>
+                      {user.role}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Menu Items */}
+                <div style={{ padding: "var(--sp-2)", backgroundColor: "var(--clr-bg-surface)" }}>
+                  <Link
+                    href="/dashboard/settings"
+                    onClick={() => setIsProfileOpen(false)}
+                    className="profile-menu-item"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "var(--sp-3)",
+                      padding: "var(--sp-3) var(--sp-3)",
+                      borderRadius: "var(--radius-md)",
+                      color: "var(--clr-text-muted)",
+                      textDecoration: "none",
+                      fontSize: "var(--fs-body-sm)",
+                      fontWeight: "var(--fw-medium)",
+                      transition: "var(--transition-fast)"
+                    }}
+                  >
+                    <Settings size={16} />
+                    <span>الإعدادات العامة</span>
+                  </Link>
+                </div>
+
+                {/* Logout */}
+                <div style={{ padding: "var(--sp-2)", borderTop: "1px solid var(--clr-border)", backgroundColor: "var(--clr-bg-dropdown-header)" }}>
+                  <button
+                    onClick={handleLogout}
+                    className="profile-menu-item"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "var(--sp-3)",
+                      padding: "var(--sp-3) var(--sp-3)",
+                      borderRadius: "var(--radius-md)",
+                      color: "var(--clr-error)",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      width: "100%",
+                      fontSize: "var(--fs-body-sm)",
+                      fontWeight: "var(--fw-bold)",
+                      transition: "var(--transition-fast)"
+                    }}
+                  >
+                    <LogOut size={16} />
+                    <span>تسجيل الخروج</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -446,6 +590,10 @@ export default function Header({
           color: var(--clr-success) !important;
         }
         .hover-bright:hover {
+          color: var(--clr-text-primary) !important;
+        }
+        .profile-menu-item:hover {
+          background-color: var(--clr-bg-hover) !important;
           color: var(--clr-text-primary) !important;
         }
       `}</style>
