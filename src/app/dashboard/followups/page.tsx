@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "../layout";
+import { useLanguage } from "@/context/LanguageContext";
 import { 
   Search, 
   Plus, 
@@ -66,6 +67,7 @@ interface AgentSummary {
 
 export default function FollowUpsPage() {
   const { user: currentUser } = useAuth();
+  const { t, isRtl } = useLanguage();
   const isSuperAdmin = currentUser?.role === "SuperAdmin";
 
   // Data states
@@ -286,13 +288,20 @@ export default function FollowUpsPage() {
     }
   };
 
+  const tabTitles = {
+    today: "اليوم",
+    upcoming: "المقبلة",
+    missed: "الفائتة",
+    completed: "المكتملة"
+  };
+
   return (
     <main style={{ flex: 1, padding: "var(--sp-8)", overflowY: "auto", display: "flex", flexDirection: "column", gap: "var(--sp-6)" }}>
       {/* Sub-Header Toolbar */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
           <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-            Monitor communication schedules, log outcomes, and view call histories
+            مراقبة جداول المتابعة والاتصالات، تدوين نتائج المبيعات، ومراجعة سجل المكالمات والاجتماعات
           </p>
         </div>
         <button 
@@ -301,7 +310,7 @@ export default function FollowUpsPage() {
           style={{ gap: "var(--sp-2)", boxShadow: "var(--shadow-glow-accent)" }}
         >
           <Plus size={16} />
-          <span>Schedule Follow-Up</span>
+          <span>جدولة متابعة جديدة</span>
         </button>
       </div>
 
@@ -348,7 +357,7 @@ export default function FollowUpsPage() {
               }}
               className="tab-btn"
             >
-              <span style={{ textTransform: "capitalize" }}>{tab}</span>
+              <span>{tabTitles[tab]}</span>
               <span 
                 style={{ 
                   fontSize: "10px", 
@@ -387,7 +396,8 @@ export default function FollowUpsPage() {
               size={18} 
               style={{ 
                 position: "absolute", 
-                left: "12px", 
+                right: isRtl ? "12px" : "auto",
+                left: isRtl ? "auto" : "12px", 
                 top: "50%", 
                 transform: "translateY(-50%)", 
                 color: "var(--clr-text-muted)" 
@@ -395,18 +405,19 @@ export default function FollowUpsPage() {
             />
             <input 
               type="text" 
-              placeholder="Search schedules by title or client name..." 
+              placeholder="ابحث عن المتابعات بالعنوان أو اسم العميل..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="c-input__field"
-              style={{ paddingLeft: "40px", width: "100%", height: "42px" }}
+              style={{ paddingLeft: isRtl ? "12px" : "40px", paddingRight: isRtl ? "40px" : "12px", width: "100%", height: "42px", textAlign: "right" }}
             />
             {searchTerm && (
               <button 
                 onClick={() => setSearchTerm("")}
                 style={{ 
                   position: "absolute", 
-                  right: "12px", 
+                  left: isRtl ? "12px" : "auto",
+                  right: isRtl ? "auto" : "12px",
                   top: "50%", 
                   transform: "translateY(-50%)", 
                   background: "none", 
@@ -422,36 +433,36 @@ export default function FollowUpsPage() {
         </div>
 
         {/* Filter dropdowns */}
-        <div style={{ display: "flex", gap: "var(--sp-3)", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: "var(--sp-4)", flexWrap: "wrap", alignItems: "center" }}>
           {/* Type Filter */}
           <div style={{ display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
-            <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>Type:</span>
+            <span style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)" }}>النوع:</span>
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
               className="c-input__field"
-              style={{ height: "42px", padding: "0 var(--sp-3)", minWidth: "120px", background: "var(--clr-bg-primary)" }}
+              style={{ height: "42px", padding: "0 var(--sp-3)", minWidth: "140px", background: "var(--clr-bg-primary)" }}
             >
-              <option value="">All Types</option>
-              <option value="Call">Call</option>
-              <option value="Email">Email</option>
-              <option value="Meeting">Meeting</option>
-              <option value="Demo">Demo</option>
-              <option value="Other">Other</option>
+              <option value="">كل الأنواع</option>
+              <option value="Call">مكالمة هاتفية (Call)</option>
+              <option value="Email">بريد إلكتروني (Email)</option>
+              <option value="Meeting">اجتماع (Meeting)</option>
+              <option value="Demo">عرض تقديمي (Demo)</option>
+              <option value="Other">أخرى (Other)</option>
             </select>
           </div>
 
           {/* Agent Filter (Admin only) */}
           {isSuperAdmin && (
             <div style={{ display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
-              <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>Agent:</span>
+              <span style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)" }}>المسؤول:</span>
               <select
                 value={selectedAgent}
                 onChange={(e) => setSelectedAgent(e.target.value)}
                 className="c-input__field"
-                style={{ height: "42px", padding: "0 var(--sp-3)", minWidth: "130px", background: "var(--clr-bg-primary)" }}
+                style={{ height: "42px", padding: "0 var(--sp-3)", minWidth: "150px", background: "var(--clr-bg-primary)" }}
               >
-                <option value="">All Agents</option>
+                <option value="">كل المسؤولين</option>
                 {agents.map(ag => (
                   <option key={ag._id} value={ag._id}>{ag.firstName} {ag.lastName}</option>
                 ))}
@@ -482,15 +493,15 @@ export default function FollowUpsPage() {
       ) : error ? (
         <div className="c-card" style={{ borderColor: "var(--clr-error)", textAlign: "center", padding: "var(--sp-8)" }}>
           <p style={{ color: "var(--clr-error)", fontWeight: "var(--fw-medium)", marginBottom: "var(--sp-4)" }}>{error}</p>
-          <button onClick={fetchFollowUps} className="c-btn c-btn--secondary">Retry Loading</button>
+          <button onClick={fetchFollowUps} className="c-btn c-btn--secondary">إعادة المحاولة</button>
         </div>
       ) : activeList.length === 0 ? (
         <div className="c-card" style={{ textAlign: "center", padding: "var(--sp-12)", display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--sp-4)" }}>
           <Clock size={48} style={{ color: "var(--clr-text-muted)" }} />
           <div>
-            <h3 style={{ fontSize: "var(--fs-h3)", marginBottom: "var(--sp-1)" }}>No follow-ups listed</h3>
+            <h3 style={{ fontSize: "var(--fs-h3)", marginBottom: "var(--sp-1)" }}>لا توجد أي متابعات مسجلة</h3>
             <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-              No scheduled follow-up logs match this category or search constraints.
+              لا توجد أي متابعات مجدولة تطابق هذا القسم أو كلمة البحث.
             </p>
           </div>
         </div>
@@ -504,89 +515,103 @@ export default function FollowUpsPage() {
             boxShadow: "var(--shadow-md)"
           }}
         >
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "900px" }}>
+          <div className="c-table-container">
+            <table className="c-table" style={{ width: "100%", borderCollapse: "collapse", minWidth: "900px" }}>
               <thead>
                 <tr style={{ borderBottom: "2px solid var(--clr-border)", backgroundColor: "rgba(4, 13, 33, 0.4)" }}>
-                  <th style={{ textAlign: "left", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)", width: "60px" }}>Type</th>
-                  <th style={{ textAlign: "left", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Topic / Title</th>
-                  <th style={{ textAlign: "left", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Client Account</th>
-                  <th style={{ textAlign: "left", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Schedule Time</th>
-                  <th style={{ textAlign: "center", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Status</th>
-                  <th style={{ textAlign: "left", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Assigned Manager</th>
-                  <th style={{ textAlign: "center", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Actions</th>
+                  <th style={{ textAlign: "center", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)", width: "80px" }}>النوع</th>
+                  <th style={{ textAlign: "right", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>الموضوع / العنوان</th>
+                  <th style={{ textAlign: "right", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>حساب العميل</th>
+                  <th style={{ textAlign: "right", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>وقت المتابعة المجدول</th>
+                  <th style={{ textAlign: "center", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>الحالة</th>
+                  <th style={{ textAlign: "right", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>المسؤول المتابع</th>
+                  <th style={{ textAlign: "center", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>الإجراءات</th>
                 </tr>
               </thead>
               <tbody>
-                {activeList.map((fup) => (
-                  <tr 
-                    key={fup._id} 
-                    style={{ 
-                      borderBottom: "1px solid var(--clr-border)",
-                      transition: "var(--transition-fast)" 
-                    }}
-                    className="table-row-hover"
-                  >
-                    <td style={{ padding: "var(--sp-4)", textAlign: "center" }}>
-                      <div 
-                        style={{ 
-                          width: "32px", 
-                          height: "32px", 
-                          borderRadius: "var(--radius-md)", 
-                          backgroundColor: "rgba(0, 210, 255, 0.08)", 
-                          color: "var(--clr-accent-primary)",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center" 
-                        }}
-                      >
-                        {getTypeIcon(fup.type)}
-                      </div>
-                    </td>
-                    <td style={{ padding: "var(--sp-4)", fontWeight: "var(--fw-medium)" }}>
-                      <div style={{ fontSize: "var(--fs-body-sm)" }}>{fup.title}</div>
-                      {fup.description && (
-                        <div style={{ fontSize: "11px", color: "var(--clr-text-muted)", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "240px" }}>
-                          {fup.description}
+                {activeList.map((fup) => {
+                  let fupTypeArabic: string = fup.type;
+                  if (fup.type === "Call") fupTypeArabic = "مكالمة 📞";
+                  else if (fup.type === "Email") fupTypeArabic = "بريد ✉️";
+                  else if (fup.type === "Meeting") fupTypeArabic = "اجتماع 👥";
+                  else if (fup.type === "Demo") fupTypeArabic = "عرض 🖥️";
+                  else if (fup.type === "Other") fupTypeArabic = "أخرى 📝";
+
+                  let fupStatusArabic: string = fup.status;
+                  let fupStatusBadge = "c-badge--info";
+                  if (fup.status === "Scheduled" || fup.status === "Pending") {
+                    fupStatusArabic = "مجدولة";
+                    fupStatusBadge = "c-badge--info";
+                  } else if (fup.status === "Completed") {
+                    fupStatusArabic = "مكتملة";
+                    fupStatusBadge = "c-badge--success";
+                  } else if (fup.status === "Missed") {
+                    fupStatusArabic = "فات موعدها";
+                    fupStatusBadge = "c-badge--error";
+                  } else if (fup.status === "Cancelled") {
+                    fupStatusArabic = "ملغاة";
+                    fupStatusBadge = "c-badge";
+                  }
+
+                  return (
+                    <tr 
+                      key={fup._id} 
+                      style={{ 
+                        borderBottom: "1px solid var(--clr-border)",
+                        transition: "var(--transition-fast)" 
+                      }}
+                      className="table-row-hover"
+                    >
+                      <td style={{ padding: "var(--sp-4)", textAlign: "center" }}>
+                        <span className="c-badge c-badge--info" style={{ textTransform: "none" }}>
+                          {fupTypeArabic}
+                        </span>
+                      </td>
+                      <td style={{ padding: "var(--sp-4)", fontWeight: "var(--fw-medium)", textAlign: "right" }}>
+                        <div style={{ fontSize: "var(--fs-body-sm)" }}>{fup.title}</div>
+                        {fup.description && (
+                          <div style={{ fontSize: "11px", color: "var(--clr-text-muted)", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "240px" }}>
+                            {fup.description}
+                          </div>
+                        )}
+                      </td>
+                      <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)", textAlign: "right" }}>
+                        {fup.client 
+                          ? `${fup.client.firstName} ${fup.client.lastName}` 
+                          : "لا يوجد عميل مرتبط"}
+                        {fup.client?.companyName && (
+                          <div style={{ fontSize: "11px", color: "var(--clr-text-muted)" }}>{fup.client.companyName}</div>
+                        )}
+                      </td>
+                      <td style={{ padding: "var(--sp-4)", textAlign: "right" }}>
+                        <div style={{ fontWeight: "var(--fw-medium)" }}>
+                          {new Date(fup.scheduledAt).toLocaleDateString("ar-EG", { month: "short", day: "numeric" })}
                         </div>
-                      )}
-                    </td>
-                    <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)" }}>
-                      {fup.client 
-                        ? `${fup.client.firstName} ${fup.client.lastName}` 
-                        : "No Client linked"}
-                      {fup.client?.companyName && (
-                        <div style={{ fontSize: "11px", color: "var(--clr-text-muted)" }}>{fup.client.companyName}</div>
-                      )}
-                    </td>
-                    <td style={{ padding: "var(--sp-4)" }}>
-                      <div style={{ fontWeight: "var(--fw-medium)" }}>
-                        {new Date(fup.scheduledAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
-                      </div>
-                      <div style={{ fontSize: "11px", color: "var(--clr-text-muted)", marginTop: "2px" }}>
-                        {new Date(fup.scheduledAt).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
-                      </div>
-                    </td>
-                    <td style={{ padding: "var(--sp-4)", textAlign: "center" }}>
-                      {getStatusBadge(fup.status)}
-                    </td>
-                    <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)" }}>
-                      {fup.assignedAgent 
-                        ? `${fup.assignedAgent.firstName} ${fup.assignedAgent.lastName}` 
-                        : "Unassigned"}
-                    </td>
-                    <td style={{ padding: "var(--sp-4)", textAlign: "center" }}>
-                      <Link 
-                        href={`/dashboard/followups/${fup._id}`}
-                        className="c-btn c-btn--secondary"
-                        style={{ padding: "var(--sp-2) var(--sp-3)", display: "inline-flex", gap: "var(--sp-2)" }}
-                      >
-                        <Eye size={14} />
-                        <span style={{ fontSize: "var(--fs-caption)" }}>Orchestrate</span>
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
+                        <div style={{ fontSize: "11px", color: "var(--clr-text-muted)", marginTop: "2px", direction: "ltr", textAlign: "right" }}>
+                          {new Date(fup.scheduledAt).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" })}
+                        </div>
+                      </td>
+                      <td style={{ padding: "var(--sp-4)", textAlign: "center" }}>
+                        <span className={`c-badge ${fupStatusBadge}`}>{fupStatusArabic}</span>
+                      </td>
+                      <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)", textAlign: "right" }}>
+                        {fup.assignedAgent 
+                          ? `${fup.assignedAgent.firstName} ${fup.assignedAgent.lastName}` 
+                          : "غير مسند"}
+                      </td>
+                      <td style={{ padding: "var(--sp-4)", textAlign: "center" }}>
+                        <Link 
+                          href={`/dashboard/followups/${fup._id}`}
+                          className="c-btn c-btn--secondary"
+                          style={{ padding: "var(--sp-2) var(--sp-3)", display: "inline-flex", gap: "var(--sp-2)" }}
+                        >
+                          <Eye size={14} />
+                          <span style={{ fontSize: "var(--fs-caption)" }}>التفاصيل</span>
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -632,18 +657,27 @@ export default function FollowUpsPage() {
           >
             <button 
               onClick={() => setIsModalOpen(false)}
-              style={{ position: "absolute", top: "16px", right: "16px", background: "none", border: "none", color: "var(--clr-text-muted)", cursor: "pointer" }}
+              style={{
+                position: "absolute",
+                top: "16px",
+                right: isRtl ? "auto" : "16px",
+                left: isRtl ? "16px" : "auto",
+                background: "none",
+                border: "none",
+                color: "var(--clr-text-muted)",
+                cursor: "pointer"
+              }}
             >
               <X size={20} />
             </button>
 
-            <div style={{ marginBottom: "var(--sp-6)" }}>
+            <div style={{ marginBottom: "var(--sp-6)", textAlign: "right" }}>
               <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-text-primary)", display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
                 <Clock size={20} style={{ color: "var(--clr-accent-primary)" }} />
-                <span>Schedule Follow-Up Log</span>
+                <span>جدولة متابعة جديدة</span>
               </h2>
               <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-                Bind a call, meeting, or email task schedule to a client record
+                تسجيل مكالمة، اجتماع، أو بريد إلكتروني مجدول وتعيينه لملف العميل للمتابعة
               </p>
             </div>
 
@@ -656,25 +690,27 @@ export default function FollowUpsPage() {
                   borderRadius: "var(--radius-md)",
                   padding: "var(--sp-3) var(--sp-4)",
                   marginBottom: "var(--sp-4)",
-                  fontSize: "var(--fs-body-sm)"
+                  fontSize: "var(--fs-body-sm)",
+                  textAlign: "right"
                 }}
               >
                 {modalError}
               </div>
             )}
 
-            <form onSubmit={handleScheduleSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
+            <form onSubmit={handleScheduleSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
               
               {/* Select Client */}
               <div className="c-input">
-                <label className="c-input__label">Target Client *</label>
+                <label className="c-input__label">العميل المستهدف *</label>
                 <select
                   value={formFields.client}
                   onChange={(e) => setFormFields(f => ({ ...f, client: e.target.value }))}
                   className="c-input__field" 
+                  style={{ background: "var(--clr-bg-primary)" }}
                   required
                 >
-                  <option value="">-- Choose Client Profile --</option>
+                  <option value="">-- اختر العميل من القائمة --</option>
                   {clients.map(cli => (
                     <option key={cli._id} value={cli._id}>
                       {cli.firstName} {cli.lastName} {cli.companyName ? `(${cli.companyName})` : ""}
@@ -685,70 +721,74 @@ export default function FollowUpsPage() {
 
               {/* Topic / Title */}
               <div className="c-input">
-                <label className="c-input__label">Schedule Topic / Title *</label>
+                <label className="c-input__label">عنوان / موضوع المتابعة *</label>
                 <input 
                   type="text" 
                   required
-                  placeholder="e.g. Discuss onboarding pricing tiers"
+                  placeholder="مثال: مناقشة أسعار وتفاصيل الاشتراك"
                   value={formFields.title}
                   onChange={(e) => setFormFields(f => ({ ...f, title: e.target.value }))}
                   className="c-input__field" 
+                  style={{ textAlign: "right" }}
                 />
               </div>
 
               {/* Grid: Type and DateTime */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
                 <div className="c-input">
-                  <label className="c-input__label">Channel Type *</label>
+                  <label className="c-input__label">قناة الاتصال *</label>
                   <select
                     value={formFields.type}
                     onChange={(e) => setFormFields(f => ({ ...f, type: e.target.value as any }))}
                     className="c-input__field" 
+                    style={{ background: "var(--clr-bg-primary)" }}
                   >
-                    <option value="Call">Call 📞</option>
-                    <option value="Email">Email ✉️</option>
-                    <option value="Meeting">Meeting 👥</option>
-                    <option value="Demo">Demo 🖥️</option>
-                    <option value="Other">Other 📝</option>
+                    <option value="Call">مكالمة هاتفية 📞</option>
+                    <option value="Email">بريد إلكتروني ✉️</option>
+                    <option value="Meeting">اجتماع 👥</option>
+                    <option value="Demo">عرض تقديمي 🖥️</option>
+                    <option value="Other">أخرى 📝</option>
                   </select>
                 </div>
                 <div className="c-input">
-                  <label className="c-input__label">Date & Time *</label>
+                  <label className="c-input__label">التاريخ والوقت *</label>
                   <input 
                     type="datetime-local" 
                     required
                     value={formFields.scheduledAt}
                     onChange={(e) => setFormFields(f => ({ ...f, scheduledAt: e.target.value }))}
                     className="c-input__field" 
+                    style={{ textAlign: "left", direction: "ltr" }}
                   />
                 </div>
               </div>
 
               {/* Description */}
               <div className="c-input">
-                <label className="c-input__label">Description Details</label>
+                <label className="c-input__label">تفاصيل الوصف والأجندة</label>
                 <textarea
-                  placeholder="Enter context, bulleted agenda questions..."
+                  placeholder="اكتب سياق المتابعة، الأسئلة المطروحة، أو أهداف الاجتماع..."
                   value={formFields.description}
                   onChange={(e) => setFormFields(f => ({ ...f, description: e.target.value }))}
                   rows={3}
                   className="c-input__field" 
-                  style={{ resize: "none", padding: "var(--sp-3)" }}
+                  style={{ resize: "none", padding: "var(--sp-3)", textAlign: "right" }}
                 />
               </div>
 
               {/* Assigned Agent (Admin only) */}
               {isSuperAdmin && (
                 <div className="c-input">
-                  <label className="c-input__label">Assigned Account Agent *</label>
+                  <label className="c-input__label">الموظف المسؤول والمتابع *</label>
                   <select
                     value={formFields.assignedAgentId}
                     onChange={(e) => setFormFields(f => ({ ...f, assignedAgentId: e.target.value }))}
                     className="c-input__field" 
+                    style={{ background: "var(--clr-bg-primary)" }}
                   >
-                    <option value="">-- Choose Employee --</option>
+                    <option value="">-- اختر الموظف المسؤول --</option>
                     {agents.map(ag => (
-                      <option key={ag._id} value={ag._id}>{ag.firstName} {ag.lastName} ({ag.user?.email})</option>
+                      <option key={ag._id} value={ag._id}>{ag.firstName} {ag.lastName}</option>
                     ))}
                   </select>
                 </div>
@@ -761,7 +801,7 @@ export default function FollowUpsPage() {
                   onClick={() => setIsModalOpen(false)}
                   className="c-btn c-btn--secondary"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </button>
                 <button 
                   type="submit" 
@@ -770,25 +810,10 @@ export default function FollowUpsPage() {
                   style={{ minWidth: "120px", gap: "var(--sp-2)" }}
                 >
                   {modalLoading ? <div className="btn-spinner" /> : null}
-                  <span>Schedule Task</span>
+                  <span>جدولة المتابعة</span>
                 </button>
               </div>
             </form>
-
-            <style jsx>{`
-              @keyframes slideIn {
-                from { transform: translateY(-30px); opacity: 0; }
-                to { transform: translateY(0); opacity: 1; }
-              }
-              .btn-spinner {
-                width: 14px;
-                height: 14px;
-                border: 2px solid rgba(4,13,33,0.3);
-                border-top: 2px solid var(--clr-text-primary);
-                border-radius: 50%;
-                animation: spin 0.8s linear infinite;
-              }
-            `}</style>
           </div>
         </div>
       )}

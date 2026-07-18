@@ -4,8 +4,10 @@ import React, { useEffect, useState, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../layout";
+import { useLanguage } from "@/context/LanguageContext";
 import { 
   ArrowLeft, 
+  ChevronRight,
   Clock, 
   Calendar, 
   User, 
@@ -62,6 +64,7 @@ export default function FollowUpDetailPage({ params }: { params: Promise<{ id: s
   const router = useRouter();
   const { id } = use(params);
   const { user: currentUser } = useAuth();
+  const { t, isRtl } = useLanguage();
 
   const [followup, setFollowup] = useState<FollowUpDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -171,36 +174,36 @@ export default function FollowUpDetailPage({ params }: { params: Promise<{ id: s
     switch (status) {
       case "Completed":
         return (
-          <div style={{ display: "flex", gap: "var(--sp-3)", alignItems: "center", backgroundColor: "rgba(56, 161, 105, 0.12)", border: "1px solid var(--clr-success)", color: "var(--clr-success)", borderRadius: "var(--radius-md)", padding: "var(--sp-4)" }}>
-            <CheckCircle2 size={20} />
+          <div style={{ display: "flex", gap: "var(--sp-3)", alignItems: "center", backgroundColor: "rgba(56, 161, 105, 0.12)", border: "1px solid var(--clr-success)", color: "var(--clr-success)", borderRadius: "var(--radius-md)", padding: "var(--sp-4)", textAlign: "right" }}>
+            <CheckCircle2 size={20} style={{ flexShrink: 0 }} />
             <div>
-              <div style={{ fontWeight: "var(--fw-bold)", fontSize: "var(--fs-body-sm)" }}>Follow-Up Completed</div>
+              <div style={{ fontWeight: "var(--fw-bold)", fontSize: "var(--fs-body-sm)" }}>تم إتمام المتابعة</div>
               <p style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", marginTop: "2px" }}>
-                This log is closed. Completed schedules cannot be reverted or rescheduled.
+                تم إغلاق سجل المتابعة هذا. السجلات المكتملة لا يمكن تعديلها أو إعادة جدولتها.
               </p>
             </div>
           </div>
         );
       case "Cancelled":
         return (
-          <div style={{ display: "flex", gap: "var(--sp-3)", alignItems: "center", backgroundColor: "rgba(160, 174, 192, 0.12)", border: "1px solid var(--clr-border)", color: "var(--clr-text-muted)", borderRadius: "var(--radius-md)", padding: "var(--sp-4)" }}>
-            <XCircle size={20} />
+          <div style={{ display: "flex", gap: "var(--sp-3)", alignItems: "center", backgroundColor: "rgba(160, 174, 192, 0.12)", border: "1px solid var(--clr-border)", color: "var(--clr-text-muted)", borderRadius: "var(--radius-md)", padding: "var(--sp-4)", textAlign: "right" }}>
+            <XCircle size={20} style={{ flexShrink: 0 }} />
             <div>
-              <div style={{ fontWeight: "var(--fw-bold)", fontSize: "var(--fs-body-sm)", color: "var(--clr-text-primary)" }}>Follow-Up Cancelled</div>
+              <div style={{ fontWeight: "var(--fw-bold)", fontSize: "var(--fs-body-sm)", color: "var(--clr-text-primary)" }}>تم إلغاء المتابعة</div>
               <p style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", marginTop: "2px" }}>
-                This schedule was cancelled and is closed for edits.
+                تم إلغاء موعد المتابعة هذا وهو مغلق للتعديل.
               </p>
             </div>
           </div>
         );
       case "Missed":
         return (
-          <div style={{ display: "flex", gap: "var(--sp-3)", alignItems: "center", backgroundColor: "rgba(229, 62, 62, 0.12)", border: "1px solid var(--clr-error)", color: "var(--clr-error)", borderRadius: "var(--radius-md)", padding: "var(--sp-4)" }}>
-            <AlertCircle size={20} />
+          <div style={{ display: "flex", gap: "var(--sp-3)", alignItems: "center", backgroundColor: "rgba(229, 62, 62, 0.12)", border: "1px solid var(--clr-error)", color: "var(--clr-error)", borderRadius: "var(--radius-md)", padding: "var(--sp-4)", textAlign: "right" }}>
+            <AlertCircle size={20} style={{ flexShrink: 0 }} />
             <div>
-              <div style={{ fontWeight: "var(--fw-bold)", fontSize: "var(--fs-body-sm)" }}>Follow-Up Overdue (Missed)</div>
+              <div style={{ fontWeight: "var(--fw-bold)", fontSize: "var(--fs-body-sm)" }}>متابعة متأخرة (فائتة)</div>
               <p style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", marginTop: "2px" }}>
-                This followup schedule was missed. Please reschedule a new date or document the outcome.
+                لقد فات الموعد المحدد لهذه المتابعة. يرجى إعادة جدولة موعد جديد أو تدوين تفاصيل النتيجة.
               </p>
             </div>
           </div>
@@ -214,13 +217,13 @@ export default function FollowUpDetailPage({ params }: { params: Promise<{ id: s
     switch (status) {
       case "Scheduled":
       case "Pending":
-        return <span className="c-badge c-badge--info">Scheduled</span>;
+        return <span className="c-badge c-badge--info">مجدولة</span>;
       case "Completed":
-        return <span className="c-badge c-badge--success">Completed</span>;
+        return <span className="c-badge c-badge--success">مكتملة</span>;
       case "Missed":
-        return <span className="c-badge c-badge--error">Missed</span>;
+        return <span className="c-badge c-badge--error">فائتة</span>;
       case "Cancelled":
-        return <span className="c-badge" style={{ backgroundColor: "rgba(160, 174, 192, 0.15)", color: "var(--clr-text-muted)" }}>Cancelled</span>;
+        return <span className="c-badge" style={{ backgroundColor: "rgba(160, 174, 192, 0.15)", color: "var(--clr-text-muted)" }}>ملغاة</span>;
       default:
         return <span className="c-badge">{status}</span>;
     }
@@ -230,7 +233,7 @@ export default function FollowUpDetailPage({ params }: { params: Promise<{ id: s
     return (
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyItems: "center", justifyContent: "center", minHeight: "80vh", gap: "var(--sp-4)" }}>
         <div style={{ width: "32px", height: "32px", border: "3px solid var(--clr-border)", borderTop: "3px solid var(--clr-accent-primary)", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
-        <span style={{ color: "var(--clr-text-muted)" }}>Loading follow-up schedules...</span>
+        <span style={{ color: "var(--clr-text-muted)" }}>جاري تحميل تفاصيل المتابعة...</span>
       </div>
     );
   }
@@ -240,7 +243,7 @@ export default function FollowUpDetailPage({ params }: { params: Promise<{ id: s
       <main style={{ flex: 1, padding: "var(--sp-8)" }}>
         <div className="c-card" style={{ borderColor: "var(--clr-error)", textAlign: "center", padding: "var(--sp-8)" }}>
           <p style={{ color: "var(--clr-error)", fontWeight: "var(--fw-medium)", marginBottom: "var(--sp-4)" }}>{error}</p>
-          <Link href="/dashboard/followups" className="c-btn c-btn--secondary">Back to Directory</Link>
+          <Link href="/dashboard/followups" className="c-btn c-btn--secondary">العودة لمخطط المتابعات</Link>
         </div>
       </main>
     );
@@ -249,6 +252,13 @@ export default function FollowUpDetailPage({ params }: { params: Promise<{ id: s
   if (!followup) return null;
 
   const isClosed = followup.status === "Completed" || followup.status === "Cancelled";
+
+  let followupTypeArabic: string = followup.type;
+  if (followup.type === "Call") followupTypeArabic = "مكالمة هاتفية 📞";
+  else if (followup.type === "Email") followupTypeArabic = "بريد إلكتروني ✉️";
+  else if (followup.type === "Meeting") followupTypeArabic = "اجتماع عمل 👥";
+  else if (followup.type === "Demo") followupTypeArabic = "عرض تقديمي 🖥️";
+  else if (followup.type === "Other") followupTypeArabic = "متابعة أخرى 📝";
 
   return (
     <main style={{ flex: 1, padding: "var(--sp-8)", overflowY: "auto", display: "flex", flexDirection: "column", gap: "var(--sp-6)" }}>
@@ -259,8 +269,8 @@ export default function FollowUpDetailPage({ params }: { params: Promise<{ id: s
           style={{ display: "inline-flex", alignItems: "center", gap: "var(--sp-2)", color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}
           className="hover-bright"
         >
-          <ArrowLeft size={16} />
-          <span>Back to Planner</span>
+          {isRtl ? <ChevronRight size={16} /> : <ArrowLeft size={16} />}
+          <span>العودة لمخطط المتابعات</span>
         </Link>
       </div>
 
@@ -280,7 +290,7 @@ export default function FollowUpDetailPage({ params }: { params: Promise<{ id: s
           </h1>
           <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)", display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
             {getChannelIcon(followup.type)}
-            <span>{followup.type} Follow-Up schedule</span>
+            <span>متابعة مجدولة عبر {followupTypeArabic}</span>
           </p>
         </div>
         <div>
@@ -297,9 +307,9 @@ export default function FollowUpDetailPage({ params }: { params: Promise<{ id: s
         {/* Left Column: Details and Action buttons */}
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-6)" }}>
           {/* Main Info */}
-          <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
+          <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
             <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-accent-primary)", borderBottom: "1px solid var(--clr-border)", paddingBottom: "var(--sp-2)" }}>
-              Follow-Up Details
+              تفاصيل المتابعة
             </h2>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
@@ -318,7 +328,7 @@ export default function FollowUpDetailPage({ params }: { params: Promise<{ id: s
                 <div style={{ display: "flex", gap: "var(--sp-3)", alignItems: "center" }}>
                   <User size={18} style={{ color: "var(--clr-accent-primary)" }} />
                   <div>
-                    <span style={{ fontSize: "10px", color: "var(--clr-text-muted)", display: "block" }}>Client</span>
+                    <span style={{ fontSize: "10px", color: "var(--clr-text-muted)", display: "block" }}>العميل</span>
                     <span style={{ fontWeight: "var(--fw-bold)", fontSize: "var(--fs-body-sm)" }}>
                       {followup.client?.firstName} {followup.client?.lastName}
                     </span>
@@ -329,7 +339,7 @@ export default function FollowUpDetailPage({ params }: { params: Promise<{ id: s
                   className="c-btn c-btn--secondary"
                   style={{ padding: "var(--sp-1) var(--sp-3)", fontSize: "var(--fs-caption)" }}
                 >
-                  View Profile
+                  عرض ملف العميل
                 </Link>
               </div>
 
@@ -337,9 +347,9 @@ export default function FollowUpDetailPage({ params }: { params: Promise<{ id: s
               <div style={{ display: "flex", gap: "var(--sp-3)" }}>
                 <Clock size={18} style={{ color: "var(--clr-text-muted)", marginTop: "2px" }} />
                 <div>
-                  <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>Scheduled Time</span>
+                  <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>وقت المتابعة المجدول</span>
                   <div style={{ fontWeight: "var(--fw-bold)", fontSize: "var(--fs-body-lg)", color: "var(--clr-text-primary)" }}>
-                    {new Date(followup.scheduledAt).toLocaleString(undefined, { dateStyle: "long", timeStyle: "short" })}
+                    {new Date(followup.scheduledAt).toLocaleString("ar-EG", { dateStyle: "long", timeStyle: "short" })}
                   </div>
                 </div>
               </div>
@@ -348,9 +358,9 @@ export default function FollowUpDetailPage({ params }: { params: Promise<{ id: s
               <div style={{ display: "flex", gap: "var(--sp-3)" }}>
                 <FileText size={18} style={{ color: "var(--clr-text-muted)", marginTop: "2px" }} />
                 <div>
-                  <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>Description Agenda</span>
+                  <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>أجندة / وصف المتابعة</span>
                   <p style={{ color: "var(--clr-text-primary)", fontSize: "var(--fs-body-sm)", marginTop: "2px", whiteSpace: "pre-line" }}>
-                    {followup.description || "No agenda description logged."}
+                    {followup.description || "لا توجد أجندة مكتوبة لهذه المتابعة."}
                   </p>
                 </div>
               </div>
@@ -359,7 +369,7 @@ export default function FollowUpDetailPage({ params }: { params: Promise<{ id: s
               <div style={{ display: "flex", gap: "var(--sp-3)" }}>
                 <Briefcase size={18} style={{ color: "var(--clr-text-muted)", marginTop: "2px" }} />
                 <div>
-                  <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>Account Agent Manager</span>
+                  <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>الموظف المسؤول والمتابع</span>
                   <div style={{ fontWeight: "var(--fw-bold)", fontSize: "var(--fs-body-sm)", color: "var(--clr-text-primary)", marginTop: "2px" }}>
                     {followup.assignedAgent?.firstName} {followup.assignedAgent?.lastName}
                   </div>
@@ -381,7 +391,7 @@ export default function FollowUpDetailPage({ params }: { params: Promise<{ id: s
                 >
                   <CheckCircle2 size={18} style={{ color: "var(--clr-accent-primary)", flexShrink: 0, marginTop: "2px" }} />
                   <div>
-                    <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>Closure Notes / Log Outcome</span>
+                    <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>ملاحظات الإغلاق / ملخص النتيجة</span>
                     <p style={{ color: "var(--clr-text-primary)", fontSize: "var(--fs-body-sm)", marginTop: "2px", whiteSpace: "pre-line" }}>
                       {followup.notes}
                     </p>
@@ -393,8 +403,8 @@ export default function FollowUpDetailPage({ params }: { params: Promise<{ id: s
 
           {/* Action triggers (Only if scheduled/missed and not completed/cancelled) */}
           {!isClosed && (
-            <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
-              <h3 style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-accent-primary)" }}>Orchestration Actions</h3>
+            <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
+              <h3 style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-accent-primary)", borderBottom: "1px solid var(--clr-border)", paddingBottom: "var(--sp-2)" }}>إجراءات المتابعة والتحكم</h3>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-3)" }}>
                 <button
                   onClick={() => { setActiveAction("complete"); setNotesText(""); setActionError(""); }}
@@ -402,7 +412,7 @@ export default function FollowUpDetailPage({ params }: { params: Promise<{ id: s
                   style={{ gap: "var(--sp-2)", boxShadow: "var(--shadow-glow-accent)" }}
                 >
                   <CheckCircle2 size={16} />
-                  <span>Log Outcome</span>
+                  <span>تدوين النتيجة</span>
                 </button>
                 <button
                   onClick={() => { setActiveAction("reschedule"); setNotesText(""); setActionError(""); }}
@@ -410,35 +420,35 @@ export default function FollowUpDetailPage({ params }: { params: Promise<{ id: s
                   style={{ gap: "var(--sp-2)" }}
                 >
                   <Calendar size={16} />
-                  <span>Reschedule</span>
+                  <span>إعادة جدولة</span>
                 </button>
               </div>
               <button
                 onClick={() => { setActiveAction("cancel"); setNotesText(""); setActionError(""); }}
                 className="c-btn c-btn--secondary cancel-btn-hover"
-                style={{ borderColor: "rgba(229, 62, 62, 0.5)", color: "var(--clr-error)", gap: "var(--sp-2)" }}
+                style={{ borderColor: "rgba(229, 62, 62, 0.5)", color: "var(--clr-error)", gap: "var(--sp-2)", marginTop: "var(--sp-1)" }}
               >
                 <XCircle size={16} />
-                <span>Cancel Schedule</span>
+                <span>إلغاء المتابعة</span>
               </button>
             </section>
           )}
         </div>
 
         {/* Right Column: Full Audit History Log Timeline */}
-        <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-5)" }}>
+        <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-5)", textAlign: "right" }}>
           <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-accent-primary)", borderBottom: "1px solid var(--clr-border)", paddingBottom: "var(--sp-2)", display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
             <History size={18} />
-            <span>Audit History Timeline ({followup.history.length})</span>
+            <span>سجل العمليات والتدقيق التاريخي ({followup.history.length})</span>
           </h2>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", paddingLeft: "var(--sp-2)", overflowY: "auto", maxHeight: "500px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", paddingRight: "var(--sp-2)", overflowY: "auto", maxHeight: "500px" }}>
             {[...followup.history].reverse().map((log, index) => (
               <div 
                 key={index}
                 style={{
-                  borderLeft: "2px solid var(--clr-border)",
-                  paddingLeft: "var(--sp-4)",
+                  borderRight: "2px solid var(--clr-border)",
+                  paddingRight: "var(--sp-4)",
                   position: "relative",
                   paddingBottom: "var(--sp-2)"
                 }}
@@ -447,7 +457,7 @@ export default function FollowUpDetailPage({ params }: { params: Promise<{ id: s
                 <div
                   style={{
                     position: "absolute",
-                    left: "-7px",
+                    right: "-7px",
                     top: "4px",
                     width: "12px",
                     height: "12px",
@@ -466,24 +476,24 @@ export default function FollowUpDetailPage({ params }: { params: Promise<{ id: s
                 {/* Log Header */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "var(--fs-caption)" }}>
                   <span style={{ fontWeight: "var(--fw-bold)", display: "inline-flex", alignItems: "center", gap: "6px" }}>
-                    Status: {getStatusBadge(log.status)}
+                    الحالة: {getStatusBadge(log.status)}
                   </span>
                   <span style={{ color: "var(--clr-text-muted)" }}>
-                    {new Date(log.updatedAt).toLocaleString(undefined, { dateStyle: "short", timeStyle: "short" })}
+                    {new Date(log.updatedAt).toLocaleString("ar-EG", { dateStyle: "short", timeStyle: "short" })}
                   </span>
                 </div>
 
                 {/* Detail */}
                 <div style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", marginTop: "2px" }}>
-                  Scheduled Date: <span style={{ color: "var(--clr-text-primary)", fontWeight: "var(--fw-medium)" }}>{new Date(log.scheduledAt).toLocaleString()}</span>
+                  الموعد المجدول: <span style={{ color: "var(--clr-text-primary)", fontWeight: "var(--fw-medium)" }}>{new Date(log.scheduledAt).toLocaleString("ar-EG")}</span>
                 </div>
                 {log.notes && (
                   <p style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-text-primary)", marginTop: "4px", whiteSpace: "pre-line", backgroundColor: "rgba(4, 13, 33, 0.3)", padding: "var(--sp-2)", borderRadius: "var(--radius-sm)", border: "1px solid rgba(30,46,93,0.5)" }}>
                     {log.notes}
                   </p>
                 )}
-                <div style={{ fontSize: "9px", color: "var(--clr-text-muted)", marginTop: "4px", textAlign: "right" }}>
-                  By: <span style={{ color: "var(--clr-accent-primary)" }}>{log.updatedEmail}</span>
+                <div style={{ fontSize: "9px", color: "var(--clr-text-muted)", marginTop: "4px", textAlign: "left" }}>
+                  بواسطة: <span style={{ color: "var(--clr-accent-primary)" }}>{log.updatedEmail}</span>
                 </div>
               </div>
             ))}
@@ -522,24 +532,33 @@ export default function FollowUpDetailPage({ params }: { params: Promise<{ id: s
           >
             <button 
               onClick={() => setActiveAction(null)}
-              style={{ position: "absolute", top: "16px", right: "16px", background: "none", border: "none", color: "var(--clr-text-muted)", cursor: "pointer" }}
+              style={{
+                position: "absolute",
+                top: "16px",
+                right: isRtl ? "auto" : "16px",
+                left: isRtl ? "16px" : "auto",
+                background: "none",
+                border: "none",
+                color: "var(--clr-text-muted)",
+                cursor: "pointer"
+              }}
             >
               <X size={20} />
             </button>
 
-            <div style={{ marginBottom: "var(--sp-6)" }}>
+            <div style={{ marginBottom: "var(--sp-6)", textAlign: "right" }}>
               <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-text-primary)", display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
                 {activeAction === "complete" ? <CheckCircle2 size={20} style={{ color: "var(--clr-success)" }} /> : activeAction === "cancel" ? <XCircle size={20} style={{ color: "var(--clr-error)" }} /> : <Calendar size={20} style={{ color: "var(--clr-accent-primary)" }} />}
                 <span>
-                  {activeAction === "complete" ? "Complete Follow-Up" : activeAction === "cancel" ? "Cancel Follow-Up" : "Reschedule Follow-Up"}
+                  {activeAction === "complete" ? "إتمام وتسجيل نتيجة المتابعة" : activeAction === "cancel" ? "إلغاء المتابعة المجدولة" : "إعادة جدولة المتابعة"}
                 </span>
               </h2>
               <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
                 {activeAction === "complete" 
-                  ? "Log the call outcome details to complete this schedule" 
+                  ? "اكتب تفاصيل نتيجة المتابعة/الاتصال لإغلاق هذا الجدول كـ مكتمل" 
                   : activeAction === "cancel" 
-                  ? "Provide the cancellation reasons to close this task" 
-                  : "Pick a new date and time schedule for this follow-up"}
+                  ? "يرجى كتابة سبب الإلغاء لإغلاق المتابعة بنجاح" 
+                  : "اختر تاريخ ووقت جديد لإعادة جدولة هذه المتابعة"}
               </p>
             </div>
 
@@ -552,25 +571,27 @@ export default function FollowUpDetailPage({ params }: { params: Promise<{ id: s
                   borderRadius: "var(--radius-md)",
                   padding: "var(--sp-3) var(--sp-4)",
                   marginBottom: "var(--sp-4)",
-                  fontSize: "var(--fs-body-sm)"
+                  fontSize: "var(--fs-body-sm)",
+                  textAlign: "right"
                 }}
               >
                 {actionError}
               </div>
             )}
 
-            <form onSubmit={handleActionSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
+            <form onSubmit={handleActionSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
               
               {/* Datepicker only for Reschedule */}
               {activeAction === "reschedule" && (
                 <div className="c-input">
-                  <label className="c-input__label">New Date & Time *</label>
+                  <label className="c-input__label">التاريخ والوقت الجديد *</label>
                   <input 
                     type="datetime-local" 
                     required
                     value={rescheduleDate}
                     onChange={(e) => setRescheduleDate(e.target.value)}
                     className="c-input__field" 
+                    style={{ textAlign: "left", direction: "ltr" }}
                   />
                 </div>
               )}
@@ -578,22 +599,22 @@ export default function FollowUpDetailPage({ params }: { params: Promise<{ id: s
               {/* Notes Content */}
               <div className="c-input">
                 <label className="c-input__label">
-                  {activeAction === "reschedule" ? "Reschedule comments (Optional)" : "Closure Summary Notes *"}
+                  {activeAction === "reschedule" ? "ملاحظات إعادة الجدولة (اختياري)" : "ملخص النتيجة / الملاحظات *"}
                 </label>
                 <textarea
                   placeholder={
                     activeAction === "complete" 
-                      ? "Summarize call outcome details..." 
+                      ? "اكتب ملخصاً لما تم التوصل إليه مع العميل..." 
                       : activeAction === "cancel" 
-                      ? "Provide reasons for cancellation..." 
-                      : "Reason for rescheduling..."
+                      ? "اكتب سبب إلغاء هذه المتابعة..." 
+                      : "سبب إعادة الجدولة..."
                   }
                   required={activeAction !== "reschedule"}
                   value={notesText}
                   onChange={(e) => setNotesText(e.target.value)}
                   rows={4}
                   className="c-input__field"
-                  style={{ resize: "none", padding: "var(--sp-3)" }}
+                  style={{ resize: "none", padding: "var(--sp-3)", textAlign: "right" }}
                 />
               </div>
 
@@ -604,7 +625,7 @@ export default function FollowUpDetailPage({ params }: { params: Promise<{ id: s
                   onClick={() => setActiveAction(null)}
                   className="c-btn c-btn--secondary"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </button>
                 <button 
                   type="submit" 
@@ -614,7 +635,7 @@ export default function FollowUpDetailPage({ params }: { params: Promise<{ id: s
                 >
                   {actionLoading ? <div className="btn-spinner" /> : null}
                   <span>
-                    {activeAction === "complete" ? "Complete Log" : activeAction === "cancel" ? "Cancel Log" : "Confirm Reschedule"}
+                    {activeAction === "complete" ? "حفظ النتيجة وإتمام المتابعة" : activeAction === "cancel" ? "تأكيد إلغاء المتابعة" : "تأكيد إعادة الجدولة"}
                   </span>
                 </button>
               </div>
