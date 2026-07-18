@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "../layout";
+import { useLanguage } from "@/context/LanguageContext";
 import { 
   Search, 
   Plus, 
@@ -70,6 +71,7 @@ interface EmployeeSummary {
 
 export default function TasksPage() {
   const { user: currentUser } = useAuth();
+  const { t, isRtl } = useLanguage();
   const isSuperAdmin = currentUser?.role === "SuperAdmin";
 
   // Data states
@@ -257,33 +259,40 @@ export default function TasksPage() {
   const getPriorityBadge = (prio: string) => {
     switch (prio) {
       case "Critical":
-        return <span className="c-badge c-badge--error" style={{ color: "#FEB2B2", border: "1px solid #E53E3E" }}>Critical</span>;
+        return <span className="c-badge c-badge--error" style={{ color: "#FEB2B2", border: "1px solid #E53E3E" }}>حرجة</span>;
       case "High":
-        return <span className="c-badge c-badge--warning">High</span>;
+        return <span className="c-badge c-badge--warning">مرتفعة</span>;
       case "Medium":
-        return <span className="c-badge c-badge--info">Medium</span>;
+        return <span className="c-badge c-badge--info">متوسطة</span>;
       default:
-        return <span className="c-badge" style={{ backgroundColor: "rgba(160, 174, 192, 0.15)", color: "var(--clr-text-muted)" }}>Low</span>;
+        return <span className="c-badge" style={{ backgroundColor: "rgba(160, 174, 192, 0.15)", color: "var(--clr-text-muted)" }}>منخفضة</span>;
     }
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "Pending":
-        return <span className="c-badge" style={{ border: "1px solid var(--clr-border)", color: "var(--clr-text-muted)" }}>Pending</span>;
+        return <span className="c-badge" style={{ border: "1px solid var(--clr-border)", color: "var(--clr-text-muted)" }}>قيد الانتظار</span>;
       case "In Progress":
-        return <span className="c-badge c-badge--info" style={{ display: "inline-flex", gap: "4px" }}><Play size={10} /> In Progress</span>;
+        return <span className="c-badge c-badge--info" style={{ display: "inline-flex", gap: "4px" }}><Play size={10} /> قيد التنفيذ</span>;
       case "Under Review":
-        return <span className="c-badge c-badge--warning" style={{ display: "inline-flex", gap: "4px" }}><Clock size={10} /> Under Review</span>;
+        return <span className="c-badge c-badge--warning" style={{ display: "inline-flex", gap: "4px" }}><Clock size={10} /> قيد المراجعة</span>;
       case "Completed":
-        return <span className="c-badge c-badge--success" style={{ display: "inline-flex", gap: "4px" }}><CheckCircle size={10} /> Completed</span>;
+        return <span className="c-badge c-badge--success" style={{ display: "inline-flex", gap: "4px" }}><CheckCircle size={10} /> مكتملة</span>;
       case "Rejected":
-        return <span className="c-badge c-badge--error" style={{ display: "inline-flex", gap: "4px" }}><XCircle size={10} /> Rejected</span>;
+        return <span className="c-badge c-badge--error" style={{ display: "inline-flex", gap: "4px" }}><XCircle size={10} /> مرفوضة</span>;
       case "Overdue":
-        return <span className="c-badge c-badge--error" style={{ display: "inline-flex", gap: "4px" }}><AlertOctagon size={10} /> Overdue</span>;
+        return <span className="c-badge c-badge--error" style={{ display: "inline-flex", gap: "4px" }}><AlertOctagon size={10} /> متأخرة</span>;
       default:
         return <span className="c-badge">{status}</span>;
     }
+  };
+
+  const tabTitles = {
+    "my-tasks": "مهامي",
+    "team-tasks": "لوحة مهام الفريق",
+    "overdue": "مهام متأخرة",
+    "completed": "مهام مكتملة ومغلقة"
   };
 
   return (
@@ -293,7 +302,7 @@ export default function TasksPage() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
           <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-            Orchestrate deliverables, upload reviews, and track task productivity
+            تنظيم مخرجات العمل، مراجعة التسليمات، ومتابعة إنتاجية وجودة أداء المهام المسندة
           </p>
         </div>
         <button 
@@ -302,7 +311,7 @@ export default function TasksPage() {
           style={{ gap: "var(--sp-2)", boxShadow: "var(--shadow-glow-accent)" }}
         >
           <Plus size={16} />
-          <span>Create Task</span>
+          <span>إنشاء مهمة جديدة</span>
         </button>
       </div>
 
@@ -319,14 +328,6 @@ export default function TasksPage() {
             if (tab === "completed") return tsk.status === "Completed" || tsk.status === "Cancelled";
             return false;
           }).length;
-
-          const tabName = tab === "my-tasks" 
-            ? "My Tasks" 
-            : tab === "team-tasks" 
-            ? "Team Tasks Board" 
-            : tab === "overdue" 
-            ? "Overdue" 
-            : "Completed & Closed";
 
           return (
             <button
@@ -348,7 +349,7 @@ export default function TasksPage() {
               }}
               className="tab-btn"
             >
-              <span>{tabName}</span>
+              <span>{tabTitles[tab]}</span>
               <span 
                 style={{ 
                   fontSize: "10px", 
@@ -387,7 +388,8 @@ export default function TasksPage() {
               size={18} 
               style={{ 
                 position: "absolute", 
-                left: "12px", 
+                right: isRtl ? "12px" : "auto",
+                left: isRtl ? "auto" : "12px", 
                 top: "50%", 
                 transform: "translateY(-50%)", 
                 color: "var(--clr-text-muted)" 
@@ -395,18 +397,19 @@ export default function TasksPage() {
             />
             <input 
               type="text" 
-              placeholder="Search tasks by title or client..." 
+              placeholder="ابحث عن المهام بالعنوان أو اسم العميل..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="c-input__field"
-              style={{ paddingLeft: "40px", width: "100%", height: "42px" }}
+              style={{ paddingLeft: isRtl ? "12px" : "40px", paddingRight: isRtl ? "40px" : "12px", width: "100%", height: "42px", textAlign: "right" }}
             />
             {searchTerm && (
               <button 
                 onClick={() => setSearchTerm("")}
                 style={{ 
                   position: "absolute", 
-                  right: "12px", 
+                  left: isRtl ? "12px" : "auto",
+                  right: isRtl ? "auto" : "12px",
                   top: "50%", 
                   transform: "translateY(-50%)", 
                   background: "none", 
@@ -422,34 +425,35 @@ export default function TasksPage() {
         </div>
 
         {/* Filter Selection */}
-        <div style={{ display: "flex", gap: "var(--sp-3)", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: "var(--sp-4)", flexWrap: "wrap", alignItems: "center" }}>
           {/* Priority dropdown */}
           <div style={{ display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
-            <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>Priority:</span>
+            <span style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)" }}>الأولوية:</span>
             <select
               value={selectedPriority}
               onChange={(e) => setSelectedPriority(e.target.value)}
               className="c-input__field"
-              style={{ height: "42px", padding: "0 var(--sp-3)", minWidth: "110px", background: "var(--clr-bg-primary)" }}
+              style={{ height: "42px", padding: "0 var(--sp-3)", minWidth: "130px", background: "var(--clr-bg-primary)" }}
             >
-              <option value="">All Priorities</option>
-              {priorities.map(prio => (
-                <option key={prio} value={prio}>{prio}</option>
-              ))}
+              <option value="">كل الأولويات</option>
+              <option value="Low">منخفضة (Low)</option>
+              <option value="Medium">متوسطة (Medium)</option>
+              <option value="High">مرتفعة (High)</option>
+              <option value="Critical">حرجة (Critical)</option>
             </select>
           </div>
 
           {/* Assigned Agent filter (Admin only) */}
           {isSuperAdmin && (
             <div style={{ display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
-              <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>Agent:</span>
+              <span style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)" }}>الموظف:</span>
               <select
                 value={selectedAgent}
                 onChange={(e) => setSelectedAgent(e.target.value)}
                 className="c-input__field"
-                style={{ height: "42px", padding: "0 var(--sp-3)", minWidth: "130px", background: "var(--clr-bg-primary)" }}
+                style={{ height: "42px", padding: "0 var(--sp-3)", minWidth: "150px", background: "var(--clr-bg-primary)" }}
               >
-                <option value="">All Agents</option>
+                <option value="">كل الموظفين</option>
                 {agents.map(ag => (
                   <option key={ag._id} value={ag._id}>{ag.firstName} {ag.lastName}</option>
                 ))}
@@ -480,15 +484,15 @@ export default function TasksPage() {
       ) : error ? (
         <div className="c-card" style={{ borderColor: "var(--clr-error)", textAlign: "center", padding: "var(--sp-8)" }}>
           <p style={{ color: "var(--clr-error)", fontWeight: "var(--fw-medium)", marginBottom: "var(--sp-4)" }}>{error}</p>
-          <button onClick={fetchTasks} className="c-btn c-btn--secondary">Retry Loading</button>
+          <button onClick={fetchTasks} className="c-btn c-btn--secondary">إعادة المحاولة</button>
         </div>
       ) : activeList.length === 0 ? (
         <div className="c-card" style={{ textAlign: "center", padding: "var(--sp-12)", display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--sp-4)" }}>
           <FileText size={48} style={{ color: "var(--clr-text-muted)" }} />
           <div>
-            <h3 style={{ fontSize: "var(--fs-h3)", marginBottom: "var(--sp-1)" }}>No tasks registered</h3>
+            <h3 style={{ fontSize: "var(--fs-h3)", marginBottom: "var(--sp-1)" }}>لا توجد مهام مسجلة</h3>
             <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-              No tasks match this board category or search constraints.
+              لا توجد أي مهام تطابق هذا القسم أو كلمة البحث.
             </p>
           </div>
         </div>
@@ -502,17 +506,17 @@ export default function TasksPage() {
             boxShadow: "var(--shadow-md)"
           }}
         >
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "900px" }}>
+          <div className="c-table-container">
+            <table className="c-table" style={{ width: "100%", borderCollapse: "collapse", minWidth: "900px" }}>
               <thead>
                 <tr style={{ borderBottom: "2px solid var(--clr-border)", backgroundColor: "rgba(4, 13, 33, 0.4)" }}>
-                  <th style={{ textAlign: "left", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Task Title</th>
-                  <th style={{ textAlign: "left", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Client Link</th>
-                  <th style={{ textAlign: "center", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Priority</th>
-                  <th style={{ textAlign: "center", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Status</th>
-                  <th style={{ textAlign: "left", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Due Date</th>
-                  <th style={{ textAlign: "left", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Assigned Manager</th>
-                  <th style={{ textAlign: "center", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>Actions</th>
+                  <th style={{ textAlign: "right", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>عنوان المهمة</th>
+                  <th style={{ textAlign: "right", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>العميل المرتبط</th>
+                  <th style={{ textAlign: "center", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)", width: "120px" }}>الأولوية</th>
+                  <th style={{ textAlign: "center", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)", width: "140px" }}>الحالة</th>
+                  <th style={{ textAlign: "right", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>تاريخ الاستحقاق</th>
+                  <th style={{ textAlign: "right", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>المسؤول المتابع</th>
+                  <th style={{ textAlign: "center", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>الإجراءات</th>
                 </tr>
               </thead>
               <tbody>
@@ -525,18 +529,18 @@ export default function TasksPage() {
                     }}
                     className="table-row-hover"
                   >
-                    <td style={{ padding: "var(--sp-4)", fontWeight: "var(--fw-medium)" }}>
+                    <td style={{ padding: "var(--sp-4)", fontWeight: "var(--fw-medium)", textAlign: "right" }}>
                       <div style={{ fontSize: "var(--fs-body-sm)" }}>{tsk.title}</div>
                       {tsk.description && (
-                        <div style={{ fontSize: "11px", color: "var(--clr-text-muted)", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "260px" }}>
+                        <div style={{ fontSize: "11px", color: "var(--clr-text-muted)", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "240px" }}>
                           {tsk.description}
                         </div>
                       )}
                     </td>
-                    <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)" }}>
+                    <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)", textAlign: "right" }}>
                       {tsk.client 
                         ? `${tsk.client.firstName} ${tsk.client.lastName}` 
-                        : "None"}
+                        : "لا يوجد"}
                       {tsk.client?.companyName && (
                         <div style={{ fontSize: "11px", color: "var(--clr-text-muted)" }}>{tsk.client.companyName}</div>
                       )}
@@ -547,15 +551,15 @@ export default function TasksPage() {
                     <td style={{ padding: "var(--sp-4)", textAlign: "center" }}>
                       {getStatusBadge(tsk.status)}
                     </td>
-                    <td style={{ padding: "var(--sp-4)" }}>
+                    <td style={{ padding: "var(--sp-4)", textAlign: "right" }}>
                       <div style={{ fontWeight: "var(--fw-medium)" }}>
-                        {new Date(tsk.dueDate).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
+                        {new Date(tsk.dueDate).toLocaleDateString("ar-EG", { month: "short", day: "numeric", year: "numeric" })}
                       </div>
                     </td>
-                    <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)" }}>
+                    <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)", textAlign: "right" }}>
                       {tsk.assignedTo 
                         ? `${tsk.assignedTo.firstName} ${tsk.assignedTo.lastName}` 
-                        : "Unassigned"}
+                        : "غير مسند"}
                     </td>
                     <td style={{ padding: "var(--sp-4)", textAlign: "center" }}>
                       <Link 
@@ -564,7 +568,7 @@ export default function TasksPage() {
                         style={{ padding: "var(--sp-2) var(--sp-3)", display: "inline-flex", gap: "var(--sp-2)" }}
                       >
                         <Eye size={14} />
-                        <span style={{ fontSize: "var(--fs-caption)" }}>View Details</span>
+                        <span style={{ fontSize: "var(--fs-caption)" }}>التفاصيل</span>
                       </Link>
                     </td>
                   </tr>
@@ -614,18 +618,27 @@ export default function TasksPage() {
           >
             <button 
               onClick={() => setIsModalOpen(false)}
-              style={{ position: "absolute", top: "16px", right: "16px", background: "none", border: "none", color: "var(--clr-text-muted)", cursor: "pointer" }}
+              style={{
+                position: "absolute",
+                top: "16px",
+                right: isRtl ? "auto" : "16px",
+                left: isRtl ? "16px" : "auto",
+                background: "none",
+                border: "none",
+                color: "var(--clr-text-muted)",
+                cursor: "pointer"
+              }}
             >
               <X size={20} />
             </button>
 
-            <div style={{ marginBottom: "var(--sp-6)" }}>
+            <div style={{ marginBottom: "var(--sp-6)", textAlign: "right" }}>
               <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-text-primary)", display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
                 <Calendar size={20} style={{ color: "var(--clr-accent-primary)" }} />
-                <span>Create New Task</span>
+                <span>إنشاء مهمة جديدة</span>
               </h2>
               <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-                Assign task schedules, priorities, and client links
+                تعيين موعد المهمة، مستوى الأهمية، وربطها بملف العميل المتابع
               </p>
             </div>
 
@@ -638,62 +651,68 @@ export default function TasksPage() {
                   borderRadius: "var(--radius-md)",
                   padding: "var(--sp-3) var(--sp-4)",
                   marginBottom: "var(--sp-4)",
-                  fontSize: "var(--fs-body-sm)"
+                  fontSize: "var(--fs-body-sm)",
+                  textAlign: "right"
                 }}
               >
                 {modalError}
               </div>
             )}
 
-            <form onSubmit={handleCreateSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
+            <form onSubmit={handleCreateSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
               {/* Title */}
               <div className="c-input">
-                <label className="c-input__label">Task Title *</label>
+                <label className="c-input__label">عنوان المهمة *</label>
                 <input 
                   type="text" 
                   required
-                  placeholder="e.g. Prepare Q3 client proposal slides"
+                  placeholder="مثال: تجهيز عرض الأسعار للعميل"
                   value={formFields.title}
                   onChange={(e) => setFormFields(f => ({ ...f, title: e.target.value }))}
                   className="c-input__field" 
+                  style={{ textAlign: "right" }}
                 />
               </div>
 
               {/* Grid: Priority & Due Date */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
                 <div className="c-input">
-                  <label className="c-input__label">Priority *</label>
+                  <label className="c-input__label">الأولوية *</label>
                   <select
                     value={formFields.priority}
                     onChange={(e) => setFormFields(f => ({ ...f, priority: e.target.value }))}
                     className="c-input__field" 
+                    style={{ background: "var(--clr-bg-primary)" }}
                   >
-                    {priorities.map(prio => (
-                      <option key={prio} value={prio}>{prio}</option>
-                    ))}
+                    <option value="Low">منخفضة</option>
+                    <option value="Medium">متوسطة</option>
+                    <option value="High">مرتفعة</option>
+                    <option value="Critical">حرجة</option>
                   </select>
                 </div>
                 <div className="c-input">
-                  <label className="c-input__label">Due Date *</label>
+                  <label className="c-input__label">تاريخ الاستحقاق *</label>
                   <input 
                     type="date" 
                     required
                     value={formFields.dueDate}
                     onChange={(e) => setFormFields(f => ({ ...f, dueDate: e.target.value }))}
                     className="c-input__field" 
+                    style={{ textAlign: "left", direction: "ltr" }}
                   />
                 </div>
               </div>
 
               {/* Optional: Linked Client */}
               <div className="c-input">
-                <label className="c-input__label">Link Client Profile (Optional)</label>
+                <label className="c-input__label">ربط ملف العميل (اختياري)</label>
                 <select
                   value={formFields.client}
                   onChange={(e) => setFormFields(f => ({ ...f, client: e.target.value }))}
                   className="c-input__field" 
+                  style={{ background: "var(--clr-bg-primary)" }}
                 >
-                  <option value="">-- Choose Client (No link) --</option>
+                  <option value="">-- اختر العميل --</option>
                   {clients.map(cli => (
                     <option key={cli._id} value={cli._id}>
                       {cli.firstName} {cli.lastName} {cli.companyName ? `(${cli.companyName})` : ""}
@@ -704,16 +723,17 @@ export default function TasksPage() {
 
               {/* Optional: Linked Follow-Up */}
               <div className="c-input">
-                <label className="c-input__label">Link Follow-Up Log (Optional)</label>
+                <label className="c-input__label">ربط سجل المتابعة (اختياري)</label>
                 <select
                   value={formFields.followUp}
                   onChange={(e) => setFormFields(f => ({ ...f, followUp: e.target.value }))}
                   className="c-input__field" 
+                  style={{ background: "var(--clr-bg-primary)" }}
                 >
-                  <option value="">-- Choose Followup Log --</option>
+                  <option value="">-- اختر الموعد المجدول --</option>
                   {followups.map(fup => (
                     <option key={fup._id} value={fup._id}>
-                      {fup.title} ({new Date(fup.scheduledAt).toLocaleDateString()})
+                      {fup.title} ({new Date(fup.scheduledAt).toLocaleDateString("ar-EG")})
                     </option>
                   ))}
                 </select>
@@ -721,29 +741,30 @@ export default function TasksPage() {
 
               {/* Description */}
               <div className="c-input">
-                <label className="c-input__label">Task Details Description</label>
+                <label className="c-input__label">تفاصيل وصف المهمة</label>
                 <textarea
-                  placeholder="Summarize instructions, deliverables, requirements..."
+                  placeholder="اكتب تفاصيل التعليمات، متطلبات التسليم، والشروط المطلوبة للمهمة..."
                   value={formFields.description}
                   onChange={(e) => setFormFields(f => ({ ...f, description: e.target.value }))}
                   rows={3}
                   className="c-input__field" 
-                  style={{ resize: "none", padding: "var(--sp-3)" }}
+                  style={{ resize: "none", padding: "var(--sp-3)", textAlign: "right" }}
                 />
               </div>
 
               {/* Assigned Agent (Admin dropdown selection) */}
               {isSuperAdmin && (
                 <div className="c-input">
-                  <label className="c-input__label">Assigned Account Manager (Agent) *</label>
+                  <label className="c-input__label">الموظف المسؤول والمتابع *</label>
                   <select
                     value={formFields.assignedToId}
                     onChange={(e) => setFormFields(f => ({ ...f, assignedToId: e.target.value }))}
                     className="c-input__field" 
+                    style={{ background: "var(--clr-bg-primary)" }}
                   >
-                    <option value="">-- Choose Employee --</option>
+                    <option value="">-- اختر الموظف المسؤول --</option>
                     {agents.map(ag => (
-                      <option key={ag._id} value={ag._id}>{ag.firstName} {ag.lastName} ({ag.user?.email})</option>
+                      <option key={ag._id} value={ag._id}>{ag.firstName} {ag.lastName}</option>
                     ))}
                   </select>
                 </div>
@@ -756,7 +777,7 @@ export default function TasksPage() {
                   onClick={() => setIsModalOpen(false)}
                   className="c-btn c-btn--secondary"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </button>
                 <button 
                   type="submit" 
@@ -765,7 +786,7 @@ export default function TasksPage() {
                   style={{ minWidth: "120px", gap: "var(--sp-2)" }}
                 >
                   {modalLoading ? <div className="btn-spinner" /> : null}
-                  <span>Save Task</span>
+                  <span>حفظ المهمة</span>
                 </button>
               </div>
             </form>

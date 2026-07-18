@@ -4,8 +4,10 @@ import React, { useEffect, useState, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../layout";
+import { useLanguage } from "@/context/LanguageContext";
 import { 
   ArrowLeft, 
+  ChevronRight,
   Clock, 
   Calendar, 
   User, 
@@ -90,6 +92,7 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
   const router = useRouter();
   const { id } = use(params);
   const { user: currentUser } = useAuth();
+  const { t, isRtl } = useLanguage();
   const isSuperAdmin = currentUser?.role === "SuperAdmin";
 
   const [task, setTask] = useState<TaskDetail | null>(null);
@@ -272,32 +275,32 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
   const getPriorityBadge = (prio: string) => {
     switch (prio) {
       case "Critical":
-        return <span className="c-badge c-badge--error" style={{ color: "#FEB2B2", border: "1px solid #E53E3E" }}>Critical</span>;
+        return <span className="c-badge c-badge--error" style={{ color: "#FEB2B2", border: "1px solid #E53E3E" }}>حرجة</span>;
       case "High":
-        return <span className="c-badge c-badge--warning">High</span>;
+        return <span className="c-badge c-badge--warning">مرتفعة</span>;
       case "Medium":
-        return <span className="c-badge c-badge--info">Medium</span>;
+        return <span className="c-badge c-badge--info">متوسطة</span>;
       default:
-        return <span className="c-badge" style={{ backgroundColor: "rgba(160, 174, 192, 0.15)", color: "var(--clr-text-muted)" }}>Low</span>;
+        return <span className="c-badge" style={{ backgroundColor: "rgba(160, 174, 192, 0.15)", color: "var(--clr-text-muted)" }}>منخفضة</span>;
     }
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "Pending":
-        return <span className="c-badge" style={{ border: "1px solid var(--clr-border)", color: "var(--clr-text-muted)" }}>Pending</span>;
+        return <span className="c-badge" style={{ border: "1px solid var(--clr-border)", color: "var(--clr-text-muted)" }}>قيد الانتظار</span>;
       case "In Progress":
-        return <span className="c-badge c-badge--info" style={{ display: "inline-flex", gap: "4px" }}><Play size={10} /> In Progress</span>;
+        return <span className="c-badge c-badge--info" style={{ display: "inline-flex", gap: "4px" }}><Play size={10} /> قيد التنفيذ</span>;
       case "Under Review":
-        return <span className="c-badge c-badge--warning" style={{ display: "inline-flex", gap: "4px" }}><Clock size={10} /> Under Review</span>;
+        return <span className="c-badge c-badge--warning" style={{ display: "inline-flex", gap: "4px" }}><Clock size={10} /> قيد المراجعة</span>;
       case "Completed":
-        return <span className="c-badge c-badge--success" style={{ display: "inline-flex", gap: "4px" }}><CheckCircle size={10} /> Completed</span>;
+        return <span className="c-badge c-badge--success" style={{ display: "inline-flex", gap: "4px" }}><CheckCircle size={10} /> مكتملة</span>;
       case "Rejected":
-        return <span className="c-badge c-badge--error" style={{ display: "inline-flex", gap: "4px" }}><XCircle size={10} /> Rejected</span>;
+        return <span className="c-badge c-badge--error" style={{ display: "inline-flex", gap: "4px" }}><XCircle size={10} /> مرفوضة</span>;
       case "Overdue":
-        return <span className="c-badge c-badge--error" style={{ display: "inline-flex", gap: "4px" }}><AlertCircle size={10} /> Overdue</span>;
+        return <span className="c-badge c-badge--error" style={{ display: "inline-flex", gap: "4px" }}><AlertCircle size={10} /> متأخرة</span>;
       case "Cancelled":
-        return <span className="c-badge" style={{ backgroundColor: "rgba(160, 174, 192, 0.15)", color: "var(--clr-text-muted)" }}>Cancelled</span>;
+        return <span className="c-badge" style={{ backgroundColor: "rgba(160, 174, 192, 0.15)", color: "var(--clr-text-muted)" }}>ملغاة</span>;
       default:
         return <span className="c-badge">{status}</span>;
     }
@@ -307,7 +310,7 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
     return (
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyItems: "center", justifyContent: "center", minHeight: "80vh", gap: "var(--sp-4)" }}>
         <div style={{ width: "32px", height: "32px", border: "3px solid var(--clr-border)", borderTop: "3px solid var(--clr-accent-primary)", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
-        <span style={{ color: "var(--clr-text-muted)" }}>Loading task details profile...</span>
+        <span style={{ color: "var(--clr-text-muted)" }}>جاري تحميل تفاصيل المهمة...</span>
       </div>
     );
   }
@@ -317,7 +320,7 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
       <main style={{ flex: 1, padding: "var(--sp-8)" }}>
         <div className="c-card" style={{ borderColor: "var(--clr-error)", textAlign: "center", padding: "var(--sp-8)" }}>
           <p style={{ color: "var(--clr-error)", fontWeight: "var(--fw-medium)", marginBottom: "var(--sp-4)" }}>{error}</p>
-          <Link href="/dashboard/tasks" className="c-btn c-btn--secondary">Back to Tasks Board</Link>
+          <Link href="/dashboard/tasks" className="c-btn c-btn--secondary">العودة للوحة المهام</Link>
         </div>
       </main>
     );
@@ -336,8 +339,8 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
           style={{ display: "inline-flex", alignItems: "center", gap: "var(--sp-2)", color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}
           className="hover-bright"
         >
-          <ArrowLeft size={16} />
-          <span>Back to Tasks Board</span>
+          {isRtl ? <ChevronRight size={16} /> : <ArrowLeft size={16} />}
+          <span>العودة للوحة المهام</span>
         </Link>
       </div>
 
@@ -356,7 +359,7 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
             {task.title}
           </h1>
           <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)", display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
-            <span>Task Reference Profile</span>
+            <span>ملف وتفاصيل المهمة المرجعية</span>
           </p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "var(--sp-3)" }}>
@@ -371,9 +374,9 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
         {/* Left Column: Details, Attachments & Action controls */}
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-6)" }}>
           {/* Main Info */}
-          <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
+          <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
             <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-accent-primary)", borderBottom: "1px solid var(--clr-border)", paddingBottom: "var(--sp-2)" }}>
-              Task Details
+              تفاصيل المهمة
             </h2>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
@@ -393,7 +396,7 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
                   <div style={{ display: "flex", gap: "var(--sp-3)", alignItems: "center" }}>
                     <User size={18} style={{ color: "var(--clr-accent-primary)" }} />
                     <div>
-                      <span style={{ fontSize: "10px", color: "var(--clr-text-muted)", display: "block" }}>Linked Client</span>
+                      <span style={{ fontSize: "10px", color: "var(--clr-text-muted)", display: "block" }}>العميل المرتبط</span>
                       <span style={{ fontWeight: "var(--fw-bold)", fontSize: "var(--fs-body-sm)" }}>
                         {task.client.firstName} {task.client.lastName}
                       </span>
@@ -404,7 +407,7 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
                     className="c-btn c-btn--secondary"
                     style={{ padding: "var(--sp-1) var(--sp-3)", fontSize: "var(--fs-caption)" }}
                   >
-                    View profile
+                    عرض ملف العميل
                   </Link>
                 </div>
               )}
@@ -425,7 +428,7 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
                   <div style={{ display: "flex", gap: "var(--sp-3)", alignItems: "center" }}>
                     <Calendar size={18} style={{ color: "var(--clr-accent-primary)" }} />
                     <div>
-                      <span style={{ fontSize: "10px", color: "var(--clr-text-muted)", display: "block" }}>Linked Follow-Up Schedule</span>
+                      <span style={{ fontSize: "10px", color: "var(--clr-text-muted)", display: "block" }}>جدولة المتابعة المرتبطة</span>
                       <span style={{ fontWeight: "var(--fw-bold)", fontSize: "var(--fs-body-sm)" }}>
                         {task.followUp.title}
                       </span>
@@ -436,7 +439,7 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
                     className="c-btn c-btn--secondary"
                     style={{ padding: "var(--sp-1) var(--sp-3)", fontSize: "var(--fs-caption)" }}
                   >
-                    View schedule
+                    عرض جدول المتابعة
                   </Link>
                 </div>
               )}
@@ -445,9 +448,9 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
               <div style={{ display: "flex", gap: "var(--sp-3)" }}>
                 <Clock size={18} style={{ color: "var(--clr-text-muted)", marginTop: "2px" }} />
                 <div>
-                  <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>Target Due Date</span>
+                  <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>تاريخ الاستحقاق المحدد</span>
                   <div style={{ fontWeight: "var(--fw-bold)", fontSize: "var(--fs-body-lg)", color: "var(--clr-text-primary)" }}>
-                    {new Date(task.dueDate).toLocaleDateString(undefined, { dateStyle: "long" })}
+                    {new Date(task.dueDate).toLocaleDateString("ar-EG", { dateStyle: "long" })}
                   </div>
                 </div>
               </div>
@@ -456,9 +459,9 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
               <div style={{ display: "flex", gap: "var(--sp-3)" }}>
                 <FileText size={18} style={{ color: "var(--clr-text-muted)", marginTop: "2px" }} />
                 <div>
-                  <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>Requirements Agenda</span>
+                  <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>أجندة ومتطلبات التسليم</span>
                   <p style={{ color: "var(--clr-text-primary)", fontSize: "var(--fs-body-sm)", marginTop: "2px", whiteSpace: "pre-line" }}>
-                    {task.description || "No agenda details provided."}
+                    {task.description || "لا توجد تفاصيل متطلبات مسجلة لهذه المهمة."}
                   </p>
                 </div>
               </div>
@@ -467,7 +470,7 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
               <div style={{ display: "flex", gap: "var(--sp-3)" }}>
                 <Briefcase size={18} style={{ color: "var(--clr-text-muted)", marginTop: "2px" }} />
                 <div>
-                  <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>Assigned Manager</span>
+                  <span style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)" }}>الموظف المسؤول والمتابع</span>
                   <div style={{ fontWeight: "var(--fw-bold)", fontSize: "var(--fs-body-sm)", color: "var(--clr-text-primary)", marginTop: "2px" }}>
                     {task.assignedTo?.firstName} {task.assignedTo?.lastName}
                   </div>
@@ -478,9 +481,9 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
 
           {/* Actions panel */}
           {!isClosed && (
-            <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
-              <h3 style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-accent-primary)" }}>Task Actions Controls</h3>
-
+            <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
+              <h3 style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-accent-primary)", borderBottom: "1px solid var(--clr-border)", paddingBottom: "var(--sp-2)" }}>إجراءات التحكم بالمهام</h3>
+ 
               {/* Employee Actions: Start Task / Submit Review */}
               {!isSuperAdmin && (
                 <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-3)" }}>
@@ -491,7 +494,7 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
                       style={{ gap: "var(--sp-2)", width: "100%", justifyContent: "center" }}
                     >
                       <Play size={16} />
-                      <span>Start Task</span>
+                      <span>بدء العمل على المهمة</span>
                     </button>
                   )}
                   {(task.status === "In Progress" || task.status === "Rejected" || task.status === "Overdue") && (
@@ -500,20 +503,20 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
                       className="c-btn c-btn--primary"
                       style={{ gap: "var(--sp-2)", width: "100%", justifyContent: "center" }}
                       disabled={task.attachments.length === 0}
-                      title={task.attachments.length === 0 ? "You must upload a deliverable file attachment before submitting" : ""}
+                      title={task.attachments.length === 0 ? "يجب رفع ملف إثبات التسليم أولاً" : ""}
                     >
                       <CheckCircle size={16} />
-                      <span>Submit deliverables for Review</span>
+                      <span>تقديم تسليمات المهمة للمراجعة</span>
                     </button>
                   )}
                   {task.attachments.length === 0 && (task.status === "In Progress" || task.status === "Rejected" || task.status === "Overdue") && (
-                    <span style={{ fontSize: "11px", color: "var(--clr-text-muted)", textAlign: "center" }}>
-                      ⚠️ Please upload a deliverable file attachment below before submitting.
+                    <span style={{ fontSize: "11px", color: "var(--clr-text-muted)", textAlign: "center", marginTop: "var(--sp-1)" }}>
+                      ⚠️ يرجى رفع ملف أو رابط إثبات التسليم أدناه أولاً لتتمكن من تقديم المهمة للمراجعة.
                     </span>
                   )}
                 </div>
               )}
-
+ 
               {/* SuperAdmin Actions: Approve, Reject, Reassign, Cancel */}
               {isSuperAdmin && (
                 <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-3)" }}>
@@ -522,18 +525,18 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
                       <button
                         onClick={() => { setReviewAction("approve"); setIsReviewModalOpen(true); }}
                         className="c-btn c-btn--primary"
-                        style={{ gap: "var(--sp-2)" }}
+                        style={{ gap: "var(--sp-2)", justifyContent: "center" }}
                       >
                         <ThumbsUp size={16} />
-                        <span>Approve</span>
+                        <span>اعتماد التسليم</span>
                       </button>
                       <button
                         onClick={() => { setReviewAction("reject"); setIsReviewModalOpen(true); }}
                         className="c-btn c-btn--secondary reject-btn-hover"
-                        style={{ borderColor: "rgba(229,62,62,0.5)", color: "var(--clr-error)", gap: "var(--sp-2)" }}
+                        style={{ borderColor: "rgba(229,62,62,0.5)", color: "var(--clr-error)", gap: "var(--sp-2)", justifyContent: "center" }}
                       >
                         <ThumbsDown size={16} />
-                        <span>Reject</span>
+                        <span>رفض وإرجاع المهمة</span>
                       </button>
                     </div>
                   )}
@@ -542,18 +545,18 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
                     <button
                       onClick={() => { setReviewAction("reassign"); setIsReviewModalOpen(true); }}
                       className="c-btn c-btn--secondary"
-                      style={{ gap: "var(--sp-2)" }}
+                      style={{ gap: "var(--sp-2)", justifyContent: "center" }}
                     >
                       <RotateCcw size={16} />
-                      <span>Reassign Agent</span>
+                      <span>إعادة إسناد المهمة</span>
                     </button>
                     <button
                       onClick={() => handleSimpleStatusTransition("Cancelled")}
                       className="c-btn c-btn--secondary"
-                      style={{ borderColor: "rgba(160, 174, 192, 0.4)", color: "var(--clr-text-muted)", gap: "var(--sp-2)" }}
+                      style={{ borderColor: "rgba(160, 174, 192, 0.4)", color: "var(--clr-text-muted)", gap: "var(--sp-2)", justifyContent: "center" }}
                     >
                       <XCircle size={16} />
-                      <span>Cancel Task</span>
+                      <span>إلغاء المهمة</span>
                     </button>
                   </div>
                 </div>
@@ -562,11 +565,11 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
           )}
 
           {/* Attachments Section */}
-          <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
+          <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--clr-border)", paddingBottom: "var(--sp-2)" }}>
               <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-accent-primary)", display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
                 <Paperclip size={18} />
-                <span>Deliverables & Files ({task.attachments.length})</span>
+                <span>الملفات والتسليمات المرفوعة ({task.attachments.length})</span>
               </h2>
               {!isClosed && (
                 <button 
@@ -574,7 +577,7 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
                   className="c-btn c-btn--secondary"
                   style={{ padding: "4px 8px", fontSize: "11px" }}
                 >
-                  Add File
+                  إضافة ملف
                 </button>
               )}
             </div>
@@ -582,7 +585,7 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-2)" }}>
               {task.attachments.length === 0 ? (
                 <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)", fontStyle: "italic" }}>
-                  No deliverables uploaded yet.
+                  لا توجد أي تسليمات مرفوعة حتى الآن.
                 </p>
               ) : (
                 task.attachments.map((file, index) => (
@@ -604,7 +607,7 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
                         {file.fileName}
                       </span>
                       <span style={{ fontSize: "10px", color: "var(--clr-text-muted)" }}>
-                        Uploaded by {file.uploadedEmail}
+                        تم الرفع بواسطة {file.uploadedEmail}
                       </span>
                     </div>
                     <a 
@@ -641,7 +644,7 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
                 fontSize: "var(--fs-body-sm)"
               }}
             >
-              Comments Feed ({task.comments.length})
+              المناقشات والتعليقات ({task.comments.length})
             </button>
             <button
               onClick={() => setRightPanelTab("activity")}
@@ -656,7 +659,7 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
                 fontSize: "var(--fs-body-sm)"
               }}
             >
-              Activity Logs ({task.history.length})
+              سجل العمليات والتدقيق ({task.history.length})
             </button>
           </div>
 
@@ -668,11 +671,11 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
                 <form onSubmit={handleCommentSubmit} style={{ display: "flex", gap: "var(--sp-2)" }}>
                   <input 
                     type="text"
-                    placeholder="Write a comment update..."
+                    placeholder="اكتب تعليقاً أو استفساراً..."
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
                     className="c-input__field"
-                    style={{ flex: 1, height: "42px" }}
+                    style={{ flex: 1, height: "42px", textAlign: "right" }}
                     required
                   />
                   <button 
@@ -689,8 +692,8 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
               {/* Feed */}
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-3)", overflowY: "auto", maxHeight: "460px" }}>
                 {task.comments.length === 0 ? (
-                  <p style={{ color: "var(--clr-text-muted)", fontStyle: "italic", fontSize: "var(--fs-body-sm)" }}>
-                    No comments logged yet.
+                  <p style={{ color: "var(--clr-text-muted)", fontStyle: "italic", fontSize: "var(--fs-body-sm)", textAlign: "center", padding: "var(--sp-4) 0" }}>
+                    لا توجد أي تعليقات مسجلة حتى الآن.
                   </p>
                 ) : (
                   [...task.comments].reverse().map((comm, index) => (
@@ -700,12 +703,13 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
                         padding: "var(--sp-3) var(--sp-4)", 
                         backgroundColor: "var(--clr-bg-surface)",
                         border: "1px solid var(--clr-border)",
-                        borderRadius: "var(--radius-md)"
+                        borderRadius: "var(--radius-md)",
+                        textAlign: "right"
                       }}
                     >
                       <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", color: "var(--clr-text-muted)", marginBottom: "4px" }}>
                         <span style={{ fontWeight: "var(--fw-medium)", color: "var(--clr-accent-primary)" }}>{comm.creatorEmail}</span>
-                        <span>{new Date(comm.createdAt).toLocaleString(undefined, { dateStyle: "short", timeStyle: "short" })}</span>
+                        <span>{new Date(comm.createdAt).toLocaleString("ar-EG", { dateStyle: "short", timeStyle: "short" })}</span>
                       </div>
                       <p style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-text-primary)", whiteSpace: "pre-line", lineHeight: "1.4" }}>
                         {comm.content}
@@ -719,21 +723,22 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
 
           {/* Activity Logs Panel */}
           {rightPanelTab === "activity" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", paddingLeft: "var(--sp-2)", overflowY: "auto", maxHeight: "520px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", paddingRight: "var(--sp-2)", overflowY: "auto", maxHeight: "520px" }}>
               {[...task.history].reverse().map((log, index) => (
                 <div 
                   key={index}
                   style={{
-                    borderLeft: "2px solid var(--clr-border)",
-                    paddingLeft: "var(--sp-4)",
+                    borderRight: "2px solid var(--clr-border)",
+                    paddingRight: "var(--sp-4)",
                     position: "relative",
-                    paddingBottom: "var(--sp-3)"
+                    paddingBottom: "var(--sp-3)",
+                    textAlign: "right"
                   }}
                 >
                   <div
                     style={{
                       position: "absolute",
-                      left: "-7px",
+                      right: "-7px",
                       top: "4px",
                       width: "12px",
                       height: "12px",
@@ -747,7 +752,7 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
                       {log.action}
                     </span>
                     <span style={{ color: "var(--clr-text-muted)" }}>
-                      {new Date(log.updatedAt).toLocaleString(undefined, { dateStyle: "short", timeStyle: "short" })}
+                      {new Date(log.updatedAt).toLocaleString("ar-EG", { dateStyle: "short", timeStyle: "short" })}
                     </span>
                   </div>
                   {log.details && (
@@ -755,8 +760,8 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
                       {log.details}
                     </p>
                   )}
-                  <div style={{ fontSize: "9px", color: "var(--clr-text-muted)", textAlign: "right" }}>
-                    Modifier: {log.updatedEmail}
+                  <div style={{ fontSize: "9px", color: "var(--clr-text-muted)", marginTop: "4px", textAlign: "left" }}>
+                    المعدل: {log.updatedEmail}
                   </div>
                 </div>
               ))}
@@ -789,30 +794,43 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
             style={{ width: "100%", maxWidth: "420px", position: "relative", animation: "slideIn 0.2s ease-out" }}
             onClick={(e) => e.stopPropagation()}
           >
-            <button onClick={() => setIsAttachModalOpen(false)} style={{ position: "absolute", top: "16px", right: "16px", background: "none", border: "none", color: "var(--clr-text-muted)", cursor: "pointer" }}>
+            <button 
+              onClick={() => setIsAttachModalOpen(false)} 
+              style={{
+                position: "absolute",
+                top: "16px",
+                right: isRtl ? "auto" : "16px",
+                left: isRtl ? "16px" : "auto",
+                background: "none",
+                border: "none",
+                color: "var(--clr-text-muted)",
+                cursor: "pointer"
+              }}
+            >
               <X size={20} />
             </button>
-            <div style={{ marginBottom: "var(--sp-4)" }}>
-              <h3 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-text-primary)" }}>Upload Task Deliverable</h3>
-              <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>Upload links or document references</p>
+            <div style={{ marginBottom: "var(--sp-4)", textAlign: "right" }}>
+              <h3 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-text-primary)" }}>رفع تسليمات المهمة</h3>
+              <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>قم برفع روابط العمل أو المراجع المستندية لإثبات التسليم</p>
             </div>
 
-            {attachError && <div style={{ color: "var(--clr-error)", fontSize: "var(--fs-body-sm)", marginBottom: "var(--sp-2)" }}>{attachError}</div>}
+            {attachError && <div style={{ color: "var(--clr-error)", fontSize: "var(--fs-body-sm)", marginBottom: "var(--sp-2)", textAlign: "right" }}>{attachError}</div>}
 
-            <form onSubmit={handleAttachmentSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-3)" }}>
+            <form onSubmit={handleAttachmentSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-3)", textAlign: "right" }}>
               <div className="c-input">
-                <label className="c-input__label">File/Deliverable Name *</label>
+                <label className="c-input__label">اسم الملف / التسليم *</label>
                 <input 
                   type="text" 
                   required
-                  placeholder="e.g. proposal_draft_v1.pdf" 
+                  placeholder="مثال: المسودة النهائية للاتفاقية" 
                   value={attachForm.fileName}
                   onChange={(e) => setAttachForm(a => ({ ...a, fileName: e.target.value }))}
                   className="c-input__field"
+                  style={{ textAlign: "right" }}
                 />
               </div>
               <div className="c-input">
-                <label className="c-input__label">Deliverable URL Link *</label>
+                <label className="c-input__label">رابط عنوان التسليم *</label>
                 <input 
                   type="url" 
                   required
@@ -820,21 +838,23 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
                   value={attachForm.fileUrl}
                   onChange={(e) => setAttachForm(a => ({ ...a, fileUrl: e.target.value }))}
                   className="c-input__field"
+                  style={{ textAlign: "left", direction: "ltr" }}
                 />
               </div>
               <div className="c-input">
-                <label className="c-input__label">File Size (in bytes, optional)</label>
+                <label className="c-input__label">حجم الملف (بالبايت، اختياري)</label>
                 <input 
                   type="number" 
-                  placeholder="e.g. 204800" 
+                  placeholder="مثال: 204800" 
                   value={attachForm.fileSize}
                   onChange={(e) => setAttachForm(a => ({ ...a, fileSize: e.target.value }))}
                   className="c-input__field"
+                  style={{ textAlign: "left", direction: "ltr" }}
                 />
               </div>
               <div style={{ display: "flex", gap: "var(--sp-3)", justifyContent: "flex-end", marginTop: "var(--sp-2)" }}>
-                <button type="button" onClick={() => setIsAttachModalOpen(false)} className="c-btn c-btn--secondary">Cancel</button>
-                <button type="submit" disabled={attachLoading} className="c-btn c-btn--primary">Register File</button>
+                <button type="button" onClick={() => setIsAttachModalOpen(false)} className="c-btn c-btn--secondary">{t("common.cancel")}</button>
+                <button type="submit" disabled={attachLoading} className="c-btn c-btn--primary">تسجيل ورفع الملف</button>
               </div>
             </form>
           </div>
@@ -865,36 +885,48 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
             style={{ width: "100%", maxWidth: "460px", position: "relative", animation: "slideIn 0.2s ease-out" }}
             onClick={(e) => e.stopPropagation()}
           >
-            <button onClick={() => setIsReviewModalOpen(false)} style={{ position: "absolute", top: "16px", right: "16px", background: "none", border: "none", color: "var(--clr-text-muted)", cursor: "pointer" }}>
+            <button 
+              onClick={() => setIsReviewModalOpen(false)} 
+              style={{
+                position: "absolute",
+                top: "16px",
+                right: isRtl ? "auto" : "16px",
+                left: isRtl ? "16px" : "auto",
+                background: "none",
+                border: "none",
+                color: "var(--clr-text-muted)",
+                cursor: "pointer"
+              }}
+            >
               <X size={20} />
             </button>
             
-            <div style={{ marginBottom: "var(--sp-4)" }}>
+            <div style={{ marginBottom: "var(--sp-4)", textAlign: "right" }}>
               <h3 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-text-primary)" }}>
-                {reviewAction === "approve" ? "Approve Deliverables" : reviewAction === "reject" ? "Reject Deliverables" : "Reassign Task"}
+                {reviewAction === "approve" ? "اعتماد وإكمال المهمة" : reviewAction === "reject" ? "رفض التسليمات وإعادة المهمة للموظف" : "إعادة إسناد المهمة لموظف آخر"}
               </h3>
               <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
                 {reviewAction === "approve" 
-                  ? "Approve the deliverables and mark this task as completed." 
+                  ? "اعتماد كافة التسليمات وإغلاق المهمة كـ مكتملة بنجاح." 
                   : reviewAction === "reject" 
-                  ? "Send feedback to the employee explaining changes needed." 
-                  : "Change the assigned manager/employee for this task."}
+                  ? "إرسال ملاحظات تصحيحية للموظف توضح التعديلات المطلوبة لإعادة تقديمها." 
+                  : "تغيير الموظف المسؤول والمتابع الحالي لهذه المهمة."}
               </p>
             </div>
 
-            {reviewError && <div style={{ color: "var(--clr-error)", fontSize: "var(--fs-body-sm)", marginBottom: "var(--sp-2)" }}>{reviewError}</div>}
+            {reviewError && <div style={{ color: "var(--clr-error)", fontSize: "var(--fs-body-sm)", marginBottom: "var(--sp-2)", textAlign: "right" }}>{reviewError}</div>}
 
-            <form onSubmit={handleReviewActionSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-3)" }}>
+            <form onSubmit={handleReviewActionSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-3)", textAlign: "right" }}>
               {reviewAction === "reject" && (
                 <div className="c-input">
-                  <label className="c-input__label">Feedback Rejection Notes *</label>
+                  <label className="c-input__label">ملاحظات وتوجيهات الرفض والتعديل *</label>
                   <textarea
-                    placeholder="Enter what corrections are needed..."
+                    placeholder="اكتب التعديلات والمهام التصحيحية المطلوبة من الموظف بالتفصيل..."
                     value={feedbackNotes}
                     onChange={(e) => setFeedbackNotes(e.target.value)}
                     rows={4}
                     className="c-input__field"
-                    style={{ resize: "none", padding: "var(--sp-3)" }}
+                    style={{ resize: "none", padding: "var(--sp-3)", textAlign: "right" }}
                     required
                   />
                 </div>
@@ -902,14 +934,15 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
 
               {reviewAction === "reassign" && (
                 <div className="c-input">
-                  <label className="c-input__label">Select New Assigned Agent *</label>
+                  <label className="c-input__label">اختر الموظف الجديد لإسناد المهمة *</label>
                   <select
                     value={newAssigneeId}
                     onChange={(e) => setNewAssigneeId(e.target.value)}
                     className="c-input__field"
+                    style={{ background: "var(--clr-bg-primary)" }}
                     required
                   >
-                    <option value="">-- Choose Employee --</option>
+                    <option value="">-- اختر الموظف المسؤول --</option>
                     {employees.map(emp => (
                       <option key={emp._id} value={emp._id}>{emp.firstName} {emp.lastName}</option>
                     ))}
@@ -918,9 +951,9 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
               )}
 
               <div style={{ display: "flex", gap: "var(--sp-3)", justifyContent: "flex-end", marginTop: "var(--sp-2)" }}>
-                <button type="button" onClick={() => setIsReviewModalOpen(false)} className="c-btn c-btn--secondary">Cancel</button>
+                <button type="button" onClick={() => setIsReviewModalOpen(false)} className="c-btn c-btn--secondary">{t("common.cancel")}</button>
                 <button type="submit" disabled={reviewLoading} className="c-btn c-btn--primary">
-                  {reviewAction === "approve" ? "Approve Completed" : reviewAction === "reject" ? "Reject task" : "Confirm Reassign"}
+                  {reviewAction === "approve" ? "اعتماد التسليم وإتمام المهمة" : reviewAction === "reject" ? "تأكيد الرفض والإرجاع" : "تأكيد إعادة الإسناد"}
                 </button>
               </div>
             </form>
