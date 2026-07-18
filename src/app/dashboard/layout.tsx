@@ -52,6 +52,21 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+  // Load sidebar collapse preference from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("sidebar_collapsed");
+      setIsSidebarCollapsed(saved === "true");
+    }
+  }, []);
+
+  const toggleSidebar = () => {
+    const nextVal = !isSidebarCollapsed;
+    setIsSidebarCollapsed(nextVal);
+    localStorage.setItem("sidebar_collapsed", String(nextVal));
+  };
 
   // Close sidebar on navigation change
   useEffect(() => {
@@ -174,6 +189,8 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
               currentPath={pathname} 
               isMobileOpen={isMobileSidebarOpen} 
               onClose={() => setIsMobileSidebarOpen(false)} 
+              isCollapsed={isSidebarCollapsed}
+              onToggleCollapsed={toggleSidebar}
             />
             {isMobileSidebarOpen && (
               <div 
@@ -183,11 +200,21 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
             )}
           </>
         )}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        <div 
+          style={{ 
+            flex: 1, 
+            display: "flex", 
+            flexDirection: "column", 
+            overflow: "hidden",
+            transition: "all 0.3s ease"
+          }}
+        >
           {user && (
             <Header 
               title={getHeaderTitle()} 
               toggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)} 
+              isSidebarCollapsed={isSidebarCollapsed}
+              toggleSidebar={toggleSidebar}
             />
           )}
           {children}

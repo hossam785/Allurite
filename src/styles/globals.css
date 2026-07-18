@@ -13,6 +13,15 @@
   --clr-error: #ef4444;
   --clr-success: #10b981;
   --clr-warning: #f59e0b;
+
+  /* Theme Translucent Variables */
+  --clr-bg-header: rgba(3, 7, 18, 0.8);
+  --clr-bg-surface-translucent: rgba(11, 19, 41, 0.8);
+  --clr-bg-card-darker: rgba(4, 13, 33, 0.4);
+  --clr-bg-dropdown-header: rgba(4, 13, 33, 0.6);
+  --clr-bg-hover: rgba(30, 46, 93, 0.3);
+  --clr-bg-input: rgba(4, 13, 33, 0.6);
+  --clr-bg-modal-backdrop: rgba(3, 7, 18, 0.8);
 }
 
 [data-theme="light"] {
@@ -25,6 +34,15 @@
   --clr-accent-secondary: #006b99;
   --clr-accent-glow: rgba(0, 140, 194, 0.12);
   --shadow-glow-accent: 0 0 12px rgba(0, 140, 194, 0.15);
+
+  /* Theme Translucent Variables - Light Mode */
+  --clr-bg-header: rgba(248, 250, 252, 0.85);
+  --clr-bg-surface-translucent: rgba(255, 255, 255, 0.85);
+  --clr-bg-card-darker: rgba(241, 245, 249, 0.8);
+  --clr-bg-dropdown-header: rgba(241, 245, 249, 0.9);
+  --clr-bg-hover: rgba(0, 140, 194, 0.08);
+  --clr-bg-input: rgba(241, 245, 249, 0.9);
+  --clr-bg-modal-backdrop: rgba(15, 23, 42, 0.3);
 }
 
 :root {
@@ -187,7 +205,7 @@ a:hover {
 }
 
 .c-input__field {
-  background-color: rgba(4, 13, 33, 0.6);
+  background-color: var(--clr-bg-input);
   border: 1px solid var(--clr-border);
   border-radius: var(--radius-md);
   padding: var(--sp-3) var(--sp-4);
@@ -251,7 +269,7 @@ a:hover {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(4, 13, 33, 0.6);
+  background-color: var(--clr-bg-modal-backdrop);
   backdrop-filter: blur(4px);
   z-index: 998;
   animation: fadeIn 0.2s ease-out;

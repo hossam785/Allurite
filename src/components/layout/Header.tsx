@@ -22,9 +22,16 @@ interface NotificationItem {
 interface HeaderProps {
   title: string;
   toggleMobileSidebar?: () => void;
+  isSidebarCollapsed?: boolean;
+  toggleSidebar?: () => void;
 }
 
-export default function Header({ title, toggleMobileSidebar }: HeaderProps) {
+export default function Header({ 
+  title, 
+  toggleMobileSidebar,
+  isSidebarCollapsed = false,
+  toggleSidebar
+}: HeaderProps) {
   const { user } = useAuth();
   const { language, setLanguage, isRtl } = useLanguage();
   const { theme, toggleTheme } = useTheme();
@@ -132,7 +139,7 @@ export default function Header({ title, toggleMobileSidebar }: HeaderProps) {
         justifyContent: "space-between",
         alignItems: "center",
         borderBottom: "1px solid var(--clr-border)",
-        background: "rgba(3, 7, 18, 0.8)",
+        background: "var(--clr-bg-header)",
         backdropFilter: "blur(12px)",
         position: "sticky",
         top: 0,
@@ -143,7 +150,13 @@ export default function Header({ title, toggleMobileSidebar }: HeaderProps) {
       <div style={{ display: "flex", alignItems: "center" }}>
         {toggleMobileSidebar && (
           <button
-            onClick={toggleMobileSidebar}
+            onClick={() => {
+              if (window.innerWidth >= 1024 && toggleSidebar) {
+                toggleSidebar();
+              } else if (toggleMobileSidebar) {
+                toggleMobileSidebar();
+              }
+            }}
             className="hamburger-btn"
             style={{
               background: "none",
@@ -153,7 +166,6 @@ export default function Header({ title, toggleMobileSidebar }: HeaderProps) {
               marginRight: isRtl ? "none" : "var(--sp-3)",
               marginLeft: isRtl ? "var(--sp-3)" : "none",
               padding: "4px",
-              display: "flex",
               alignItems: "center"
             }}
           >
@@ -241,7 +253,8 @@ export default function Header({ title, toggleMobileSidebar }: HeaderProps) {
               className="c-card c-card--glow"
               style={{
                 position: "absolute",
-                right: 0,
+                left: isRtl ? 0 : "auto",
+                right: isRtl ? "auto" : 0,
                 top: "45px",
                 width: "360px",
                 maxHeight: "440px",
@@ -262,7 +275,7 @@ export default function Header({ title, toggleMobileSidebar }: HeaderProps) {
                   alignItems: "center",
                   padding: "var(--sp-3) var(--sp-4)",
                   borderBottom: "1px solid var(--clr-border)",
-                  backgroundColor: "rgba(4, 13, 33, 0.6)"
+                  backgroundColor: "var(--clr-bg-dropdown-header)"
                 }}
               >
                 <span style={{ fontWeight: "var(--fw-bold)", fontSize: "var(--fs-body-sm)" }}>Reminders Center</span>
@@ -354,7 +367,7 @@ export default function Header({ title, toggleMobileSidebar }: HeaderProps) {
               <div
                 style={{
                   borderTop: "1px solid var(--clr-border)",
-                  backgroundColor: "rgba(4, 13, 33, 0.6)",
+                  backgroundColor: "var(--clr-bg-dropdown-header)",
                   textAlign: "center"
                 }}
               >
@@ -409,6 +422,14 @@ export default function Header({ title, toggleMobileSidebar }: HeaderProps) {
         )}
       </div>
 
+      <style jsx>{`
+        @media (min-width: 1024px) {
+          .hamburger-btn {
+            display: ${isSidebarCollapsed ? "flex" : "none"} !important;
+          }
+        }
+      `}</style>
+
       <style jsx global>{`
         @keyframes fadeSlide {
           from { opacity: 0; transform: translateY(-10px); }
@@ -416,10 +437,10 @@ export default function Header({ title, toggleMobileSidebar }: HeaderProps) {
         }
         .bell-btn-hover:hover {
           color: var(--clr-text-primary) !important;
-          background-color: rgba(255,255,255,0.05) !important;
+          background-color: var(--clr-bg-hover) !important;
         }
         .notif-item-hover:hover {
-          background-color: rgba(0, 210, 255, 0.02) !important;
+          background-color: var(--clr-bg-hover) !important;
         }
         .check-btn-hover:hover {
           color: var(--clr-success) !important;
@@ -431,3 +452,4 @@ export default function Header({ title, toggleMobileSidebar }: HeaderProps) {
     </header>
   );
 }
+
