@@ -345,23 +345,27 @@ export default function AuditLogsPage() {
 
           <div>
             <input
-              type="date"
+              type={startDate ? "date" : "text"}
               placeholder="تاريخ البدء"
               value={startDate}
+              onFocus={(e) => { e.target.type = "date"; }}
+              onBlur={(e) => { if (!e.target.value) e.target.type = "text"; }}
               onChange={(e) => { setStartDate(e.target.value); setPage(1); }}
               className="c-input__field"
-              style={{ textAlign: "left", direction: "ltr" }}
+              style={{ textAlign: "right", direction: "rtl" }}
             />
           </div>
 
           <div>
             <input
-              type="date"
+              type={endDate ? "date" : "text"}
               placeholder="تاريخ الانتهاء"
               value={endDate}
+              onFocus={(e) => { e.target.type = "date"; }}
+              onBlur={(e) => { if (!e.target.value) e.target.type = "text"; }}
               onChange={(e) => { setEndDate(e.target.value); setPage(1); }}
               className="c-input__field"
-              style={{ textAlign: "left", direction: "ltr" }}
+              style={{ textAlign: "right", direction: "rtl" }}
             />
           </div>
         </div>
