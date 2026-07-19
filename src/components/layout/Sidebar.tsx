@@ -326,28 +326,32 @@ export default function Sidebar({
 
         @media (max-width: 1023px) {
           .c-sidebar-layout-aside {
-            height: 100vh;
-            border-radius: 0;
-            margin: 0;
-            padding: var(--sp-4);
-            border-top: none;
-            border-bottom: none;
+            height: 100vh !important;
+            border-radius: 0 !important;
+            margin: 0 !important;
+            padding: var(--sp-4) !important;
+            border-top: none !important;
+            border-bottom: none !important;
             position: fixed !important;
-            top: 0;
-            bottom: 0;
-            left: 0;
+            top: 0 !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: auto !important;
             z-index: 999 !important;
-            transform: translateX(-100%);
-            box-shadow: var(--shadow-lg);
+            transform: translateX(-100%) !important;
+            box-shadow: var(--shadow-lg) !important;
+            width: 280px !important;
+            max-width: 85vw !important;
           }
-          [dir="rtl"] .c-sidebar-layout-aside {
-            left: auto;
-            right: 0;
-            transform: translateX(100%);
-            border-left: 1px solid var(--clr-border);
-            border-right: none;
+          :global([dir="rtl"]) .c-sidebar-layout-aside {
+            left: auto !important;
+            right: 0 !important;
+            transform: translateX(100%) !important;
+            border-left: 1px solid var(--clr-border) !important;
+            border-right: none !important;
           }
-          .c-sidebar-layout-aside--open {
+          .c-sidebar-layout-aside--open,
+          :global([dir="rtl"]) .c-sidebar-layout-aside--open {
             transform: translateX(0) !important;
           }
           .desktop-toggle-btn {

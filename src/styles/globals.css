@@ -283,21 +283,34 @@ a:hover {
 @media (max-width: 1023px) {
   .c-sidebar-layout-aside {
     position: fixed !important;
-    top: 0;
-    bottom: 0;
-    left: 0;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: auto !important;
+    height: 100vh !important;
+    width: 280px !important;
+    max-width: 85vw !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    padding: var(--sp-4) !important;
     z-index: 999 !important;
-    transform: translateX(-100%);
-    box-shadow: var(--shadow-lg);
+    transform: translateX(-100%) !important;
+    box-shadow: var(--shadow-lg) !important;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   }
 
-  [dir="rtl"] .c-sidebar-layout-aside {
-    left: auto;
-    right: 0;
-    transform: translateX(100%);
+  [dir="rtl"] .c-sidebar-layout-aside,
+  html[dir="rtl"] .c-sidebar-layout-aside,
+  body[dir="rtl"] .c-sidebar-layout-aside {
+    left: auto !important;
+    right: 0 !important;
+    transform: translateX(100%) !important;
   }
 
-  .c-sidebar-layout-aside--open {
+  .c-sidebar-layout-aside.c-sidebar-layout-aside--open,
+  [dir="rtl"] .c-sidebar-layout-aside.c-sidebar-layout-aside--open,
+  html[dir="rtl"] .c-sidebar-layout-aside.c-sidebar-layout-aside--open,
+  body[dir="rtl"] .c-sidebar-layout-aside.c-sidebar-layout-aside--open {
     transform: translateX(0) !important;
   }
 }
