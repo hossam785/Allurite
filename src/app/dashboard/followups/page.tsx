@@ -665,7 +665,7 @@ export default function FollowUpsPage() {
             )}
 
             {/* Modal Body Form */}
-            <form onSubmit={handleScheduleSubmit} style={{ display: "flex", flexDirection: "column", height: "100%", textAlign: "right" }}>
+            <form onSubmit={handleScheduleSubmit} style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, overflow: "hidden", textAlign: "right" }}>
               <div className="c-modal-body" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
                 {/* Select Client */}
                 <div className="c-input">

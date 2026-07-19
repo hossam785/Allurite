@@ -620,7 +620,16 @@ a:hover {
   overflow: hidden;
 }
 
+.c-modal-content form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .c-modal-header {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -631,15 +640,15 @@ a:hover {
 
 .c-modal-body {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
-  padding-right: 4px;
-  padding-left: 4px;
-  padding-bottom: var(--sp-6);
+  padding-right: 6px;
+  padding-left: 6px;
+  padding-bottom: var(--sp-4);
 }
 
 .c-modal-footer {
-  position: sticky;
-  bottom: 0;
+  flex-shrink: 0;
   background-color: var(--clr-bg-surface);
   border-top: 1px solid var(--clr-border);
   padding-top: var(--sp-4);
@@ -647,7 +656,6 @@ a:hover {
   display: flex;
   justify-content: flex-end;
   gap: var(--sp-3);
-  z-index: 10;
 }
 
 @media (max-width: 639px) {

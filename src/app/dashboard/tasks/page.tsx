@@ -634,7 +634,7 @@ export default function TasksPage() {
             )}
 
             {/* Modal Body Form */}
-            <form onSubmit={handleCreateSubmit} style={{ display: "flex", flexDirection: "column", height: "100%", textAlign: "right" }}>
+            <form onSubmit={handleCreateSubmit} style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, overflow: "hidden", textAlign: "right" }}>
               <div className="c-modal-body" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
                 {/* Title */}
                 <div className="c-input">

@@ -497,7 +497,7 @@ export default function EmployeesPage() {
             )}
 
             {/* Modal Form */}
-            <form onSubmit={handleOnboardSubmit} style={{ display: "flex", flexDirection: "column", height: "100%", textAlign: "right" }}>
+            <form onSubmit={handleOnboardSubmit} style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, overflow: "hidden", textAlign: "right" }}>
               <div className="c-modal-body" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
                 <div className="responsive-grid-2">
                   <div className="c-input">
