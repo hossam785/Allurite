@@ -267,6 +267,7 @@ export default function ReportsCenterPage() {
     <main className="responsive-main print-container">
       
       {/* Filters & Export Panel (Hidden in print) */}
+      {/* Filters & Export Panel (Hidden in print) */}
       <div 
         className="c-card filters-panel-hide" 
         style={{ 
@@ -279,40 +280,40 @@ export default function ReportsCenterPage() {
           textAlign: "right"
         }}
       >
-        <div style={{ display: "flex", gap: "var(--sp-3)", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: "var(--sp-3)", flexWrap: "wrap", flex: 1, minWidth: "260px" }}>
           {/* Start Date */}
-          <div className="c-input" style={{ width: "150px", marginBottom: 0 }}>
-            <label className="c-input__label" style={{ fontSize: "10px" }}>تاريخ البدء</label>
+          <div className="c-input" style={{ flex: "1 1 140px", minWidth: "130px", marginBottom: 0 }}>
+            <label className="c-input__label" style={{ fontSize: "11px" }}>تاريخ البدء</label>
             <input 
               type="date" 
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
               className="c-input__field"
-              style={{ height: "38px", textAlign: "left", direction: "ltr" }}
+              style={{ height: "38px", textAlign: "left", direction: "ltr", width: "100%" }}
             />
           </div>
 
           {/* End Date */}
-          <div className="c-input" style={{ width: "150px", marginBottom: 0 }}>
-            <label className="c-input__label" style={{ fontSize: "10px" }}>تاريخ الانتهاء</label>
+          <div className="c-input" style={{ flex: "1 1 140px", minWidth: "130px", marginBottom: 0 }}>
+            <label className="c-input__label" style={{ fontSize: "11px" }}>تاريخ الانتهاء</label>
             <input 
               type="date" 
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
               className="c-input__field"
-              style={{ height: "38px", textAlign: "left", direction: "ltr" }}
+              style={{ height: "38px", textAlign: "left", direction: "ltr", width: "100%" }}
             />
           </div>
 
           {/* Employee filter (SuperAdmin only) */}
           {isSuperAdmin && (
-            <div className="c-input" style={{ width: "200px", marginBottom: 0 }}>
-              <label className="c-input__label" style={{ fontSize: "10px" }}>نطاق الموظفين</label>
+            <div className="c-input" style={{ flex: "1 1 180px", minWidth: "150px", marginBottom: 0 }}>
+              <label className="c-input__label" style={{ fontSize: "11px" }}>نطاق الموظفين</label>
               <select
                 value={selectedEmployee}
                 onChange={(e) => setSelectedEmployee(e.target.value)}
                 className="c-input__field"
-                style={{ height: "38px", background: "var(--clr-bg-primary)" }}
+                style={{ height: "38px", background: "var(--clr-bg-primary)", width: "100%" }}
               >
                 <option value="">-- كل المنظمة --</option>
                 {employees.map(emp => (
@@ -324,11 +325,11 @@ export default function ReportsCenterPage() {
         </div>
 
         {/* Generate and Export triggers */}
-        <div style={{ display: "flex", gap: "var(--sp-3)", marginTop: "auto", height: "38px" }}>
+        <div style={{ display: "flex", gap: "var(--sp-2)", flexWrap: "wrap", alignItems: "center", marginTop: "auto" }}>
           <button 
             onClick={generateReport}
             className="c-btn c-btn--primary"
-            style={{ padding: "0 var(--sp-4)" }}
+            style={{ padding: "0 var(--sp-4)", height: "38px", fontSize: "13px" }}
           >
             تحديث المؤشرات
           </button>
@@ -337,29 +338,29 @@ export default function ReportsCenterPage() {
             onClick={() => handleExport("csv")}
             disabled={!report || exportLoading}
             className="c-btn c-btn--secondary"
-            style={{ padding: "0 var(--sp-3)", gap: "var(--sp-1)" }}
-            title="تحميل CSV"
+            style={{ padding: "0 var(--sp-3)", height: "38px", gap: "var(--sp-1)", fontSize: "13px" }}
+            title="تحميل ملف بيانات CSV"
           >
             <FileDown size={15} />
-            <span>CSV</span>
+            <span>تصدير CSV</span>
           </button>
 
           <button 
             onClick={() => handleExport("excel")}
             disabled={!report || exportLoading}
             className="c-btn c-btn--secondary"
-            style={{ padding: "0 var(--sp-3)", gap: "var(--sp-1)" }}
+            style={{ padding: "0 var(--sp-3)", height: "38px", gap: "var(--sp-1)", fontSize: "13px" }}
             title="تحميل جدول Excel"
           >
             <FileSpreadsheet size={15} />
-            <span>Excel</span>
+            <span>تصدير Excel</span>
           </button>
 
           <button 
             onClick={handlePrint}
             disabled={!report}
             className="c-btn c-btn--secondary"
-            style={{ padding: "0 var(--sp-3)", gap: "var(--sp-1)" }}
+            style={{ padding: "0 var(--sp-3)", height: "38px", gap: "var(--sp-1)", fontSize: "13px" }}
             title="طباعة تقرير PDF"
           >
             <Printer size={15} />
@@ -603,11 +604,20 @@ export default function ReportsCenterPage() {
                       const pct = report.kpis.clients.total > 0
                         ? Math.round((src.value / report.kpis.clients.total) * 100)
                         : 0;
+
+                      let sourceLabel = src.name;
+                      if (src.name === "Website") sourceLabel = "الموقع الإلكتروني";
+                      else if (src.name === "Referral") sourceLabel = "توصية / ترشيح";
+                      else if (src.name === "ColdOutreach") sourceLabel = "تواصل بارد";
+                      else if (src.name === "LinkedIn") sourceLabel = "شبكة لينكد إن";
+                      else if (src.name === "Advertisement") sourceLabel = "إعلان ممول";
+                      else if (src.name === "Other") sourceLabel = "مصادر أخرى";
+
                       return (
                         <div key={src.name} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "12px" }}>
                           <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                             <div style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "var(--clr-accent-primary)" }} />
-                            <span>{src.name}</span>
+                            <span>{sourceLabel}</span>
                           </span>
                           <span style={{ fontWeight: "var(--fw-bold)" }}>{src.value} عميل ({pct}%)</span>
                         </div>

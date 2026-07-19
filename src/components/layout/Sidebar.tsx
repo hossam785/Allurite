@@ -180,24 +180,6 @@ export default function Sidebar({
                 </button>
               )}
 
-              {/* Close Menu Trigger (Mobile only) */}
-              {onClose && (
-                <button
-                  onClick={onClose}
-                  className="hamburger-btn c-btn-touch-target"
-                  aria-label="إغلاق القائمة الجانبية"
-                  style={{
-                    background: "none",
-                    border: "none",
-                    color: "var(--clr-text-muted)",
-                    cursor: "pointer",
-                    padding: "4px",
-                    alignItems: "center"
-                  }}
-                >
-                  <X size={20} />
-                </button>
-              )}
             </div>
           </div>
 
