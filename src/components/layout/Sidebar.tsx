@@ -133,7 +133,7 @@ export default function Sidebar({
       <div style={{ display: "flex", flexDirection: "column", height: "100%", justifyContent: "space-between", flex: 1, minWidth: "212px" }}>
         <div>
           {/* Brand Logo Header */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--sp-12)" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--sp-6)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "var(--sp-3)" }}>
               <div
                 style={{
@@ -302,7 +302,9 @@ export default function Sidebar({
                       border 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
                       box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           box-shadow: var(--shadow-lg);
-          overflow: hidden;
+          overflow-y: auto;
+          overflow-x: hidden;
+          -webkit-overflow-scrolling: touch;
           height: calc(100vh - 32px);
           position: sticky;
           top: 16px;
@@ -330,6 +332,7 @@ export default function Sidebar({
             height: 100vh;
             border-radius: 0;
             margin: 0;
+            padding: var(--sp-4);
             border-top: none;
             border-bottom: none;
             position: fixed !important;
