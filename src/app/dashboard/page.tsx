@@ -480,10 +480,10 @@ export default function DashboardPage() {
             <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
               
               {/* Tab Navigation header */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--clr-border)", paddingBottom: "var(--sp-2)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--clr-border)", paddingBottom: "var(--sp-2)", flexWrap: "wrap", gap: "var(--sp-2)" }}>
                 
                 {/* Tabs triggers */}
-                <div style={{ display: "flex", gap: "var(--sp-2)" }}>
+                <div className="responsive-tab-list">
                   <button 
                     onClick={() => setActiveActivityTab("clients")}
                     className={`activity-tab-btn ${activeActivityTab === "clients" ? "active" : ""}`}

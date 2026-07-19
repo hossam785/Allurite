@@ -369,7 +369,7 @@ export default function ReportsCenterPage() {
       </div>
 
       {/* Categories Tab Selector */}
-      <div className="filters-panel-hide" style={{ display: "flex", borderBottom: "1px solid var(--clr-border)", gap: "var(--sp-4)" }}>
+      <div className="filters-panel-hide responsive-tab-list" style={{ borderBottom: "1px solid var(--clr-border)" }}>
         {(["Productivity", "Client", "Follow-Up", "Task"] as const).map(cat => (
           <button
             key={cat}

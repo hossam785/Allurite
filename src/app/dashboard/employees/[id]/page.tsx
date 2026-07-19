@@ -245,15 +245,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
       </div>
 
       {/* Screen Header */}
-      <header
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          paddingBottom: "var(--sp-4)",
-          borderBottom: "1px solid var(--clr-border)",
-        }}
-      >
+      <header className="responsive-page-header">
         <div>
           <h1 style={{ fontSize: "var(--fs-h1)", marginBottom: "var(--sp-1)" }}>
             {employee.firstName} {employee.lastName}
@@ -433,33 +425,14 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
         </section>
       </div>
 
-      {/* Edit Profile Modal */}
+      {/* Edit Employee Modal */}
       {isEditOpen && (
         <div 
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(4, 13, 33, 0.8)",
-            backdropFilter: "blur(4px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-            padding: "var(--sp-4)"
-          }}
+          className="c-modal-overlay"
           onClick={() => setIsEditOpen(false)}
         >
           <div 
-            className="c-card c-card--glow"
-            style={{ 
-              width: "100%", 
-              maxWidth: "500px", 
-              position: "relative",
-              animation: "slideIn 0.2s ease-out" 
-            }}
+            className="c-card c-card--glow c-modal-content"
             onClick={(e) => e.stopPropagation()}
           >
             <button 
@@ -506,7 +479,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
             )}
 
             <form onSubmit={handleEditSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
+              <div className="responsive-grid-2">
                 <div className="c-input">
                   <label className="c-input__label">الاسم الأول *</label>
                   <input 
@@ -542,7 +515,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                 />
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-4)" }}>
+              <div className="responsive-grid-2">
                 <div className="c-input">
                   <label className="c-input__label">القسم *</label>
                   <select

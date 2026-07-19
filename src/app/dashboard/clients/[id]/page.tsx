@@ -309,15 +309,7 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
       </div>
 
       {/* Header */}
-      <header
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          paddingBottom: "var(--sp-4)",
-          borderBottom: "1px solid var(--clr-border)",
-        }}
-      >
+      <header className="responsive-page-header">
         <div>
           <h1 style={{ fontSize: "var(--fs-h1)", marginBottom: "var(--sp-1)" }}>
             {client.firstName} {client.lastName}
@@ -573,32 +565,11 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
       {/* Edit Client Modal */}
       {isEditOpen && (
         <div 
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(4, 13, 33, 0.8)",
-            backdropFilter: "blur(4px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-            padding: "var(--sp-4)"
-          }}
+          className="c-modal-overlay"
           onClick={() => setIsEditOpen(false)}
         >
           <div 
-            className="c-card c-card--glow"
-            style={{ 
-              width: "100%", 
-              maxWidth: "560px", 
-              maxHeight: "90vh", 
-              overflowY: "auto",
-              position: "relative",
-              animation: "slideIn 0.2s ease-out" 
-            }}
+            className="c-card c-card--glow c-modal-content"
             onClick={(e) => e.stopPropagation()}
           >
             <button 

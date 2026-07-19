@@ -216,15 +216,7 @@ export default function ClientsPage() {
   return (
     <main className="responsive-main">
       {/* Header */}
-      <header
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          paddingBottom: "var(--sp-4)",
-          borderBottom: "1px solid var(--clr-border)",
-        }}
-      >
+      <header className="responsive-page-header">
         <div>
           <h1 style={{ fontSize: "var(--fs-h1)", marginBottom: "var(--sp-1)" }}>{t("clients_view.pipeline_title")}</h1>
           <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
@@ -245,19 +237,7 @@ export default function ClientsPage() {
       </header>
 
       {/* Toolbar / Filters */}
-      <div 
-        style={{ 
-          display: "flex", 
-          flexWrap: "wrap", 
-          gap: "var(--sp-4)", 
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "var(--sp-4)",
-          backgroundColor: "var(--clr-bg-surface)",
-          borderRadius: "var(--radius-md)",
-          border: "1px solid var(--clr-border)",
-        }}
-      >
+      <div className="responsive-toolbar">
         {/* Search */}
         <div style={{ display: "flex", flex: 1, minWidth: "260px" }}>
           <div style={{ position: "relative", flex: 1 }}>
@@ -565,32 +545,11 @@ export default function ClientsPage() {
       {/* Onboard Client Modal */}
       {isModalOpen && (
         <div 
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(4, 13, 33, 0.8)",
-            backdropFilter: "blur(4px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-            padding: "var(--sp-4)"
-          }}
+          className="c-modal-overlay"
           onClick={() => setIsModalOpen(false)}
         >
           <div 
-            className="c-card c-card--glow"
-            style={{ 
-              width: "100%", 
-              maxWidth: "540px", 
-              maxHeight: "90vh", 
-              overflowY: "auto",
-              position: "relative",
-              animation: "slideIn 0.25s ease-out" 
-            }}
+            className="c-card c-card--glow c-modal-content"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}

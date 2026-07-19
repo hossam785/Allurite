@@ -232,19 +232,7 @@ export default function NotificationCenterPage() {
     <main className="responsive-main">
       
       {/* Search and Filters Toolbar */}
-      <div 
-        style={{ 
-          display: "flex", 
-          flexWrap: "wrap", 
-          gap: "var(--sp-4)", 
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "var(--sp-4)",
-          backgroundColor: "var(--clr-bg-surface)",
-          borderRadius: "var(--radius-md)",
-          border: "1px solid var(--clr-border)",
-        }}
-      >
+      <div className="responsive-toolbar">
         {/* Search */}
         <div style={{ display: "flex", flex: 1, minWidth: "260px" }}>
           <div style={{ position: "relative", flex: 1 }}>

@@ -216,15 +216,7 @@ export default function FileDetailPage({ params }: { params: Promise<{ id: strin
       </div>
 
       {/* Header */}
-      <header
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          paddingBottom: "var(--sp-4)",
-          borderBottom: "1px solid var(--clr-border)",
-        }}
-      >
+      <header className="responsive-page-header">
         <div>
           <h1 style={{ fontSize: "var(--fs-h1)", marginBottom: "var(--sp-1)" }}>
             {file.fileName}
@@ -243,7 +235,7 @@ export default function FileDetailPage({ params }: { params: Promise<{ id: strin
       </header>
 
       {/* Grid columns */}
-      <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "var(--sp-6)", alignItems: "flex-start" }}>
+      <div className="responsive-split-grid">
         
         {/* Left Column: Edit Form & Metadata Details */}
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-6)" }}>

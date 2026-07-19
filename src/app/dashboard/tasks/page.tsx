@@ -299,7 +299,7 @@ export default function TasksPage() {
     <main className="responsive-main">
       
       {/* Top action header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div className="responsive-page-header">
         <div>
           <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
             تنظيم مخرجات العمل، مراجعة التسليمات، ومتابعة إنتاجية وجودة أداء المهام المسندة
@@ -316,7 +316,7 @@ export default function TasksPage() {
       </div>
 
       {/* Tab Selectors */}
-      <div style={{ display: "flex", borderBottom: "1px solid var(--clr-border)", gap: "var(--sp-4)" }}>
+      <div className="responsive-tab-list" style={{ borderBottom: "1px solid var(--clr-border)" }}>
         {((isSuperAdmin 
           ? ["my-tasks", "team-tasks", "overdue", "completed"] 
           : ["my-tasks", "overdue", "completed"]) as ("my-tasks" | "team-tasks" | "overdue" | "completed")[]).map(tab => {
@@ -368,19 +368,7 @@ export default function TasksPage() {
       </div>
 
       {/* Toolbar filters */}
-      <div 
-        style={{ 
-          display: "flex", 
-          flexWrap: "wrap", 
-          gap: "var(--sp-4)", 
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "var(--sp-4)",
-          backgroundColor: "var(--clr-bg-surface)",
-          borderRadius: "var(--radius-md)",
-          border: "1px solid var(--clr-border)",
-        }}
-      >
+      <div className="responsive-toolbar">
         {/* Search */}
         <div style={{ display: "flex", flex: 1, minWidth: "260px" }}>
           <div style={{ position: "relative", flex: 1 }}>
@@ -588,32 +576,11 @@ export default function TasksPage() {
       {/* Create Task Modal */}
       {isModalOpen && (
         <div 
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(4, 13, 33, 0.8)",
-            backdropFilter: "blur(4px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-            padding: "var(--sp-4)"
-          }}
+          className="c-modal-overlay"
           onClick={() => setIsModalOpen(false)}
         >
           <div 
-            className="c-card c-card--glow"
-            style={{ 
-              width: "100%", 
-              maxWidth: "520px", 
-              maxHeight: "90vh", 
-              overflowY: "auto",
-              position: "relative",
-              animation: "slideIn 0.25s ease-out" 
-            }}
+            className="c-card c-card--glow c-modal-content"
             onClick={(e) => e.stopPropagation()}
           >
             <button 

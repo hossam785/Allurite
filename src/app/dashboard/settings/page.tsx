@@ -346,7 +346,7 @@ export default function SettingsDashboardPage() {
       <div className="responsive-settings-grid">
         
         {/* Left Side Tab Navigation */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-2)" }}>
+        <div className="responsive-tab-list" style={{ flexDirection: "column", gap: "var(--sp-2)" }}>
           <button
             onClick={() => setActiveTab("company")}
             className={`tab-side-btn ${activeTab === "company" ? "active" : ""}`}

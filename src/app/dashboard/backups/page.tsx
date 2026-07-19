@@ -158,7 +158,7 @@ export default function BackupsPage() {
     <main className="responsive-main">
       
       {/* Header toolbar */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div className="responsive-page-header">
         <div>
           <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
             إنشاء نسخ سحابية احتياطية لقواعد بيانات نظام الـ CRM على مساحات Vercel Blob

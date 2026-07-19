@@ -294,7 +294,7 @@ export default function AuditLogsPage() {
       
       {/* Search and Filters panel */}
       <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
-        <div className="responsive-audit-grid">
+        <div className="responsive-toolbar">
           
           <div style={{ position: "relative" }}>
             <Search size={15} style={{ position: "absolute", right: isRtl ? "12px" : "auto", left: isRtl ? "auto" : "12px", top: "50%", transform: "translateY(-50%)", color: "var(--clr-text-muted)" }} />
