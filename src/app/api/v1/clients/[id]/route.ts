@@ -319,6 +319,12 @@ export async function DELETE(
       );
     }
 
+    // Cascading cleanup of linked task references and pending followups
+    const Task = require("@/models/Task").default;
+    const FollowUp = require("@/models/FollowUp").default;
+    await Task.updateMany({ client: id }, { $unset: { client: "" } });
+    await FollowUp.deleteMany({ client: id });
+
     const { logAuditEvent } = require("@/lib/audit-logger");
     await logAuditEvent({
       action: "CLIENT_DELETE",

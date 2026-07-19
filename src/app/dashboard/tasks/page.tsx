@@ -552,7 +552,7 @@ export default function TasksPage() {
                     <td style={{ padding: "var(--sp-4)", textAlign: "center" }}>
                       <Link 
                         href={`/dashboard/tasks/${tsk._id}`}
-                        className="c-btn c-btn--secondary"
+                        className="c-btn c-btn--secondary c-btn-touch-target"
                         style={{ padding: "var(--sp-2) var(--sp-3)", display: "inline-flex", gap: "var(--sp-2)" }}
                       >
                         <Eye size={14} />
@@ -569,6 +569,13 @@ export default function TasksPage() {
             .table-row-hover:hover {
               background-color: rgba(0, 210, 255, 0.04) !important;
             }
+            .c-btn-touch-target {
+              min-height: 44px;
+              min-width: 44px;
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+            }
           `}</style>
         </div>
       )}
@@ -583,30 +590,30 @@ export default function TasksPage() {
             className="c-card c-card--glow c-modal-content"
             onClick={(e) => e.stopPropagation()}
           >
-            <button 
-              onClick={() => setIsModalOpen(false)}
-              style={{
-                position: "absolute",
-                top: "16px",
-                right: isRtl ? "auto" : "16px",
-                left: isRtl ? "16px" : "auto",
-                background: "none",
-                border: "none",
-                color: "var(--clr-text-muted)",
-                cursor: "pointer"
-              }}
-            >
-              <X size={20} />
-            </button>
-
-            <div style={{ marginBottom: "var(--sp-6)", textAlign: "right" }}>
-              <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-text-primary)", display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
-                <Calendar size={20} style={{ color: "var(--clr-accent-primary)" }} />
-                <span>إنشاء مهمة جديدة</span>
-              </h2>
-              <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-                تعيين موعد المهمة، مستوى الأهمية، وربطها بملف العميل المتابع
-              </p>
+            {/* Modal Header */}
+            <div className="c-modal-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "var(--sp-6)" }}>
+              <div style={{ textAlign: "right" }}>
+                <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-text-primary)", display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
+                  <Calendar size={20} style={{ color: "var(--clr-accent-primary)" }} />
+                  <span>إنشاء مهمة جديدة</span>
+                </h2>
+                <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
+                  تعيين موعد المهمة، مستوى الأهمية، وربطها بملف العميل المتابع
+                </p>
+              </div>
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                aria-label="إغلاق النافذة"
+                className="c-btn-touch-target"
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "var(--clr-text-muted)",
+                  cursor: "pointer"
+                }}
+              >
+                <X size={20} />
+              </button>
             </div>
 
             {modalError && (
@@ -626,123 +633,133 @@ export default function TasksPage() {
               </div>
             )}
 
-            <form onSubmit={handleCreateSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
-              {/* Title */}
-              <div className="c-input">
-                <label className="c-input__label">عنوان المهمة *</label>
-                <input 
-                  type="text" 
-                  required
-                  placeholder="مثال: تجهيز عرض الأسعار للعميل"
-                  value={formFields.title}
-                  onChange={(e) => setFormFields(f => ({ ...f, title: e.target.value }))}
-                  className="c-input__field" 
-                  style={{ textAlign: "right" }}
-                />
-              </div>
-
-              {/* Grid: Priority & Due Date */}
-              <div className="responsive-grid-2">
+            {/* Modal Body Form */}
+            <form onSubmit={handleCreateSubmit} style={{ display: "flex", flexDirection: "column", height: "100%", textAlign: "right" }}>
+              <div className="c-modal-body" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
+                {/* Title */}
                 <div className="c-input">
-                  <label className="c-input__label">الأولوية *</label>
-                  <select
-                    value={formFields.priority}
-                    onChange={(e) => setFormFields(f => ({ ...f, priority: e.target.value }))}
-                    className="c-input__field" 
-                    style={{ background: "var(--clr-bg-primary)" }}
-                  >
-                    <option value="Low">منخفضة</option>
-                    <option value="Medium">متوسطة</option>
-                    <option value="High">مرتفعة</option>
-                    <option value="Critical">حرجة</option>
-                  </select>
-                </div>
-                <div className="c-input">
-                  <label className="c-input__label">تاريخ الاستحقاق *</label>
+                  <label htmlFor="task-title-input" className="c-input__label">عنوان المهمة *</label>
                   <input 
-                    type="date" 
+                    id="task-title-input"
+                    type="text" 
                     required
-                    value={formFields.dueDate}
-                    onChange={(e) => setFormFields(f => ({ ...f, dueDate: e.target.value }))}
+                    placeholder="مثال: تجهيز عرض الأسعار للعميل"
+                    value={formFields.title}
+                    onChange={(e) => setFormFields(f => ({ ...f, title: e.target.value }))}
                     className="c-input__field" 
-                    style={{ textAlign: "left", direction: "ltr" }}
+                    style={{ textAlign: "right" }}
                   />
                 </div>
-              </div>
 
-              {/* Optional: Linked Client */}
-              <div className="c-input">
-                <label className="c-input__label">ربط ملف العميل (اختياري)</label>
-                <select
-                  value={formFields.client}
-                  onChange={(e) => setFormFields(f => ({ ...f, client: e.target.value }))}
-                  className="c-input__field" 
-                  style={{ background: "var(--clr-bg-primary)" }}
-                >
-                  <option value="">-- اختر العميل --</option>
-                  {clients.map(cli => (
-                    <option key={cli._id} value={cli._id}>
-                      {cli.firstName} {cli.lastName} {cli.companyName ? `(${cli.companyName})` : ""}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                {/* Grid: Priority & Due Date */}
+                <div className="responsive-grid-2">
+                  <div className="c-input">
+                    <label htmlFor="task-priority-select" className="c-input__label">الأولوية *</label>
+                    <select
+                      id="task-priority-select"
+                      value={formFields.priority}
+                      onChange={(e) => setFormFields(f => ({ ...f, priority: e.target.value }))}
+                      className="c-input__field" 
+                      style={{ background: "var(--clr-bg-primary)" }}
+                    >
+                      <option value="Low">منخفضة</option>
+                      <option value="Medium">متوسطة</option>
+                      <option value="High">مرتفعة</option>
+                      <option value="Critical">حرجة</option>
+                    </select>
+                  </div>
+                  <div className="c-input">
+                    <label htmlFor="task-duedate-input" className="c-input__label">تاريخ الاستحقاق *</label>
+                    <input 
+                      id="task-duedate-input"
+                      type="date" 
+                      required
+                      value={formFields.dueDate}
+                      onChange={(e) => setFormFields(f => ({ ...f, dueDate: e.target.value }))}
+                      className="c-input__field" 
+                      style={{ textAlign: "left", direction: "ltr" }}
+                    />
+                  </div>
+                </div>
 
-              {/* Optional: Linked Follow-Up */}
-              <div className="c-input">
-                <label className="c-input__label">ربط سجل المتابعة (اختياري)</label>
-                <select
-                  value={formFields.followUp}
-                  onChange={(e) => setFormFields(f => ({ ...f, followUp: e.target.value }))}
-                  className="c-input__field" 
-                  style={{ background: "var(--clr-bg-primary)" }}
-                >
-                  <option value="">-- اختر الموعد المجدول --</option>
-                  {followups.map(fup => (
-                    <option key={fup._id} value={fup._id}>
-                      {fup.title} ({new Date(fup.scheduledAt).toLocaleDateString("ar-EG")})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Description */}
-              <div className="c-input">
-                <label className="c-input__label">تفاصيل وصف المهمة</label>
-                <textarea
-                  placeholder="اكتب تفاصيل التعليمات، متطلبات التسليم، والشروط المطلوبة للمهمة..."
-                  value={formFields.description}
-                  onChange={(e) => setFormFields(f => ({ ...f, description: e.target.value }))}
-                  rows={3}
-                  className="c-input__field" 
-                  style={{ resize: "none", padding: "var(--sp-3)", textAlign: "right" }}
-                />
-              </div>
-
-              {/* Assigned Agent (Admin dropdown selection) */}
-              {isSuperAdmin && (
+                {/* Optional: Linked Client */}
                 <div className="c-input">
-                  <label className="c-input__label">الموظف المسؤول والمتابع *</label>
+                  <label htmlFor="task-client-select" className="c-input__label">ربط ملف العميل (اختياري)</label>
                   <select
-                    value={formFields.assignedToId}
-                    onChange={(e) => setFormFields(f => ({ ...f, assignedToId: e.target.value }))}
+                    id="task-client-select"
+                    value={formFields.client}
+                    onChange={(e) => setFormFields(f => ({ ...f, client: e.target.value }))}
                     className="c-input__field" 
                     style={{ background: "var(--clr-bg-primary)" }}
                   >
-                    <option value="">-- اختر الموظف المسؤول --</option>
-                    {agents.map(ag => (
-                      <option key={ag._id} value={ag._id}>{ag.firstName} {ag.lastName}</option>
+                    <option value="">-- اختر العميل --</option>
+                    {clients.map(cli => (
+                      <option key={cli._id} value={cli._id}>
+                        {cli.firstName} {cli.lastName} {cli.companyName ? `(${cli.companyName})` : ""}
+                      </option>
                     ))}
                   </select>
                 </div>
-              )}
 
-              {/* Buttons */}
-              <div style={{ display: "flex", gap: "var(--sp-3)", justifyContent: "flex-end", marginTop: "var(--sp-4)" }}>
+                {/* Optional: Linked Follow-Up */}
+                <div className="c-input">
+                  <label htmlFor="task-followup-select" className="c-input__label">ربط سجل المتابعة (اختياري)</label>
+                  <select
+                    id="task-followup-select"
+                    value={formFields.followUp}
+                    onChange={(e) => setFormFields(f => ({ ...f, followUp: e.target.value }))}
+                    className="c-input__field" 
+                    style={{ background: "var(--clr-bg-primary)" }}
+                  >
+                    <option value="">-- اختر الموعد المجدول --</option>
+                    {followups.map(fup => (
+                      <option key={fup._id} value={fup._id}>
+                        {fup.title} ({new Date(fup.scheduledAt).toLocaleDateString("ar-EG")})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Description */}
+                <div className="c-input">
+                  <label htmlFor="task-desc-input" className="c-input__label">تفاصيل وصف المهمة</label>
+                  <textarea
+                    id="task-desc-input"
+                    placeholder="اكتب تفاصيل التعليمات، متطلبات التسليم، والشروط المطلوبة للمهمة..."
+                    value={formFields.description}
+                    onChange={(e) => setFormFields(f => ({ ...f, description: e.target.value }))}
+                    rows={3}
+                    className="c-input__field" 
+                    style={{ resize: "none", padding: "var(--sp-3)", textAlign: "right" }}
+                  />
+                </div>
+
+                {/* Assigned Agent (Admin dropdown selection) */}
+                {isSuperAdmin && (
+                  <div className="c-input">
+                    <label htmlFor="task-agent-select" className="c-input__label">الموظف المسؤول والمتابع *</label>
+                    <select
+                      id="task-agent-select"
+                      value={formFields.assignedToId}
+                      onChange={(e) => setFormFields(f => ({ ...f, assignedToId: e.target.value }))}
+                      className="c-input__field" 
+                      style={{ background: "var(--clr-bg-primary)" }}
+                    >
+                      <option value="">-- اختر الموظف المسؤول --</option>
+                      {agents.map(ag => (
+                        <option key={ag._id} value={ag._id}>{ag.firstName} {ag.lastName}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Sticky Footer Buttons */}
+              <div className="c-modal-footer" style={{ display: "flex", gap: "var(--sp-3)", justifyContent: "flex-end", marginTop: "var(--sp-4)" }}>
                 <button 
                   type="button" 
                   onClick={() => setIsModalOpen(false)}
-                  className="c-btn c-btn--secondary"
+                  className="c-btn c-btn--secondary c-btn-touch-target"
                 >
                   {t("common.cancel")}
                 </button>

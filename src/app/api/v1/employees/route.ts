@@ -233,16 +233,22 @@ export async function POST(request: NextRequest) {
       status: "Active",
     });
 
-    // Create Employee record referencing User
-    const newEmployee = await Employee.create({
-      user: newUser._id,
-      firstName,
-      lastName,
-      phone: phone || "",
-      department,
-      position,
-      status: "Active",
-    });
+    // Create Employee record referencing User (with atomic rollback)
+    let newEmployee;
+    try {
+      newEmployee = await Employee.create({
+        user: newUser._id,
+        firstName,
+        lastName,
+        phone: phone || "",
+        department,
+        position,
+        status: "Active",
+      });
+    } catch (empError: any) {
+      await User.deleteOne({ _id: newUser._id });
+      throw empError;
+    }
 
     // Log employee creation event
     const { logAuditEvent } = require("@/lib/audit-logger");
@@ -251,8 +257,8 @@ export async function POST(request: NextRequest) {
       entityType: "Employee",
       entityId: newEmployee._id,
       details: `Created new employee profile: ${firstName} ${lastName} (${email})`,
-      performedBy: admin.user._id,
-      performedEmail: admin.user.email,
+      performedBy: admin._id,
+      performedEmail: admin.email,
       performedRole: admin.role,
       severity: "Medium",
     }, request);

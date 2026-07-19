@@ -347,16 +347,16 @@ export default function EmployeesPage() {
                     }}
                     className="table-row-hover"
                   >
-                    <td style={{ padding: "var(--sp-4)", fontWeight: "var(--fw-medium)", textAlign: "right" }}>
+                    <td style={{ padding: "var(--sp-4)", fontWeight: "var(--fw-medium)", textAlign: "right" }} title={`${emp.firstName} ${emp.lastName}`}>
                       {emp.firstName} {emp.lastName}
                     </td>
-                    <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)", textAlign: "right" }}>
+                    <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)", textAlign: "right" }} title={emp.user?.email || "لا يوجد بريد مرتبط"}>
                       {emp.user?.email || "لا يوجد بريد مرتبط"}
                     </td>
                     <td style={{ padding: "var(--sp-4)", textAlign: "right" }}>
                       <span className="c-badge c-badge--info" style={{ textTransform: "none" }}>{emp.department}</span>
                     </td>
-                    <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)", textAlign: "right" }}>
+                    <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)", textAlign: "right" }} title={emp.position}>
                       {emp.position}
                     </td>
                     <td style={{ padding: "var(--sp-4)", textAlign: "center" }}>
@@ -370,7 +370,7 @@ export default function EmployeesPage() {
                     <td style={{ padding: "var(--sp-4)", textAlign: "center" }}>
                       <Link 
                         href={`/dashboard/employees/${emp._id}`}
-                        className="c-btn c-btn--secondary"
+                        className="c-btn c-btn--secondary c-btn-touch-target"
                         style={{ padding: "var(--sp-2) var(--sp-3)", display: "inline-flex", gap: "var(--sp-2)" }}
                       >
                         <Eye size={14} />
@@ -409,7 +409,8 @@ export default function EmployeesPage() {
               <button 
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="c-btn c-btn--secondary"
+                aria-label="الصفحة السابقة"
+                className="c-btn c-btn--secondary c-btn-touch-target"
                 style={{ padding: "var(--sp-2) var(--sp-3)" }}
               >
                 {isRtl ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
@@ -431,7 +432,8 @@ export default function EmployeesPage() {
               <button 
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="c-btn c-btn--secondary"
+                aria-label="الصفحة التالية"
+                className="c-btn c-btn--secondary c-btn-touch-target"
                 style={{ padding: "var(--sp-2) var(--sp-3)" }}
               >
                 {isRtl ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
@@ -451,32 +453,30 @@ export default function EmployeesPage() {
             className="c-card c-card--glow c-modal-content"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal Close Button */}
-            <button 
-              onClick={() => setIsModalOpen(false)}
-              style={{
-                position: "absolute",
-                top: "16px",
-                right: isRtl ? "auto" : "16px",
-                left: isRtl ? "16px" : "auto",
-                background: "none",
-                border: "none",
-                color: "var(--clr-text-muted)",
-                cursor: "pointer"
-              }}
-            >
-              <X size={20} />
-            </button>
-
-            {/* Modal Title */}
-            <div style={{ marginBottom: "var(--sp-6)", textAlign: "right" }}>
-              <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-text-primary)", display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
-                <UserPlus size={20} style={{ color: "var(--clr-accent-primary)" }} />
-                <span>{t("employees_view.create_modal_title")}</span>
-              </h2>
-              <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-                إنشاء الملف التعريفي وسجل الموظف الجديد وصلاحياته للولوج للمنصة
-              </p>
+            {/* Modal Header */}
+            <div className="c-modal-header">
+              <div style={{ textAlign: "right" }}>
+                <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-text-primary)", display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
+                  <UserPlus size={20} style={{ color: "var(--clr-accent-primary)" }} />
+                  <span>{t("employees_view.create_modal_title")}</span>
+                </h2>
+                <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
+                  إنشاء الملف التعريفي وسجل الموظف الجديد وصلاحياته للولوج للمنصة
+                </p>
+              </div>
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                aria-label="إغلاق النافذة"
+                className="c-btn-touch-target"
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "var(--clr-text-muted)",
+                  cursor: "pointer"
+                }}
+              >
+                <X size={20} />
+              </button>
             </div>
 
             {modalError && (
@@ -497,111 +497,120 @@ export default function EmployeesPage() {
             )}
 
             {/* Modal Form */}
-            <form onSubmit={handleOnboardSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
-              <div className="responsive-grid-2">
+            <form onSubmit={handleOnboardSubmit} style={{ display: "flex", flexDirection: "column", height: "100%", textAlign: "right" }}>
+              <div className="c-modal-body" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
+                <div className="responsive-grid-2">
+                  <div className="c-input">
+                    <label htmlFor="emp-first-name" className="c-input__label">{t("employees_view.first_name")}</label>
+                    <input 
+                      id="emp-first-name"
+                      type="text" 
+                      required
+                      value={formFields.firstName}
+                      onChange={(e) => setFormFields(f => ({ ...f, firstName: e.target.value }))}
+                      className="c-input__field" 
+                      style={{ textAlign: "right" }}
+                    />
+                  </div>
+                  <div className="c-input">
+                    <label htmlFor="emp-last-name" className="c-input__label">{t("employees_view.last_name")}</label>
+                    <input 
+                      id="emp-last-name"
+                      type="text" 
+                      required
+                      value={formFields.lastName}
+                      onChange={(e) => setFormFields(f => ({ ...f, lastName: e.target.value }))}
+                      className="c-input__field" 
+                      style={{ textAlign: "right" }}
+                    />
+                  </div>
+                </div>
+
                 <div className="c-input">
-                  <label className="c-input__label">{t("employees_view.first_name")}</label>
+                  <label htmlFor="emp-email" className="c-input__label">البريد الإلكتروني *</label>
                   <input 
-                    type="text" 
+                    id="emp-email"
+                    type="email" 
                     required
-                    value={formFields.firstName}
-                    onChange={(e) => setFormFields(f => ({ ...f, firstName: e.target.value }))}
+                    placeholder="name@allurite.com"
+                    value={formFields.email}
+                    onChange={(e) => setFormFields(f => ({ ...f, email: e.target.value }))}
                     className="c-input__field" 
-                    style={{ textAlign: "right" }}
+                    style={{ textAlign: "left", direction: "ltr" }}
                   />
                 </div>
+
                 <div className="c-input">
-                  <label className="c-input__label">{t("employees_view.last_name")}</label>
+                  <label htmlFor="emp-password" className="c-input__label">كلمة المرور المؤقتة *</label>
                   <input 
-                    type="text" 
+                    id="emp-password"
+                    type="password" 
                     required
-                    value={formFields.lastName}
-                    onChange={(e) => setFormFields(f => ({ ...f, lastName: e.target.value }))}
+                    placeholder="6 أحرف أو أرقام على الأقل"
+                    value={formFields.password}
+                    onChange={(e) => setFormFields(f => ({ ...f, password: e.target.value }))}
                     className="c-input__field" 
-                    style={{ textAlign: "right" }}
+                    style={{ textAlign: "left", direction: "ltr" }}
                   />
                 </div>
-              </div>
 
-              <div className="c-input">
-                <label className="c-input__label">البريد الإلكتروني *</label>
-                <input 
-                  type="email" 
-                  required
-                  placeholder="name@allurite.com"
-                  value={formFields.email}
-                  onChange={(e) => setFormFields(f => ({ ...f, email: e.target.value }))}
-                  className="c-input__field" 
-                  style={{ textAlign: "left", direction: "ltr" }}
-                />
-              </div>
-
-              <div className="c-input">
-                <label className="c-input__label">كلمة المرور المؤقتة *</label>
-                <input 
-                  type="password" 
-                  required
-                  placeholder="6 أحرف أو أرقام على الأقل"
-                  value={formFields.password}
-                  onChange={(e) => setFormFields(f => ({ ...f, password: e.target.value }))}
-                  className="c-input__field" 
-                  style={{ textAlign: "left", direction: "ltr" }}
-                />
-              </div>
-
-              <div className="c-input">
-                <label className="c-input__label">{t("employees_view.phone")}</label>
-                <input 
-                  type="tel" 
-                  placeholder="010XXXXXXXX"
-                  value={formFields.phone}
-                  onChange={(e) => setFormFields(f => ({ ...f, phone: e.target.value }))}
-                  className="c-input__field" 
-                  style={{ textAlign: "left", direction: "ltr" }}
-                />
-              </div>
-
-              <div className="responsive-grid-2">
                 <div className="c-input">
-                  <label className="c-input__label">{t("employees_view.department")}</label>
-                  <select
-                    value={formFields.department}
-                    onChange={(e) => setFormFields(f => ({ ...f, department: e.target.value }))}
-                    className="c-input__field" 
-                    style={{ background: "var(--clr-bg-primary)" }}
-                  >
-                    {departments.map(dept => (
-                      <option key={dept} value={dept}>{dept}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="c-input">
-                  <label className="c-input__label">{t("employees_view.position")}</label>
+                  <label htmlFor="emp-phone" className="c-input__label">{t("employees_view.phone")}</label>
                   <input 
-                    type="text" 
-                    required
-                    placeholder="مثال: مسؤول مبيعات"
-                    value={formFields.position}
-                    onChange={(e) => setFormFields(f => ({ ...f, position: e.target.value }))}
+                    id="emp-phone"
+                    type="tel" 
+                    placeholder="010XXXXXXXX"
+                    value={formFields.phone}
+                    onChange={(e) => setFormFields(f => ({ ...f, phone: e.target.value }))}
                     className="c-input__field" 
-                    style={{ textAlign: "right" }}
+                    style={{ textAlign: "left", direction: "ltr" }}
                   />
                 </div>
+
+                <div className="responsive-grid-2">
+                  <div className="c-input">
+                    <label htmlFor="emp-department" className="c-input__label">{t("employees_view.department")}</label>
+                    <select
+                      id="emp-department"
+                      value={formFields.department}
+                      onChange={(e) => setFormFields(f => ({ ...f, department: e.target.value }))}
+                      className="c-input__field" 
+                      style={{ background: "var(--clr-bg-primary)" }}
+                    >
+                      {departments.map(dept => (
+                        <option key={dept} value={dept}>{dept}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="c-input">
+                    <label htmlFor="emp-position" className="c-input__label">{t("employees_view.position")}</label>
+                    <input 
+                      id="emp-position"
+                      type="text" 
+                      required
+                      placeholder="مثال: مسؤول مبيعات"
+                      value={formFields.position}
+                      onChange={(e) => setFormFields(f => ({ ...f, position: e.target.value }))}
+                      className="c-input__field" 
+                      style={{ textAlign: "right" }}
+                    />
+                  </div>
+                </div>
               </div>
 
-              {/* Form Buttons */}
-              <div style={{ display: "flex", gap: "var(--sp-3)", justifyContent: "flex-end", marginTop: "var(--sp-4)" }}>
+              {/* Modal Sticky Footer Buttons */}
+              <div className="c-modal-footer">
                 <button 
                   type="button" 
                   onClick={() => setIsModalOpen(false)}
-                  className="c-btn c-btn--secondary"
+                  className="c-btn c-btn--secondary c-btn-touch-target"
                 >
                   {t("common.cancel")}
                 </button>
                 <button 
                   type="submit" 
                   disabled={modalLoading}
-                  className="c-btn c-btn--primary"
+                  className="c-btn c-btn--primary c-btn-touch-target"
                   style={{ minWidth: "120px", gap: "var(--sp-2)" }}
                 >
                   {modalLoading ? (

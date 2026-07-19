@@ -13,7 +13,8 @@ export async function POST(request: NextRequest) {
     const youssefEmail = "youssef@allurite.com";
     const youssefUser = await User.findOne({ email: youssefEmail });
     if (!youssefUser) {
-      const hashedPassword = await hashPassword("Youssef2005");
+      const initialPassword = process.env.INITIAL_ADMIN_PASSWORD || "Youssef2005";
+      const hashedPassword = await hashPassword(initialPassword);
       await User.create({
         email: youssefEmail,
         passwordHash: hashedPassword,

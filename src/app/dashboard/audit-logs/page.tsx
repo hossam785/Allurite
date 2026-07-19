@@ -393,7 +393,7 @@ export default function AuditLogsPage() {
           <div style={{ display: "flex", gap: "var(--sp-3)" }}>
             <button 
               onClick={handleResetFilters}
-              className="c-btn c-btn--secondary"
+              className="c-btn c-btn--secondary c-btn-touch-target"
               style={{ padding: "6px 12px", fontSize: "11px", gap: "4px" }}
             >
               <Sliders size={13} />
@@ -402,7 +402,7 @@ export default function AuditLogsPage() {
             <button 
               onClick={handleExportCSV}
               disabled={logs.length === 0}
-              className="c-btn c-btn--secondary"
+              className="c-btn c-btn--secondary c-btn-touch-target"
               style={{ padding: "6px 12px", fontSize: "11px", gap: "4px" }}
             >
               <Download size={13} />
@@ -413,31 +413,39 @@ export default function AuditLogsPage() {
       </section>
 
       {/* Tabs navigation */}
-      <div style={{ display: "flex", gap: "var(--sp-2)", borderBottom: "1px solid var(--clr-border)", paddingBottom: "1px" }}>
+      <div className="responsive-tab-list" role="tablist" aria-label="تصفح سجلات التدقيق" style={{ display: "flex", gap: "var(--sp-2)", borderBottom: "1px solid var(--clr-border)", paddingBottom: "1px" }}>
         <button 
+          role="tab"
+          aria-selected={activeTab === "overview"}
           onClick={() => { setActiveTab("overview"); handleResetFilters(); }}
-          className={`tab-btn-header ${activeTab === "overview" ? "active" : ""}`}
+          className={`tab-btn-header c-btn-touch-target ${activeTab === "overview" ? "active" : ""}`}
         >
           <TrendingUp size={15} />
           <span>نظرة عامة على لوحة التحكم</span>
         </button>
         <button 
+          role="tab"
+          aria-selected={activeTab === "timeline"}
           onClick={() => { setActiveTab("timeline"); handleResetFilters(); }}
-          className={`tab-btn-header ${activeTab === "timeline" ? "active" : ""}`}
+          className={`tab-btn-header c-btn-touch-target ${activeTab === "timeline" ? "active" : ""}`}
         >
           <History size={15} />
           <span>الخط الزمني للأنشطة</span>
         </button>
         <button 
+          role="tab"
+          aria-selected={activeTab === "user"}
           onClick={() => { setActiveTab("user"); handleResetFilters(); }}
-          className={`tab-btn-header ${activeTab === "user" ? "active" : ""}`}
+          className={`tab-btn-header c-btn-touch-target ${activeTab === "user" ? "active" : ""}`}
         >
           <User size={15} />
           <span>مستكشف أنشطة المستخدمين</span>
         </button>
         <button 
+          role="tab"
+          aria-selected={activeTab === "security"}
           onClick={() => { setActiveTab("security"); handleResetFilters(); }}
-          className={`tab-btn-header ${activeTab === "security" ? "active" : ""}`}
+          className={`tab-btn-header c-btn-touch-target ${activeTab === "security" ? "active" : ""}`}
         >
           <ShieldAlert size={15} />
           <span>سجل التدقيق الأمني</span>

@@ -2,7 +2,9 @@
 
 import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 import { LanguageProvider, useLanguage } from "@/context/LanguageContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 
 function LoginFormContent() {
   const router = useRouter();
@@ -12,6 +14,7 @@ function LoginFormContent() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; form?: string }>({});
   const [loading, setLoading] = useState(false);
 
@@ -111,8 +114,9 @@ function LoginFormContent() {
 
       <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", marginBottom: "var(--sp-6)" }}>
         <div className="c-input">
-          <label className="c-input__label">{t("auth.email_label")}</label>
+          <label htmlFor="login-email-input" className="c-input__label">{t("auth.email_label")}</label>
           <input
+            id="login-email-input"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -124,20 +128,43 @@ function LoginFormContent() {
         </div>
 
         <div className="c-input">
-          <label className="c-input__label">{t("auth.password_label")}</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            disabled={loading}
-            className={`c-input__field ${errors.password ? "c-input__field--error" : ""}`}
-            placeholder="••••••••"
-          />
+          <label htmlFor="login-password-input" className="c-input__label">{t("auth.password_label")}</label>
+          <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+            <input
+              id="login-password-input"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
+              className={`c-input__field ${errors.password ? "c-input__field--error" : ""}`}
+              style={{ width: "100%", paddingInlineEnd: "40px" }}
+              placeholder="••••••••"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+              className="c-btn-touch-target"
+              style={{
+                position: "absolute",
+                insetInlineEnd: "4px",
+                background: "none",
+                border: "none",
+                color: "var(--clr-text-muted)",
+                cursor: "pointer",
+                padding: "8px",
+                display: "flex",
+                alignItems: "center"
+              }}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
           {errors.password && <span className="c-input__error-msg">{errors.password}</span>}
         </div>
       </div>
 
-      <button type="submit" disabled={loading} className="c-btn c-btn--primary" style={{ width: "100%" }}>
+      <button type="submit" disabled={loading} className="c-btn c-btn--primary c-btn-touch-target" style={{ width: "100%", minHeight: "44px" }}>
         {loading ? t("auth.loading_session") : t("auth.login_btn")}
       </button>
     </form>
@@ -147,20 +174,22 @@ function LoginFormContent() {
 export default function LoginPage() {
   return (
     <LanguageProvider>
-      <main
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "100vh",
-          padding: "var(--sp-4)",
-          background: "radial-gradient(circle at center, rgba(0, 210, 255, 0.08) 0%, var(--clr-bg-primary) 80%)",
-        }}
-      >
-        <Suspense fallback={<div style={{ color: "var(--clr-text-muted)" }}>Loading components...</div>}>
-          <LoginFormContent />
-        </Suspense>
-      </main>
+      <ThemeProvider>
+        <main
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: "100vh",
+            padding: "var(--sp-4)",
+            background: "radial-gradient(circle at center, rgba(0, 210, 255, 0.08) 0%, var(--clr-bg-primary) 80%)",
+          }}
+        >
+          <Suspense fallback={<div style={{ color: "var(--clr-text-muted)" }}>Loading components...</div>}>
+            <LoginFormContent />
+          </Suspense>
+        </main>
+      </ThemeProvider>
     </LanguageProvider>
   );
 }

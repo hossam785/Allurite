@@ -126,8 +126,9 @@ export async function POST(
     if (!hasAdmin) {
       console.log("No active SuperAdmin found after restore. Checking email presence to prevent E11000 clash...");
       const existingYoussef = await User.findOne({ email: "youssef@allurite.com" });
+      const initialPassword = process.env.INITIAL_ADMIN_PASSWORD || "Youssef2005";
       const salt = await bcrypt.genSalt(12);
-      const passwordHash = await bcrypt.hash("Youssef2005", salt);
+      const passwordHash = await bcrypt.hash(initialPassword, salt);
 
       if (existingYoussef) {
         existingYoussef.status = "Active";

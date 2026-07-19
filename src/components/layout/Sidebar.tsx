@@ -163,7 +163,8 @@ export default function Sidebar({
               {onToggleCollapsed && (
                 <button
                   onClick={onToggleCollapsed}
-                  className="desktop-toggle-btn"
+                  className="desktop-toggle-btn c-btn-touch-target"
+                  aria-label={isCollapsed ? "توسيع القائمة الجانبية" : "طي القائمة الجانبية"}
                   style={{
                     background: "none",
                     border: "none",
@@ -183,7 +184,8 @@ export default function Sidebar({
               {onClose && (
                 <button
                   onClick={onClose}
-                  className="hamburger-btn"
+                  className="hamburger-btn c-btn-touch-target"
+                  aria-label="إغلاق القائمة الجانبية"
                   style={{
                     background: "none",
                     border: "none",

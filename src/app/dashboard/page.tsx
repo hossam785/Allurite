@@ -483,29 +483,37 @@ export default function DashboardPage() {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--clr-border)", paddingBottom: "var(--sp-2)", flexWrap: "wrap", gap: "var(--sp-2)" }}>
                 
                 {/* Tabs triggers */}
-                <div className="responsive-tab-list">
+                <div className="responsive-tab-list" role="tablist" aria-label="أنشطة النظام الحية">
                   <button 
+                    role="tab"
+                    aria-selected={activeActivityTab === "clients"}
                     onClick={() => setActiveActivityTab("clients")}
-                    className={`activity-tab-btn ${activeActivityTab === "clients" ? "active" : ""}`}
+                    className={`activity-tab-btn c-btn-touch-target ${activeActivityTab === "clients" ? "active" : ""}`}
                   >
                     أحدث العملاء
                   </button>
                   <button 
+                    role="tab"
+                    aria-selected={activeActivityTab === "tasks"}
                     onClick={() => setActiveActivityTab("tasks")}
-                    className={`activity-tab-btn ${activeActivityTab === "tasks" ? "active" : ""}`}
+                    className={`activity-tab-btn c-btn-touch-target ${activeActivityTab === "tasks" ? "active" : ""}`}
                   >
                     أحدث المهام
                   </button>
                   <button 
+                    role="tab"
+                    aria-selected={activeActivityTab === "followups"}
                     onClick={() => setActiveActivityTab("followups")}
-                    className={`activity-tab-btn ${activeActivityTab === "followups" ? "active" : ""}`}
+                    className={`activity-tab-btn c-btn-touch-target ${activeActivityTab === "followups" ? "active" : ""}`}
                   >
                     المتابعات
                   </button>
                   {isSuperAdmin && (
                     <button 
+                      role="tab"
+                      aria-selected={activeActivityTab === "logs"}
                       onClick={() => setActiveActivityTab("logs")}
-                      className={`activity-tab-btn ${activeActivityTab === "logs" ? "active" : ""}`}
+                      className={`activity-tab-btn c-btn-touch-target ${activeActivityTab === "logs" ? "active" : ""}`}
                     >
                       سجلات الأحداث
                     </button>

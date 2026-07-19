@@ -21,6 +21,8 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
+    const page = searchParams.get("page") || "1";
+    const limit = searchParams.get("limit") || "20";
     const category = searchParams.get("category") || "";
     const priority = searchParams.get("priority") || "";
     const read = searchParams.get("read") || "";
@@ -28,6 +30,10 @@ export async function GET(request: NextRequest) {
     const personalOnly = searchParams.get("personal") === "true";
 
     await dbConnect();
+
+    const pageNum = Math.max(1, parseInt(page) || 1);
+    const limitNum = Math.max(1, parseInt(limit) || 20);
+    const skipNum = (pageNum - 1) * limitNum;
 
     // Standardized Query Builder to resolve soft-deletion and RBAC filter bypasses
     const andConditions: any[] = [{ deleted: false }];
@@ -68,13 +74,21 @@ export async function GET(request: NextRequest) {
 
     const query = { $and: andConditions };
 
+    const total = await Notification.countDocuments(query);
     const notifications = await Notification.find(query)
       .sort({ createdAt: -1 })
-      .limit(100);
+      .skip(skipNum)
+      .limit(limitNum);
 
     return NextResponse.json({
       success: true,
       data: notifications,
+      pagination: {
+        total,
+        page: pageNum,
+        limit: limitNum,
+        pages: Math.ceil(total / limitNum),
+      },
     });
   } catch (error: any) {
     console.error("List notifications error:", error);

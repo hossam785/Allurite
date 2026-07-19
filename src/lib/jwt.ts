@@ -1,6 +1,10 @@
 import { SignJWT, jwtVerify } from "jose";
 
-const JWT_SECRET = process.env.JWT_SECRET || "fallback_default_secret_must_be_overwritten_in_env";
+const rawSecret = process.env.JWT_SECRET;
+if (!rawSecret && process.env.NODE_ENV === "production") {
+  throw new Error("CRITICAL SECURITY ERROR: JWT_SECRET environment variable is missing in production environment.");
+}
+const JWT_SECRET = rawSecret || "development_secret_key_allurite_crm_2026_fallback";
 const secretKey = new TextEncoder().encode(JWT_SECRET);
 
 export async function signToken(payload: { userId: string; email: string; role: string }): Promise<string> {

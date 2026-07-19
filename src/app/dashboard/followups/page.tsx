@@ -554,10 +554,10 @@ export default function FollowUpsPage() {
                           {fupTypeArabic}
                         </span>
                       </td>
-                      <td style={{ padding: "var(--sp-4)", fontWeight: "var(--fw-medium)", textAlign: "right" }}>
+                      <td style={{ padding: "var(--sp-4)", fontWeight: "var(--fw-medium)", textAlign: "right" }} title={fup.title}>
                         <div style={{ fontSize: "var(--fs-body-sm)" }}>{fup.title}</div>
                         {fup.description && (
-                          <div style={{ fontSize: "11px", color: "var(--clr-text-muted)", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "240px" }}>
+                          <div style={{ fontSize: "11px", color: "var(--clr-text-muted)", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "240px" }} title={fup.description}>
                             {fup.description}
                           </div>
                         )}
@@ -589,7 +589,7 @@ export default function FollowUpsPage() {
                       <td style={{ padding: "var(--sp-4)", textAlign: "center" }}>
                         <Link 
                           href={`/dashboard/followups/${fup._id}`}
-                          className="c-btn c-btn--secondary"
+                          className="c-btn c-btn--secondary c-btn-touch-target"
                           style={{ padding: "var(--sp-2) var(--sp-3)", display: "inline-flex", gap: "var(--sp-2)" }}
                         >
                           <Eye size={14} />
@@ -621,30 +621,30 @@ export default function FollowUpsPage() {
             className="c-card c-card--glow c-modal-content"
             onClick={(e) => e.stopPropagation()}
           >
-            <button 
-              onClick={() => setIsModalOpen(false)}
-              style={{
-                position: "absolute",
-                top: "16px",
-                right: isRtl ? "auto" : "16px",
-                left: isRtl ? "16px" : "auto",
-                background: "none",
-                border: "none",
-                color: "var(--clr-text-muted)",
-                cursor: "pointer"
-              }}
-            >
-              <X size={20} />
-            </button>
-
-            <div style={{ marginBottom: "var(--sp-6)", textAlign: "right" }}>
-              <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-text-primary)", display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
-                <Clock size={20} style={{ color: "var(--clr-accent-primary)" }} />
-                <span>جدولة متابعة جديدة</span>
-              </h2>
-              <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-                تسجيل مكالمة، اجتماع، أو بريد إلكتروني مجدول وتعيينه لملف العميل للمتابعة
-              </p>
+            {/* Modal Header */}
+            <div className="c-modal-header">
+              <div style={{ textAlign: "right" }}>
+                <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-text-primary)", display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
+                  <Clock size={20} style={{ color: "var(--clr-accent-primary)" }} />
+                  <span>جدولة متابعة جديدة</span>
+                </h2>
+                <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
+                  تسجيل مكالمة، اجتماع، أو بريد إلكتروني مجدول وتعيينه لملف العميل للمتابعة
+                </p>
+              </div>
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                aria-label="إغلاق النافذة"
+                className="c-btn-touch-target"
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "var(--clr-text-muted)",
+                  cursor: "pointer"
+                }}
+              >
+                <X size={20} />
+              </button>
             </div>
 
             {modalError && (
@@ -664,115 +664,123 @@ export default function FollowUpsPage() {
               </div>
             )}
 
-            <form onSubmit={handleScheduleSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
-              
-              {/* Select Client */}
-              <div className="c-input">
-                <label className="c-input__label">العميل المستهدف *</label>
-                <select
-                  value={formFields.client}
-                  onChange={(e) => setFormFields(f => ({ ...f, client: e.target.value }))}
-                  className="c-input__field" 
-                  style={{ background: "var(--clr-bg-primary)" }}
-                  required
-                >
-                  <option value="">-- اختر العميل من القائمة --</option>
-                  {clients.map(cli => (
-                    <option key={cli._id} value={cli._id}>
-                      {cli.firstName} {cli.lastName} {cli.companyName ? `(${cli.companyName})` : ""}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Topic / Title */}
-              <div className="c-input">
-                <label className="c-input__label">عنوان / موضوع المتابعة *</label>
-                <input 
-                  type="text" 
-                  required
-                  placeholder="مثال: مناقشة أسعار وتفاصيل الاشتراك"
-                  value={formFields.title}
-                  onChange={(e) => setFormFields(f => ({ ...f, title: e.target.value }))}
-                  className="c-input__field" 
-                  style={{ textAlign: "right" }}
-                />
-              </div>
-
-              {/* Grid: Type and DateTime */}
-              <div className="responsive-grid-2">
+            {/* Modal Body Form */}
+            <form onSubmit={handleScheduleSubmit} style={{ display: "flex", flexDirection: "column", height: "100%", textAlign: "right" }}>
+              <div className="c-modal-body" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
+                {/* Select Client */}
                 <div className="c-input">
-                  <label className="c-input__label">قناة الاتصال *</label>
+                  <label htmlFor="fup-client-select" className="c-input__label">العميل المستهدف *</label>
                   <select
-                    value={formFields.type}
-                    onChange={(e) => setFormFields(f => ({ ...f, type: e.target.value as any }))}
+                    id="fup-client-select"
+                    value={formFields.client}
+                    onChange={(e) => setFormFields(f => ({ ...f, client: e.target.value }))}
                     className="c-input__field" 
                     style={{ background: "var(--clr-bg-primary)" }}
-                  >
-                    <option value="Call">مكالمة هاتفية 📞</option>
-                    <option value="Email">بريد إلكتروني ✉️</option>
-                    <option value="Meeting">اجتماع 👥</option>
-                    <option value="Demo">عرض تقديمي 🖥️</option>
-                    <option value="Other">أخرى 📝</option>
-                  </select>
-                </div>
-                <div className="c-input">
-                  <label className="c-input__label">التاريخ والوقت *</label>
-                  <input 
-                    type="datetime-local" 
                     required
-                    value={formFields.scheduledAt}
-                    onChange={(e) => setFormFields(f => ({ ...f, scheduledAt: e.target.value }))}
-                    className="c-input__field" 
-                    style={{ textAlign: "left", direction: "ltr" }}
-                  />
-                </div>
-              </div>
-
-              {/* Description */}
-              <div className="c-input">
-                <label className="c-input__label">تفاصيل الوصف والأجندة</label>
-                <textarea
-                  placeholder="اكتب سياق المتابعة، الأسئلة المطروحة، أو أهداف الاجتماع..."
-                  value={formFields.description}
-                  onChange={(e) => setFormFields(f => ({ ...f, description: e.target.value }))}
-                  rows={3}
-                  className="c-input__field" 
-                  style={{ resize: "none", padding: "var(--sp-3)", textAlign: "right" }}
-                />
-              </div>
-
-              {/* Assigned Agent (Admin only) */}
-              {isSuperAdmin && (
-                <div className="c-input">
-                  <label className="c-input__label">الموظف المسؤول والمتابع *</label>
-                  <select
-                    value={formFields.assignedAgentId}
-                    onChange={(e) => setFormFields(f => ({ ...f, assignedAgentId: e.target.value }))}
-                    className="c-input__field" 
-                    style={{ background: "var(--clr-bg-primary)" }}
                   >
-                    <option value="">-- اختر الموظف المسؤول --</option>
-                    {agents.map(ag => (
-                      <option key={ag._id} value={ag._id}>{ag.firstName} {ag.lastName}</option>
+                    <option value="">-- اختر العميل من القائمة --</option>
+                    {clients.map(cli => (
+                      <option key={cli._id} value={cli._id}>
+                        {cli.firstName} {cli.lastName} {cli.companyName ? `(${cli.companyName})` : ""}
+                      </option>
                     ))}
                   </select>
                 </div>
-              )}
 
-              {/* Buttons */}
-              <div style={{ display: "flex", gap: "var(--sp-3)", justifyContent: "flex-end", marginTop: "var(--sp-4)" }}>
+                {/* Topic / Title */}
+                <div className="c-input">
+                  <label htmlFor="fup-title-input" className="c-input__label">عنوان / موضوع المتابعة *</label>
+                  <input 
+                    id="fup-title-input"
+                    type="text" 
+                    required
+                    placeholder="مثال: مناقشة أسعار وتفاصيل الاشتراك"
+                    value={formFields.title}
+                    onChange={(e) => setFormFields(f => ({ ...f, title: e.target.value }))}
+                    className="c-input__field" 
+                    style={{ textAlign: "right" }}
+                  />
+                </div>
+
+                {/* Grid: Type and DateTime */}
+                <div className="responsive-grid-2">
+                  <div className="c-input">
+                    <label htmlFor="fup-type-select" className="c-input__label">قناة الاتصال *</label>
+                    <select
+                      id="fup-type-select"
+                      value={formFields.type}
+                      onChange={(e) => setFormFields(f => ({ ...f, type: e.target.value as any }))}
+                      className="c-input__field" 
+                      style={{ background: "var(--clr-bg-primary)" }}
+                    >
+                      <option value="Call">مكالمة هاتفية 📞</option>
+                      <option value="Email">بريد إلكتروني ✉️</option>
+                      <option value="Meeting">اجتماع 👥</option>
+                      <option value="Demo">عرض تقديمي 🖥️</option>
+                      <option value="Other">أخرى 📝</option>
+                    </select>
+                  </div>
+                  <div className="c-input">
+                    <label htmlFor="fup-date-input" className="c-input__label">التاريخ والوقت *</label>
+                    <input 
+                      id="fup-date-input"
+                      type="datetime-local" 
+                      required
+                      value={formFields.scheduledAt}
+                      onChange={(e) => setFormFields(f => ({ ...f, scheduledAt: e.target.value }))}
+                      className="c-input__field" 
+                      style={{ textAlign: "left", direction: "ltr" }}
+                    />
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div className="c-input">
+                  <label htmlFor="fup-desc-input" className="c-input__label">تفاصيل الوصف والأجندة</label>
+                  <textarea
+                    id="fup-desc-input"
+                    placeholder="اكتب سياق المتابعة، الأسئلة المطروحة، أو أهداف الاجتماع..."
+                    value={formFields.description}
+                    onChange={(e) => setFormFields(f => ({ ...f, description: e.target.value }))}
+                    rows={3}
+                    className="c-input__field" 
+                    style={{ resize: "none", padding: "var(--sp-3)", textAlign: "right" }}
+                  />
+                </div>
+
+                {/* Assigned Agent (Admin only) */}
+                {isSuperAdmin && (
+                  <div className="c-input">
+                    <label htmlFor="fup-agent-select" className="c-input__label">الموظف المسؤول والمتابع *</label>
+                    <select
+                      id="fup-agent-select"
+                      value={formFields.assignedAgentId}
+                      onChange={(e) => setFormFields(f => ({ ...f, assignedAgentId: e.target.value }))}
+                      className="c-input__field" 
+                      style={{ background: "var(--clr-bg-primary)" }}
+                    >
+                      <option value="">-- اختر الموظف المسؤول --</option>
+                      {agents.map(ag => (
+                        <option key={ag._id} value={ag._id}>{ag.firstName} {ag.lastName}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </div>
+
+              {/* Sticky Footer Buttons */}
+              <div className="c-modal-footer">
                 <button 
                   type="button" 
                   onClick={() => setIsModalOpen(false)}
-                  className="c-btn c-btn--secondary"
+                  className="c-btn c-btn--secondary c-btn-touch-target"
                 >
                   {t("common.cancel")}
                 </button>
                 <button 
                   type="submit" 
                   disabled={modalLoading}
-                  className="c-btn c-btn--primary"
+                  className="c-btn c-btn--primary c-btn-touch-target"
                   style={{ minWidth: "120px", gap: "var(--sp-2)" }}
                 >
                   {modalLoading ? <div className="btn-spinner" /> : null}

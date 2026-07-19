@@ -24,8 +24,14 @@ export async function middleware(request: NextRequest) {
       return response;
     }
 
-    // If trying to access employee management directory and role is not SuperAdmin
-    if (pathname.startsWith("/dashboard/employees") && payload.role !== "SuperAdmin") {
+    // If trying to access admin-restricted directories and role is not SuperAdmin
+    const isAdminRoute = 
+      pathname.startsWith("/dashboard/employees") ||
+      pathname.startsWith("/dashboard/audit-logs") ||
+      pathname.startsWith("/dashboard/backups") ||
+      pathname.startsWith("/dashboard/settings");
+
+    if (isAdminRoute && payload.role !== "SuperAdmin") {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
   }

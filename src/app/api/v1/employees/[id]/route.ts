@@ -154,8 +154,8 @@ export async function PUT(
       entityType: "Employee",
       entityId: employee._id,
       details: `Updated employee profile "${employee.firstName} ${employee.lastName}". Status set to: ${employee.status}`,
-      performedBy: admin.user._id,
-      performedEmail: admin.user.email,
+      performedBy: admin._id,
+      performedEmail: admin.email,
       performedRole: admin.role,
       severity: "Medium",
     }, request);
@@ -236,8 +236,8 @@ export async function DELETE(
       entityType: "Employee",
       entityId: employee._id,
       details: `Permanently deleted employee: "${employee.firstName} ${employee.lastName}" and associated login account.`,
-      performedBy: admin.user._id,
-      performedEmail: admin.user.email,
+      performedBy: admin._id,
+      performedEmail: admin.email,
       performedRole: admin.role,
       severity: "High",
     }, request);

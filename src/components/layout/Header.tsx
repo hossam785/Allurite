@@ -173,14 +173,14 @@ export default function Header({
                 toggleMobileSidebar();
               }
             }}
-            className="hamburger-btn"
+            className="hamburger-btn c-btn-touch-target"
+            aria-label="فتح القائمة الجانبية"
             style={{
               background: "none",
               border: "none",
               color: "var(--clr-text-primary)",
               cursor: "pointer",
-              marginRight: isRtl ? "none" : "var(--sp-3)",
-              marginLeft: isRtl ? "var(--sp-3)" : "none",
+              marginInlineEnd: "var(--sp-3)",
               padding: "4px",
               alignItems: "center"
             }}
@@ -194,12 +194,13 @@ export default function Header({
       </div>
 
       {/* Right Controls: Bell and User */}
-      <div className="c-header-controls" style={{ display: "flex", alignItems: "center", gap: "var(--sp-4)" }}>
+      <div className="c-header-controls" style={{ display: "flex", alignItems: "center", gap: "var(--sp-3)" }}>
         
 
         {/* Theme Switcher Toggle */}
         <button
           onClick={toggleTheme}
+          aria-label={theme === "dark" ? "التبديل إلى الوضع الفاتح" : "التبديل إلى الوضع الداكن"}
           style={{
             background: "none",
             border: "none",
@@ -212,7 +213,7 @@ export default function Header({
             borderRadius: "50%",
             transition: "var(--transition-fast)"
           }}
-          className="bell-btn-hover"
+          className="bell-btn-hover c-btn-touch-target"
           title={theme === "dark" ? "التبديل إلى الوضع الفاتح" : "التبديل إلى الوضع الداكن"}
         >
           {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
@@ -222,6 +223,8 @@ export default function Header({
         <div style={{ position: "relative" }} ref={dropdownRef}>
           <button
             onClick={() => { setIsOpen(!isOpen); fetchNotifications(); }}
+            aria-expanded={isOpen}
+            aria-label="مركز التنبيهات"
             style={{
               background: "none",
               border: "none",
@@ -235,7 +238,7 @@ export default function Header({
               transition: "var(--transition-fast)",
               position: "relative"
             }}
-            className="bell-btn-hover"
+            className="bell-btn-hover c-btn-touch-target"
           >
             <Bell size={20} />
             {notifications.length > 0 && (
@@ -266,7 +269,7 @@ export default function Header({
           {/* Notifications Dropdown Panel */}
           {isOpen && (
             <div
-              className="c-card c-card--glow"
+              className="c-card c-card--glow c-header-dropdown"
               style={{
                 position: "absolute",
                 left: isRtl ? 0 : "auto",
@@ -413,7 +416,9 @@ export default function Header({
           <div style={{ position: "relative" }} ref={profileRef}>
             <button
               onClick={() => { setIsProfileOpen(!isProfileOpen); setIsOpen(false); }}
-              className="bell-btn-hover"
+              aria-expanded={isProfileOpen}
+              aria-label="قائمة المستخدم والحساب"
+              className="bell-btn-hover c-btn-touch-target"
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -425,7 +430,7 @@ export default function Header({
                 transition: "var(--transition-fast)",
                 borderRadius: "var(--radius-md)",
                 padding: "var(--sp-2) var(--sp-3)",
-                paddingInlineStart: "var(--sp-6)"
+                paddingInlineStart: "var(--sp-4)"
               }}
             >
               <div style={{ display: "flex", flexDirection: "column", alignItems: isRtl ? "flex-start" : "flex-end" }}>
@@ -457,7 +462,7 @@ export default function Header({
             {/* Profile Dropdown Panel */}
             {isProfileOpen && (
               <div
-                className="c-card c-card--glow"
+                className="c-card c-card--glow c-header-dropdown"
                 style={{
                   position: "absolute",
                   left: isRtl ? 0 : "auto",

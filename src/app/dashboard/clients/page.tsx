@@ -434,10 +434,10 @@ export default function ClientsPage() {
                       }}
                       className="table-row-hover"
                     >
-                      <td style={{ padding: "var(--sp-4)", fontWeight: "var(--fw-medium)", textAlign: "right" }}>
+                      <td style={{ padding: "var(--sp-4)", fontWeight: "var(--fw-medium)", textAlign: "right" }} title={`${client.firstName} ${client.lastName}`}>
                         {client.firstName} {client.lastName}
                       </td>
-                      <td style={{ padding: "var(--sp-4)", textAlign: "right" }}>
+                      <td style={{ padding: "var(--sp-4)", textAlign: "right" }} title={client.companyName || "لا توجد شركة"}>
                         {client.companyName ? (
                           <div style={{ display: "flex", flexDirection: "column" }}>
                             <span style={{ fontWeight: "var(--fw-medium)" }}>{client.companyName}</span>
@@ -447,10 +447,10 @@ export default function ClientsPage() {
                           <span style={{ color: "var(--clr-text-muted)" }}>لا توجد شركة</span>
                         )}
                       </td>
-                      <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)", textAlign: "right" }}>
+                      <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)", textAlign: "right" }} title={client.email}>
                         {client.email}
                       </td>
-                      <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)", textAlign: "right", direction: "ltr" }}>
+                      <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)", textAlign: "right", direction: "ltr" }} title={client.phone || "—"}>
                         {client.phone || "—"}
                       </td>
                       <td style={{ padding: "var(--sp-4)", textAlign: "right" }}>
@@ -471,7 +471,7 @@ export default function ClientsPage() {
                       <td style={{ padding: "var(--sp-4)", textAlign: "center" }}>
                         <Link 
                           href={`/dashboard/clients/${client._id}`}
-                          className="c-btn c-btn--secondary"
+                          className="c-btn c-btn--secondary c-btn-touch-target"
                           style={{ padding: "var(--sp-2) var(--sp-3)", display: "inline-flex", gap: "var(--sp-2)" }}
                         >
                           <Eye size={14} />
@@ -510,7 +510,8 @@ export default function ClientsPage() {
               <button 
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="c-btn c-btn--secondary"
+                aria-label="الصفحة السابقة"
+                className="c-btn c-btn--secondary c-btn-touch-target"
                 style={{ padding: "var(--sp-2) var(--sp-3)" }}
               >
                 {isRtl ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
@@ -532,7 +533,8 @@ export default function ClientsPage() {
               <button 
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="c-btn c-btn--secondary"
+                aria-label="الصفحة التالية"
+                className="c-btn c-btn--secondary c-btn-touch-target"
                 style={{ padding: "var(--sp-2) var(--sp-3)" }}
               >
                 {isRtl ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
@@ -552,32 +554,30 @@ export default function ClientsPage() {
             className="c-card c-card--glow c-modal-content"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close Button */}
-            <button 
-              onClick={() => setIsModalOpen(false)}
-              style={{
-                position: "absolute",
-                top: "16px",
-                right: isRtl ? "auto" : "16px",
-                left: isRtl ? "16px" : "auto",
-                background: "none",
-                border: "none",
-                color: "var(--clr-text-muted)",
-                cursor: "pointer"
-              }}
-            >
-              <X size={20} />
-            </button>
-
-            {/* Modal title */}
-            <div style={{ marginBottom: "var(--sp-6)", textAlign: "right" }}>
-              <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-text-primary)", display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
-                <UserPlus size={20} style={{ color: "var(--clr-accent-primary)" }} />
-                <span>{t("clients_view.create_client")}</span>
-              </h2>
-              <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-                إنشاء ملف العميل الشخصي وتعيين المسؤولية الإدارية له
-              </p>
+            {/* Modal Header */}
+            <div className="c-modal-header">
+              <div style={{ textAlign: "right" }}>
+                <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-text-primary)", display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
+                  <UserPlus size={20} style={{ color: "var(--clr-accent-primary)" }} />
+                  <span>{t("clients_view.create_client")}</span>
+                </h2>
+                <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
+                  إنشاء ملف العميل الشخصي وتعيين المسؤولية الإدارية له
+                </p>
+              </div>
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                aria-label="إغلاق النافذة"
+                className="c-btn-touch-target"
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "var(--clr-text-muted)",
+                  cursor: "pointer"
+                }}
+              >
+                <X size={20} />
+              </button>
             </div>
 
             {modalError && (
@@ -597,161 +597,172 @@ export default function ClientsPage() {
               </div>
             )}
 
-            {/* Form */}
-            <form onSubmit={handleCreateSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", textAlign: "right" }}>
-              <div className="responsive-grid-2">
-                <div className="c-input">
-                  <label className="c-input__label">الاسم الأول *</label>
-                  <input 
-                    type="text" 
-                    required
-                    value={formFields.firstName}
-                    onChange={(e) => setFormFields(f => ({ ...f, firstName: e.target.value }))}
-                    className="c-input__field" 
-                    style={{ textAlign: "right" }}
-                  />
+            {/* Modal Body Form */}
+            <form onSubmit={handleCreateSubmit} style={{ display: "flex", flexDirection: "column", height: "100%", textAlign: "right" }}>
+              <div className="c-modal-body" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
+                <div className="responsive-grid-2">
+                  <div className="c-input">
+                    <label htmlFor="client-first-name" className="c-input__label">الاسم الأول *</label>
+                    <input 
+                      id="client-first-name"
+                      type="text" 
+                      required
+                      value={formFields.firstName}
+                      onChange={(e) => setFormFields(f => ({ ...f, firstName: e.target.value }))}
+                      className="c-input__field" 
+                      style={{ textAlign: "right" }}
+                    />
+                  </div>
+                  <div className="c-input">
+                    <label htmlFor="client-last-name" className="c-input__label">الاسم الأخير *</label>
+                    <input 
+                      id="client-last-name"
+                      type="text" 
+                      required
+                      value={formFields.lastName}
+                      onChange={(e) => setFormFields(f => ({ ...f, lastName: e.target.value }))}
+                      className="c-input__field" 
+                      style={{ textAlign: "right" }}
+                    />
+                  </div>
                 </div>
-                <div className="c-input">
-                  <label className="c-input__label">الاسم الأخير *</label>
-                  <input 
-                    type="text" 
-                    required
-                    value={formFields.lastName}
-                    onChange={(e) => setFormFields(f => ({ ...f, lastName: e.target.value }))}
-                    className="c-input__field" 
-                    style={{ textAlign: "right" }}
-                  />
-                </div>
-              </div>
 
-              <div className="responsive-grid-2">
+                <div className="responsive-grid-2">
+                  <div className="c-input">
+                    <label htmlFor="client-email" className="c-input__label">البريد الإلكتروني *</label>
+                    <input 
+                      id="client-email"
+                      type="email" 
+                      required
+                      placeholder="example@mail.com"
+                      value={formFields.email}
+                      onChange={(e) => setFormFields(f => ({ ...f, email: e.target.value }))}
+                      className="c-input__field" 
+                      style={{ textAlign: "left", direction: "ltr" }}
+                    />
+                  </div>
+                  <div className="c-input">
+                    <label htmlFor="client-phone" className="c-input__label">رقم الهاتف</label>
+                    <input 
+                      id="client-phone"
+                      type="tel" 
+                      placeholder="010XXXXXXXX"
+                      value={formFields.phone}
+                      onChange={(e) => setFormFields(f => ({ ...f, phone: e.target.value }))}
+                      className="c-input__field" 
+                      style={{ textAlign: "left", direction: "ltr" }}
+                    />
+                  </div>
+                </div>
+
+                <div className="responsive-grid-2">
+                  <div className="c-input">
+                    <label htmlFor="client-company" className="c-input__label">{t("clients_view.company_name")}</label>
+                    <input 
+                      id="client-company"
+                      type="text" 
+                      value={formFields.companyName}
+                      onChange={(e) => setFormFields(f => ({ ...f, companyName: e.target.value }))}
+                      className="c-input__field" 
+                      style={{ textAlign: "right" }}
+                    />
+                  </div>
+                  <div className="c-input">
+                    <label htmlFor="client-industry" className="c-input__label">{t("clients_view.industry")}</label>
+                    <input 
+                      id="client-industry"
+                      type="text" 
+                      placeholder="مثال: عقارات / تقنية"
+                      value={formFields.industry}
+                      onChange={(e) => setFormFields(f => ({ ...f, industry: e.target.value }))}
+                      className="c-input__field" 
+                      style={{ textAlign: "right" }}
+                    />
+                  </div>
+                </div>
+
                 <div className="c-input">
-                  <label className="c-input__label">البريد الإلكتروني *</label>
+                  <label htmlFor="client-website" className="c-input__label">{t("clients_view.website")}</label>
                   <input 
-                    type="email" 
-                    required
-                    placeholder="example@mail.com"
-                    value={formFields.email}
-                    onChange={(e) => setFormFields(f => ({ ...f, email: e.target.value }))}
+                    id="client-website"
+                    type="url" 
+                    placeholder="https://example.com"
+                    value={formFields.website}
+                    onChange={(e) => setFormFields(f => ({ ...f, website: e.target.value }))}
                     className="c-input__field" 
                     style={{ textAlign: "left", direction: "ltr" }}
                   />
                 </div>
-                <div className="c-input">
-                  <label className="c-input__label">رقم الهاتف</label>
-                  <input 
-                    type="tel" 
-                    placeholder="010XXXXXXXX"
-                    value={formFields.phone}
-                    onChange={(e) => setFormFields(f => ({ ...f, phone: e.target.value }))}
-                    className="c-input__field" 
-                    style={{ textAlign: "left", direction: "ltr" }}
-                  />
+
+                <div className="responsive-grid-2">
+                  <div className="c-input">
+                    <label htmlFor="client-source" className="c-input__label">{t("clients_view.source")}</label>
+                    <select
+                      id="client-source"
+                      value={formFields.source}
+                      onChange={(e) => setFormFields(f => ({ ...f, source: e.target.value }))}
+                      className="c-input__field" 
+                      style={{ background: "var(--clr-bg-primary)" }}
+                    >
+                      <option value="Website">الموقع الإلكتروني</option>
+                      <option value="Referral">توصية / ترشيح</option>
+                      <option value="ColdOutreach">تواصل بارد</option>
+                      <option value="LinkedIn">لينكد إن</option>
+                      <option value="Advertisement">إعلان ممول</option>
+                      <option value="Other">مصادر أخرى</option>
+                    </select>
+                  </div>
+                  <div className="c-input">
+                    <label htmlFor="client-status" className="c-input__label">حالة العميل الحالي</label>
+                    <select
+                      id="client-status"
+                      value={formFields.status}
+                      onChange={(e) => setFormFields(f => ({ ...f, status: e.target.value as any }))}
+                      className="c-input__field" 
+                      style={{ background: "var(--clr-bg-primary)" }}
+                    >
+                      <option value="Lead">عميل محتمل (Lead)</option>
+                      <option value="Qualified">عميل مؤهل (Qualified)</option>
+                      <option value="ActiveCustomer">عميل نشط (Active)</option>
+                      <option value="Churned">منسحب (Churned)</option>
+                    </select>
+                  </div>
                 </div>
+
+                {isSuperAdmin && (
+                  <div className="c-input">
+                    <label htmlFor="client-agent" className="c-input__label">{t("clients_view.assigned_agent")} *</label>
+                    <select
+                      id="client-agent"
+                      value={formFields.assignedAgentId}
+                      onChange={(e) => setFormFields(f => ({ ...f, assignedAgentId: e.target.value }))}
+                      className="c-input__field" 
+                      style={{ background: "var(--clr-bg-primary)" }}
+                    >
+                      <option value="">-- اختر الموظف المسؤول --</option>
+                      {agents.map((agent) => (
+                        <option key={agent._id} value={agent._id}>
+                          {agent.firstName} {agent.lastName}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
 
-              <div className="responsive-grid-2">
-                <div className="c-input">
-                  <label className="c-input__label">{t("clients_view.company_name")}</label>
-                  <input 
-                    type="text" 
-                    value={formFields.companyName}
-                    onChange={(e) => setFormFields(f => ({ ...f, companyName: e.target.value }))}
-                    className="c-input__field" 
-                    style={{ textAlign: "right" }}
-                  />
-                </div>
-                <div className="c-input">
-                  <label className="c-input__label">{t("clients_view.industry")}</label>
-                  <input 
-                    type="text" 
-                    placeholder="مثال: عقارات / تقنية"
-                    value={formFields.industry}
-                    onChange={(e) => setFormFields(f => ({ ...f, industry: e.target.value }))}
-                    className="c-input__field" 
-                    style={{ textAlign: "right" }}
-                  />
-                </div>
-              </div>
-
-              <div className="c-input">
-                <label className="c-input__label">{t("clients_view.website")}</label>
-                <input 
-                  type="url" 
-                  placeholder="https://example.com"
-                  value={formFields.website}
-                  onChange={(e) => setFormFields(f => ({ ...f, website: e.target.value }))}
-                  className="c-input__field" 
-                  style={{ textAlign: "left", direction: "ltr" }}
-                />
-              </div>
-
-              <div className="responsive-grid-2">
-                <div className="c-input">
-                  <label className="c-input__label">{t("clients_view.source")}</label>
-                  <select
-                    value={formFields.source}
-                    onChange={(e) => setFormFields(f => ({ ...f, source: e.target.value }))}
-                    className="c-input__field" 
-                    style={{ background: "var(--clr-bg-primary)" }}
-                  >
-                    <option value="Website">الموقع الإلكتروني</option>
-                    <option value="Referral">توصية / ترشيح</option>
-                    <option value="ColdOutreach">تواصل بارد</option>
-                    <option value="LinkedIn">لينكد إن</option>
-                    <option value="Advertisement">إعلان ممول</option>
-                    <option value="Other">مصادر أخرى</option>
-                  </select>
-                </div>
-                <div className="c-input">
-                  <label className="c-input__label">حالة العميل الحالي</label>
-                  <select
-                    value={formFields.status}
-                    onChange={(e) => setFormFields(f => ({ ...f, status: e.target.value as any }))}
-                    className="c-input__field" 
-                    style={{ background: "var(--clr-bg-primary)" }}
-                  >
-                    <option value="Lead">عميل محتمل (Lead)</option>
-                    <option value="Qualified">عميل مؤهل (Qualified)</option>
-                    <option value="ActiveCustomer">عميل نشط (Active)</option>
-                    <option value="Churned">منسحب (Churned)</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Ownership Assignment Dropdown (Admin scoping only) */}
-              {isSuperAdmin && (
-                <div className="c-input">
-                  <label className="c-input__label">{t("clients_view.assigned_agent")} *</label>
-                  <select
-                    value={formFields.assignedAgentId}
-                    onChange={(e) => setFormFields(f => ({ ...f, assignedAgentId: e.target.value }))}
-                    className="c-input__field" 
-                    style={{ background: "var(--clr-bg-primary)" }}
-                  >
-                    <option value="">-- اختر الموظف المسؤول --</option>
-                    {agents.map((agent) => (
-                      <option key={agent._id} value={agent._id}>
-                        {agent.firstName} {agent.lastName}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              {/* Form Buttons */}
-              <div style={{ display: "flex", gap: "var(--sp-3)", justifyContent: "flex-end", marginTop: "var(--sp-4)" }}>
+              {/* Modal Sticky Footer Buttons */}
+              <div className="c-modal-footer">
                 <button 
                   type="button" 
                   onClick={() => setIsModalOpen(false)}
-                  className="c-btn c-btn--secondary"
+                  className="c-btn c-btn--secondary c-btn-touch-target"
                 >
                   {t("common.cancel")}
                 </button>
                 <button 
                   type="submit" 
                   disabled={modalLoading}
-                  className="c-btn c-btn--primary"
+                  className="c-btn c-btn--primary c-btn-touch-target"
                   style={{ minWidth: "120px", gap: "var(--sp-2)" }}
                 >
                   {modalLoading ? <div className="btn-spinner" /> : null}
