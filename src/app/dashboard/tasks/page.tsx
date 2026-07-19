@@ -682,6 +682,25 @@ export default function TasksPage() {
                   </div>
                 </div>
 
+                {/* Assigned Agent (Admin dropdown selection) */}
+                {isSuperAdmin && (
+                  <div className="c-input">
+                    <label htmlFor="task-agent-select" className="c-input__label">الموظف المسؤول والمتابع *</label>
+                    <select
+                      id="task-agent-select"
+                      value={formFields.assignedToId}
+                      onChange={(e) => setFormFields(f => ({ ...f, assignedToId: e.target.value }))}
+                      className="c-input__field" 
+                      style={{ background: "var(--clr-bg-primary)" }}
+                    >
+                      <option value="">-- اختر الموظف المسؤول --</option>
+                      {agents.map(ag => (
+                        <option key={ag._id} value={ag._id}>{ag.firstName} {ag.lastName}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
                 {/* Optional: Linked Client */}
                 <div className="c-input">
                   <label htmlFor="task-client-select" className="c-input__label">ربط ملف العميل (اختياري)</label>
@@ -733,25 +752,6 @@ export default function TasksPage() {
                     style={{ resize: "none", padding: "var(--sp-3)", textAlign: "right" }}
                   />
                 </div>
-
-                {/* Assigned Agent (Admin dropdown selection) */}
-                {isSuperAdmin && (
-                  <div className="c-input">
-                    <label htmlFor="task-agent-select" className="c-input__label">الموظف المسؤول والمتابع *</label>
-                    <select
-                      id="task-agent-select"
-                      value={formFields.assignedToId}
-                      onChange={(e) => setFormFields(f => ({ ...f, assignedToId: e.target.value }))}
-                      className="c-input__field" 
-                      style={{ background: "var(--clr-bg-primary)" }}
-                    >
-                      <option value="">-- اختر الموظف المسؤول --</option>
-                      {agents.map(ag => (
-                        <option key={ag._id} value={ag._id}>{ag.firstName} {ag.lastName}</option>
-                      ))}
-                    </select>
-                  </div>
-                )}
               </div>
 
               {/* Modal Sticky Footer Buttons */}

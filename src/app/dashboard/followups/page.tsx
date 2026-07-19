@@ -734,20 +734,6 @@ export default function FollowUpsPage() {
                   </div>
                 </div>
 
-                {/* Description */}
-                <div className="c-input">
-                  <label htmlFor="fup-desc-input" className="c-input__label">تفاصيل الوصف والأجندة</label>
-                  <textarea
-                    id="fup-desc-input"
-                    placeholder="اكتب سياق المتابعة، الأسئلة المطروحة، أو أهداف الاجتماع..."
-                    value={formFields.description}
-                    onChange={(e) => setFormFields(f => ({ ...f, description: e.target.value }))}
-                    rows={3}
-                    className="c-input__field" 
-                    style={{ resize: "none", padding: "var(--sp-3)", textAlign: "right" }}
-                  />
-                </div>
-
                 {/* Assigned Agent (Admin only) */}
                 {isSuperAdmin && (
                   <div className="c-input">
@@ -766,6 +752,20 @@ export default function FollowUpsPage() {
                     </select>
                   </div>
                 )}
+
+                {/* Description */}
+                <div className="c-input">
+                  <label htmlFor="fup-desc-input" className="c-input__label">تفاصيل الوصف والأجندة</label>
+                  <textarea
+                    id="fup-desc-input"
+                    placeholder="اكتب سياق المتابعة، الأسئلة المطروحة، أو أهداف الاجتماع..."
+                    value={formFields.description}
+                    onChange={(e) => setFormFields(f => ({ ...f, description: e.target.value }))}
+                    rows={3}
+                    className="c-input__field" 
+                    style={{ resize: "none", padding: "var(--sp-3)", textAlign: "right" }}
+                  />
+                </div>
               </div>
 
               {/* Sticky Footer Buttons */}

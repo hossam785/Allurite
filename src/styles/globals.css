@@ -632,8 +632,9 @@ a:hover {
 .c-modal-body {
   flex: 1;
   overflow-y: auto;
-  padding-right: 2px;
-  padding-left: 2px;
+  padding-right: 4px;
+  padding-left: 4px;
+  padding-bottom: var(--sp-6);
 }
 
 .c-modal-footer {

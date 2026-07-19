@@ -37,6 +37,7 @@ All **10 identified defects** (2 Critical, 4 High, 4 Medium) have been **fully r
 | `BUG-UI-08` | **MEDIUM** | Table cell text truncation missing tooltips | **RESOLVED** | PASS — Native `title` attributes added to truncated cells |
 | `BUG-UI-09` | **MEDIUM** | Unhandled reduced motion preference | **RESOLVED** | PASS — Added `@media (prefers-reduced-motion: reduce)` block |
 | `BUG-UI-10` | **MEDIUM** | Login page missing password visibility toggle & theme | **RESOLVED** | PASS — Added eye toggle state and `ThemeProvider` wrap |
+| `BUG-UI-11` | **HIGH** | Modal assigned agent dropdown buried under sticky footer | **RESOLVED** | PASS — Re-ordered mandatory field to top grid & added `.c-modal-body` bottom padding |
 
 ---
 
