@@ -232,6 +232,7 @@ export default function Sidebar({
                 <Link
                   key={item.name}
                   href={item.href}
+                  onClick={onClose}
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -256,8 +257,8 @@ export default function Sidebar({
           </nav>
         </div>
 
-        {/* User Session profile Info & Logout */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
+        {/* User Session profile Info */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-2)", marginTop: "var(--sp-4)" }}>
           <div 
             style={{ 
               display: "flex", 
@@ -276,10 +277,6 @@ export default function Sidebar({
               {user.role === "SuperAdmin" ? t("employees_view.superadmin") : t("employees_view.employee_role")}
             </span>
           </div>
-          <button onClick={handleLogout} className="c-btn c-btn--destructive" style={{ width: "100%", gap: "var(--sp-2)", justifyContent: "center" }}>
-            <LogOut size={16} />
-            <span>{t("common.logout")}</span>
-          </button>
         </div>
       </div>
 
