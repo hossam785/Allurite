@@ -63,12 +63,10 @@ export async function GET(request: NextRequest) {
 
     const cachedReport = await Report.findOne({
       category,
-      "dateRange.start": startDate,
-      "dateRange.end": endDate,
       generatedBy: auth.user._id,
       "rawMetrics.targetEmployeeId": targetEmpKey,
       createdAt: { $gte: fifteenMinutesAgo },
-    });
+    }).sort({ createdAt: -1 });
 
     if (cachedReport) {
       console.log(`Serving cached analytics snapshot for category ${category} (targetEmployee: ${targetEmpKey}).`);

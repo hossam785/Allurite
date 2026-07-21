@@ -45,7 +45,7 @@ export async function calculateAnalytics(
     pending: followups.filter(f => f.status === "Pending").length,
     missed: followups.filter(f => f.status === "Missed").length,
     cancelled: followups.filter(f => f.status === "Cancelled").length,
-    overdue: followups.filter(f => f.status !== "Completed" && f.date < new Date()).length,
+    overdue: followups.filter(f => f.status !== "Completed" && f.scheduledAt && f.scheduledAt < new Date()).length,
   };
 
   // 3. Client Metrics
@@ -72,45 +72,45 @@ export async function calculateAnalytics(
       : 0,
   };
 
-  // 4. Employee Productivity Scores
+  // 4. Employee Productivity Scores (Optimized in-memory filtering)
   let employeesList: any[] = [];
   if (employeeFilterObj) {
     const emp = await Employee.findById(employeeFilterObj);
     if (emp) employeesList = [emp];
   } else {
-    employeesList = await Employee.find({ status: "Active" });
+    employeesList = await Employee.find({ status: "Active" }).lean();
   }
 
-  const productivityDetails = await Promise.all(
-    employeesList.map(async emp => {
-      const empTasks = await Task.find({ assignedTo: emp._id, createdAt: { $gte: start, $lte: end } });
-      const empFUs = await FollowUp.find({ assignedAgent: emp._id, scheduledAt: { $gte: start, $lte: end } });
+  const productivityDetails = employeesList.map(emp => {
+    const empIdStr = emp._id.toString();
+    const empTasks = tasks.filter(t => t.assignedTo && t.assignedTo.toString() === empIdStr);
+    const empFUs = followups.filter(f => f.assignedAgent && f.assignedAgent.toString() === empIdStr);
+    const empClientsCount = clients.filter(c => c.assignedAgent && c.assignedAgent.toString() === empIdStr).length;
 
-      const tComp = empTasks.filter(t => t.status === "Completed").length;
-      const fComp = empFUs.filter(f => f.status === "Completed").length;
-      const tOver = empTasks.filter(t => t.status === "Overdue" || (t.status !== "Completed" && t.dueDate < new Date())).length;
-      const fMiss = empFUs.filter(f => f.status === "Missed").length;
+    const tComp = empTasks.filter(t => t.status === "Completed").length;
+    const fComp = empFUs.filter(f => f.status === "Completed").length;
+    const tOver = empTasks.filter(t => t.status === "Overdue" || (t.status !== "Completed" && t.dueDate && t.dueDate < new Date())).length;
+    const fMiss = empFUs.filter(f => f.status === "Missed").length;
 
-      const totalItems = empTasks.length + empFUs.length;
-      // Formula: weighted completed actions divided by totals, scaled to 10
-      const score = totalItems > 0
-        ? parseFloat((( (tComp * 10 + fComp * 5) / (empTasks.length * 10 + empFUs.length * 5) ) * 100).toFixed(1))
-        : 100.0; // Defaults to 100 if no items assigned
+    const totalItems = empTasks.length + empFUs.length;
+    // Formula: weighted completed actions divided by totals, scaled to 100
+    const score = totalItems > 0
+      ? parseFloat((( (tComp * 10 + fComp * 5) / (empTasks.length * 10 + empFUs.length * 5) ) * 100).toFixed(1))
+      : 100.0; // Defaults to 100 if no items assigned
 
-      return {
-        employeeId: emp._id.toString(),
-        name: `${emp.firstName} ${emp.lastName}`,
-        department: emp.department,
-        tasksCompleted: tComp,
-        tasksPending: empTasks.filter(t => t.status === "Pending" || t.status === "In Progress").length,
-        tasksOverdue: tOver,
-        followupsCompleted: fComp,
-        followupsMissed: fMiss,
-        clientsCount: await Client.countDocuments({ assignedAgent: emp._id }),
-        productivityScore: Math.min(100, Math.max(0, score)),
-      };
-    })
-  );
+    return {
+      employeeId: empIdStr,
+      name: `${emp.firstName} ${emp.lastName}`,
+      department: emp.department,
+      tasksCompleted: tComp,
+      tasksPending: empTasks.filter(t => t.status === "Pending" || t.status === "In Progress").length,
+      tasksOverdue: tOver,
+      followupsCompleted: fComp,
+      followupsMissed: fMiss,
+      clientsCount: empClientsCount,
+      productivityScore: Math.min(100, Math.max(0, score)),
+    };
+  });
 
   const avgProductivityScore = productivityDetails.length > 0
     ? parseFloat((productivityDetails.reduce((acc, curr) => acc + curr.productivityScore, 0) / productivityDetails.length).toFixed(1))

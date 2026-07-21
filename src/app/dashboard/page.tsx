@@ -139,43 +139,25 @@ export default function DashboardPage() {
     const fetchDashboardData = async () => {
       setLoading(true);
       try {
-        // 1. Fetch reports analytics (covers most KPI calculations)
-        const reportsRes = await fetch("/api/v1/reports?category=Productivity");
-        if (reportsRes.ok) {
-          const reportsJson = await reportsRes.json();
-          setKpis(reportsJson.data?.kpis || null);
-          setChartsData(reportsJson.data?.chartsData || null);
-        }
+        // Run all data stream requests in parallel for maximum speed
+        const [reportsRes, clientsRes, tasksRes, followupsRes, logsRes] = await Promise.all([
+          fetch("/api/v1/reports?category=Productivity").then(r => r.ok ? r.json() : null).catch(() => null),
+          fetch("/api/v1/clients?limit=5").then(r => r.ok ? r.json() : null).catch(() => null),
+          fetch("/api/v1/tasks?limit=5").then(r => r.ok ? r.json() : null).catch(() => null),
+          fetch("/api/v1/followups?limit=5").then(r => r.ok ? r.json() : null).catch(() => null),
+          isSuperAdmin 
+            ? fetch("/api/v1/audit-logs?limit=5").then(r => r.ok ? r.json() : null).catch(() => null)
+            : Promise.resolve(null)
+        ]);
 
-        // 2. Fetch recent clients
-        const clientsRes = await fetch("/api/v1/clients?limit=5");
-        if (clientsRes.ok) {
-          const clientsJson = await clientsRes.json();
-          setRecentClients(clientsJson.data || []);
+        if (reportsRes?.data) {
+          setKpis(reportsRes.data.kpis || null);
+          setChartsData(reportsRes.data.chartsData || null);
         }
-
-        // 3. Fetch recent tasks
-        const tasksRes = await fetch("/api/v1/tasks?limit=5");
-        if (tasksRes.ok) {
-          const tasksJson = await tasksRes.json();
-          setRecentTasks(tasksJson.data || []);
-        }
-
-        // 4. Fetch recent followups
-        const followupsRes = await fetch("/api/v1/followups?limit=5");
-        if (followupsRes.ok) {
-          const followupsJson = await followupsRes.json();
-          setRecentFollowups(followupsJson.data || []);
-        }
-
-        // 5. Fetch recent audit logs (Admin only)
-        if (isSuperAdmin) {
-          const logsRes = await fetch("/api/v1/audit-logs?limit=5");
-          if (logsRes.ok) {
-            const logsJson = await logsRes.json();
-            setRecentLogs(logsJson.data || []);
-          }
-        }
+        if (clientsRes?.data) setRecentClients(clientsRes.data || []);
+        if (tasksRes?.data) setRecentTasks(tasksRes.data || []);
+        if (followupsRes?.data) setRecentFollowups(followupsRes.data || []);
+        if (logsRes?.data) setRecentLogs(logsRes.data || []);
       } catch (err) {
         console.error("Error loading dashboard data streams:", err);
       } finally {
