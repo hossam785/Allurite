@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
 import User from "@/models/User";
+import Employee from "@/models/Employee";
 import { verifyToken } from "@/lib/jwt";
 
 export async function GET(request: NextRequest) {
@@ -63,6 +64,12 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Lookup associated Employee profile details
+    const employee: any = await Employee.findOne({ user: user._id }).lean();
+    const firstName = employee?.firstName || "";
+    const lastName = employee?.lastName || "";
+    const fullName = (firstName || lastName) ? `${firstName} ${lastName}`.trim() : user.email.split("@")[0];
+
     return NextResponse.json({
       success: true,
       data: {
@@ -72,6 +79,13 @@ export async function GET(request: NextRequest) {
         status: user.status,
         theme: user.theme || "dark",
         createdAt: user.createdAt,
+        employeeId: employee?._id ? employee._id.toString() : undefined,
+        firstName,
+        lastName,
+        name: fullName,
+        phone: employee?.phone || "",
+        department: employee?.department || "",
+        position: employee?.position || "",
       },
     });
   } catch (error: any) {

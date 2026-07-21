@@ -435,10 +435,10 @@ export default function Header({
             >
               <div style={{ display: "flex", flexDirection: "column", alignItems: isRtl ? "flex-start" : "flex-end" }}>
                 <span style={{ fontSize: "var(--fs-body-sm)", fontWeight: "var(--fw-bold)", color: "var(--clr-text-primary)" }}>
-                  {user.email.split("@")[0]}
+                  {(user as any).name || user.email.split("@")[0]}
                 </span>
                 <span className="c-badge c-badge--info" style={{ padding: "0 var(--sp-2)", fontSize: "9px", textTransform: "none", marginTop: "2px" }}>
-                  {user.role}
+                  {(user as any).position || user.role}
                 </span>
               </div>
               <div
@@ -468,7 +468,7 @@ export default function Header({
                   left: isRtl ? 0 : "auto",
                   right: isRtl ? "auto" : 0,
                   top: "55px",
-                  width: "min(280px, 88vw)",
+                  width: "min(300px, 88vw)",
                   display: "flex",
                   flexDirection: "column",
                   padding: 0,
@@ -489,8 +489,8 @@ export default function Header({
                 }}>
                   <div
                     style={{
-                      width: "42px",
-                      height: "42px",
+                      width: "44px",
+                      height: "44px",
                       borderRadius: "50%",
                       backgroundColor: "rgba(0, 210, 255, 0.12)",
                       border: "2px solid var(--clr-accent-primary)",
@@ -501,18 +501,30 @@ export default function Header({
                       flexShrink: 0
                     }}
                   >
-                    <User size={20} />
+                    <User size={22} />
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontWeight: "var(--fw-bold)", fontSize: "var(--fs-body-sm)", color: "var(--clr-text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {user.email.split("@")[0]}
+                      {(user as any).name || user.email.split("@")[0]}
                     </div>
-                    <div style={{ fontSize: "11px", color: "var(--clr-text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginTop: "2px" }}>
+                    <div style={{ fontSize: "11px", color: "var(--clr-text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginTop: "1px" }}>
                       {user.email}
                     </div>
-                    <span className="c-badge c-badge--info" style={{ padding: "0 var(--sp-2)", fontSize: "9px", textTransform: "none", marginTop: "4px", display: "inline-block" }}>
-                      {user.role}
-                    </span>
+                    {(user as any).position && (
+                      <div style={{ fontSize: "11px", color: "var(--clr-accent-primary)", fontWeight: "var(--fw-semibold)", marginTop: "3px" }}>
+                        {(user as any).position}
+                      </div>
+                    )}
+                    <div style={{ display: "flex", gap: "var(--sp-2)", marginTop: "4px", flexWrap: "wrap" }}>
+                      <span className="c-badge c-badge--info" style={{ padding: "0 var(--sp-2)", fontSize: "9px", textTransform: "none" }}>
+                        {user.role}
+                      </span>
+                      {(user as any).department && (
+                        <span className="c-badge c-badge--success" style={{ padding: "0 var(--sp-2)", fontSize: "9px", textTransform: "none" }}>
+                          {(user as any).department}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
 

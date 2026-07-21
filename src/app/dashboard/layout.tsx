@@ -14,6 +14,13 @@ interface UserInfo {
   status: string;
   theme?: string;
   createdAt: string;
+  employeeId?: string;
+  firstName?: string;
+  lastName?: string;
+  name?: string;
+  phone?: string;
+  department?: string;
+  position?: string;
 }
 
 interface AuthContextType {

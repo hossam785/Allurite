@@ -254,10 +254,28 @@ export default function Sidebar({
               fontSize: "var(--fs-caption)"
             }}
           >
-            <span style={{ color: "var(--clr-text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={user.email}>
+            <span style={{ color: "var(--clr-text-primary)", fontWeight: "var(--fw-bold)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={(user as any).name || user.email}>
+              {(user as any).name || user.email.split("@")[0]}
+            </span>
+            <span style={{ color: "var(--clr-text-muted)", fontSize: "11px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginTop: "1px" }}>
               {user.email}
             </span>
-            <span style={{ color: "var(--clr-accent-primary)", fontWeight: "var(--fw-bold)", marginTop: "var(--sp-1)" }}>
+            {((user as any).position || (user as any).department) && (
+              <div style={{ display: "flex", gap: "4px", marginTop: "3px", flexWrap: "wrap", fontSize: "10px" }}>
+                {(user as any).position && (
+                  <span style={{ color: "var(--clr-accent-primary)", fontWeight: "var(--fw-medium)" }}>
+                    {(user as any).position}
+                  </span>
+                )}
+                {(user as any).position && (user as any).department && <span style={{ color: "var(--clr-text-muted)" }}>•</span>}
+                {(user as any).department && (
+                  <span style={{ color: "var(--clr-text-muted)" }}>
+                    {(user as any).department}
+                  </span>
+                )}
+              </div>
+            )}
+            <span style={{ color: "var(--clr-accent-primary)", fontWeight: "var(--fw-bold)", marginTop: "var(--sp-1)", fontSize: "10px" }}>
               {user.role === "SuperAdmin" ? t("employees_view.superadmin") : t("employees_view.employee_role")}
             </span>
           </div>

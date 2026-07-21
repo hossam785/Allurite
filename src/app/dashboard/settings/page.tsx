@@ -322,19 +322,117 @@ export default function SettingsDashboardPage() {
     }
   };
 
-  // If Employee, block access
+  // If non-SuperAdmin Employee, show Employee Personal Profile view
   if (!isSuperAdmin) {
     return (
-      <main style={{ flex: 1, padding: "var(--sp-12)", display: "flex", flexDirection: "column", alignItems: "center", justifyItems: "center", justifyContent: "center", gap: "var(--sp-4)" }}>
-        <AlertOctagon size={48} style={{ color: "var(--clr-error)" }} />
-        <div style={{ textAlign: "center" }}>
-          <h2 style={{ fontSize: "var(--fs-h2)", color: "var(--clr-text-primary)", marginBottom: "var(--sp-1)" }}>
-            {t("settings_view.access_denied")}
-          </h2>
+      <main style={{ flex: 1, padding: "var(--sp-8)", overflowY: "auto", display: "flex", flexDirection: "column", gap: "var(--sp-6)" }}>
+        <header style={{ marginBottom: "var(--sp-2)" }}>
+          <h1 style={{ fontSize: "var(--fs-h1)", marginBottom: "var(--sp-1)", color: "var(--clr-text-primary)" }}>
+            الملف الشخصي والبيانات الوظيفية
+          </h1>
           <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-            {t("settings_view.access_denied_msg")}
+            عرض تفاصيل حسابك والقسم والمسمى الوظيفي الخاص بك
           </p>
-        </div>
+        </header>
+
+        <section className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-6)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--sp-4)", borderBottom: "1px solid var(--clr-border)", paddingBottom: "var(--sp-4)" }}>
+            <div
+              style={{
+                width: "56px",
+                height: "56px",
+                borderRadius: "50%",
+                backgroundColor: "rgba(0, 210, 255, 0.12)",
+                border: "2px solid var(--clr-accent-primary)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "var(--clr-accent-primary)",
+                flexShrink: 0
+              }}
+            >
+              <Building2 size={28} />
+            </div>
+            <div>
+              <h2 style={{ fontSize: "var(--fs-h2)", color: "var(--clr-text-primary)" }}>
+                {(currentUser as any)?.name || currentUser?.email.split("@")[0]}
+              </h2>
+              <div style={{ display: "flex", gap: "var(--sp-2)", marginTop: "4px", flexWrap: "wrap" }}>
+                <span className="c-badge c-badge--info">
+                  {currentUser?.role}
+                </span>
+                {(currentUser as any)?.department && (
+                  <span className="c-badge c-badge--success">
+                    {(currentUser as any).department}
+                  </span>
+                )}
+                {(currentUser as any)?.position && (
+                  <span className="c-badge c-badge--primary">
+                    {(currentUser as any).position}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "var(--sp-6)" }}>
+            <div>
+              <label style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)", display: "block" }}>
+                الاسم الكامل
+              </label>
+              <div style={{ fontSize: "var(--fs-body-lg)", fontWeight: "var(--fw-bold)", marginTop: "4px", color: "var(--clr-text-primary)" }}>
+                {(currentUser as any)?.name || "غير محدد"}
+              </div>
+            </div>
+
+            <div>
+              <label style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)", display: "block" }}>
+                البريد الإلكتروني
+              </label>
+              <div style={{ fontSize: "var(--fs-body-lg)", fontWeight: "var(--fw-bold)", marginTop: "4px", color: "var(--clr-text-primary)" }}>
+                {currentUser?.email}
+              </div>
+            </div>
+
+            <div>
+              <label style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)", display: "block" }}>
+                القسم (Department)
+              </label>
+              <div style={{ fontSize: "var(--fs-body-lg)", fontWeight: "var(--fw-bold)", marginTop: "4px", color: "var(--clr-accent-primary)" }}>
+                {(currentUser as any)?.department || "غير محدد"}
+              </div>
+            </div>
+
+            <div>
+              <label style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)", display: "block" }}>
+                المسمى الوظيفي (Position)
+              </label>
+              <div style={{ fontSize: "var(--fs-body-lg)", fontWeight: "var(--fw-bold)", marginTop: "4px", color: "var(--clr-accent-primary)" }}>
+                {(currentUser as any)?.position || "غير محدد"}
+              </div>
+            </div>
+
+            <div>
+              <label style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)", display: "block" }}>
+                رقم الهاتف
+              </label>
+              <div style={{ fontSize: "var(--fs-body-lg)", fontWeight: "var(--fw-bold)", marginTop: "4px", color: "var(--clr-text-primary)", direction: "ltr", textAlign: "right" }}>
+                {(currentUser as any)?.phone || "لا يوجد هاتف مسجل"}
+              </div>
+            </div>
+
+            <div>
+              <label style={{ fontSize: "var(--fs-caption)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)", display: "block" }}>
+                حالة الحساب
+              </label>
+              <div style={{ marginTop: "4px" }}>
+                <span className="c-badge c-badge--success">
+                  {currentUser?.status === "Active" ? "نشط" : currentUser?.status}
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
     );
   }
