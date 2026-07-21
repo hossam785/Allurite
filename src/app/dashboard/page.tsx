@@ -103,7 +103,7 @@ export default function DashboardPage() {
   const { isRtl } = useLanguage();
   const isSuperAdmin = user?.role === "SuperAdmin";
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [currentDateTime, setCurrentDateTime] = useState("");
   
   // Dashboard Metrics & Streams State
@@ -299,15 +299,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {loading ? (
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "400px", gap: "var(--sp-4)" }}>
-          <Loader2 size={36} className="animate-spin" style={{ color: "var(--clr-accent-primary)", animation: "spin 1s linear infinite" }} />
-          <span style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>جاري تحميل وتهيئة لوحة التحكم والتحليلات الحية...</span>
-        </div>
-      ) : (
-        <>
-          {/* 2. Executive Overview KPIs Grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "var(--sp-5)" }}>
+      {/* 2. Executive Overview KPIs Grid */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "var(--sp-5)" }}>
             
             {/* Total Clients Widget */}
             <div className="c-card c-card--glow" style={{ position: "relative", overflow: "hidden", textAlign: "right" }}>
@@ -699,8 +692,6 @@ export default function DashboardPage() {
             </section>
 
           </div>
-        </>
-      )}
 
       {/* Scoped CSS styling rules */}
       <style jsx global>{`

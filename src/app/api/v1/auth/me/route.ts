@@ -64,8 +64,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Lookup associated Employee profile details
-    const employee: any = await Employee.findOne({ user: user._id }).lean();
+    // Lookup associated Employee profile details with timeout fallback
+    let employee: any = null;
+    try {
+      employee = await Employee.findOne({ user: user._id }).maxTimeMS(2500).lean();
+    } catch (empErr) {
+      console.error("Employee lookup timeout or error in auth/me:", empErr);
+    }
     const firstName = employee?.firstName || "";
     const lastName = employee?.lastName || "";
     const fullName = (firstName || lastName) ? `${firstName} ${lastName}`.trim() : user.email.split("@")[0];

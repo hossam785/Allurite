@@ -82,8 +82,12 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   }, [pathname]);
 
   const fetchMe = async () => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3500);
+
     try {
-      const res = await fetch("/api/v1/auth/me");
+      const res = await fetch("/api/v1/auth/me", { signal: controller.signal });
+      clearTimeout(timeoutId);
       const json = await res.json();
       if (!res.ok) {
         setError(json.error?.message || "فشل تحميل جلسة المستخدم");
@@ -93,8 +97,13 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
       } else {
         setUser(json.data);
       }
-    } catch (err) {
-      setError("خطأ في الاتصال بالشبكة");
+    } catch (err: any) {
+      clearTimeout(timeoutId);
+      console.error("fetchMe session error or timeout:", err);
+      setError("خطأ في الاتصال بالسيرفر أو انتهت مهلة الجلسة");
+      setTimeout(() => {
+        router.push("/login");
+      }, 2000);
     } finally {
       setLoading(false);
     }
@@ -146,13 +155,14 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
         }}
       >
         <div
+          className="animate-spin"
           style={{
             width: "36px",
             height: "36px",
             border: "3px solid var(--clr-border)",
             borderTop: "3px solid var(--clr-accent-primary)",
             borderRadius: "50%",
-            animation: "spin 1s linear infinite",
+            animation: "spin 0.8s linear infinite",
           }}
         />
         <span style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
