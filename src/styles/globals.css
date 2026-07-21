@@ -532,7 +532,32 @@ a:hover {
   }
 }
 
-/* Responsive Table container & Table formatting */
+/* Accessibility Skip Link (per ui-ux-pro-max guidelines) */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  right: 1rem;
+  background-color: var(--clr-accent-primary);
+  color: #030712;
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: var(--radius-md);
+  font-weight: var(--fw-bold);
+  z-index: 9999;
+  transition: top 0.2s ease-in-out;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: 1rem;
+  outline: 2px solid #ffffff;
+}
+
+/* Clickable elements cursor pointer rule */
+button, a, input[type="submit"], input[type="button"], select, [role="button"], [role="tab"], .cursor-pointer {
+  cursor: pointer;
+}
+
+/* Responsive Table container & Enhanced Data-Dense Table formatting */
 .c-table-container {
   width: 100%;
   overflow-x: auto;
@@ -547,6 +572,37 @@ a:hover {
   width: 100%;
   min-width: 600px;
   border-collapse: collapse;
+  text-align: right;
+}
+
+.c-table-container th {
+  background-color: var(--clr-bg-card-darker);
+  color: var(--clr-text-muted);
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px;
+  font-weight: var(--fw-semibold);
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: 1px solid var(--clr-border);
+}
+
+.c-table-container td {
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: 1px solid var(--clr-border);
+  font-size: var(--fs-body-sm);
+  color: var(--clr-text-primary);
+  transition: var(--transition-fast);
+}
+
+.c-table-container tr:last-child td {
+  border-bottom: none;
+}
+
+.c-table-container tbody tr {
+  transition: var(--transition-fast);
+}
+
+.c-table-container tbody tr:hover {
+  background-color: var(--clr-bg-hover);
 }
 
 /* Responsive Grid Layouts */

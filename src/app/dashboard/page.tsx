@@ -246,7 +246,7 @@ export default function DashboardPage() {
     : 0;
 
   return (
-    <main className="responsive-main">
+    <main id="main-content" className="responsive-main">
       
       {/* 1. Header Overview Bar */}
       <div style={{ 

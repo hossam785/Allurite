@@ -13,7 +13,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ar" dir="rtl">
-      <body>{children}</body>
+      <body>
+        <a href="#main-content" className="skip-link">
+          انتقال إلى المحتوى الرئيسي
+        </a>
+        {children}
+      </body>
     </html>
   );
 }
