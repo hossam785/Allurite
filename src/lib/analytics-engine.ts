@@ -139,9 +139,10 @@ export async function calculateAnalytics(
   }
 
   // Aggregate results based on requested report category
+  const singleEmpScore = productivityDetails.length > 0 ? productivityDetails[0].productivityScore : 100.0;
   const kpis: Record<string, any> = {
-    avgProductivityScore,
-    totalEmployeesCount: await Employee.countDocuments({ status: "Active" }),
+    avgProductivityScore: employeeFilterObj ? singleEmpScore : avgProductivityScore,
+    totalEmployeesCount: employeeFilterObj ? 1 : await Employee.countDocuments({ status: "Active" }),
     tasks: taskStats,
     followups: fuStats,
     clients: clientStats,

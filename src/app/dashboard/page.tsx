@@ -260,10 +260,10 @@ export default function DashboardPage() {
       }}>
         <div style={{ textAlign: "right" }}>
           <h1 style={{ fontSize: "var(--fs-h2)", fontWeight: "var(--fw-bold)", color: "var(--clr-text-primary)", margin: 0 }}>
-            لوحة التحكم التنفيذية
+            {isSuperAdmin ? "لوحة التحكم التنفيذية" : "لوحة تحكم الموظف الشخصية"}
           </h1>
           <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)", marginTop: "4px" }}>
-            مرحباً بك مجدداً، {user?.email.split("@")[0]}. إليك التحليلات الشاملة لجميع عمليات الـ CRM لليوم.
+            مرحباً بك مجدداً، {(user as any)?.name || user?.email.split("@")[0]}. {isSuperAdmin ? "إليك التحليلات الشاملة لجميع عمليات الـ CRM لليوم." : "إليك ملخص المهام والعملاء والمتابعات المسندة إليك لليوم."}
           </p>
         </div>
         
@@ -312,7 +312,9 @@ export default function DashboardPage() {
             {/* Total Clients Widget */}
             <div className="c-card c-card--glow" style={{ position: "relative", overflow: "hidden", textAlign: "right" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--sp-3)" }}>
-                <span style={{ fontSize: "12px", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>إجمالي العملاء المسجلين</span>
+                <span style={{ fontSize: "12px", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>
+                  {isSuperAdmin ? "إجمالي العملاء المسجلين" : "إجمالي عملائك المسجلين"}
+                </span>
                 <div style={{ width: "32px", height: "32px", borderRadius: "var(--radius-sm)", backgroundColor: "rgba(0, 210, 255, 0.1)", display: "flex", alignItems: "center", justifyItems: "center", justifyContent: "center", color: "var(--clr-accent-primary)" }}>
                   <Users size={16} />
                 </div>
@@ -327,7 +329,9 @@ export default function DashboardPage() {
             {/* Pending Tasks Widget */}
             <div className="c-card c-card--glow" style={{ position: "relative", overflow: "hidden", textAlign: "right" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--sp-3)" }}>
-                <span style={{ fontSize: "12px", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>مهام الفريق المعلقة</span>
+                <span style={{ fontSize: "12px", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>
+                  {isSuperAdmin ? "مهام الفريق المعلقة" : "مهامك المعلقة وقيد التنفيذ"}
+                </span>
                 <div style={{ width: "32px", height: "32px", borderRadius: "var(--radius-sm)", backgroundColor: "rgba(245, 158, 11, 0.1)", display: "flex", alignItems: "center", justifyItems: "center", justifyContent: "center", color: "var(--clr-warning)" }}>
                   <CheckSquare size={16} />
                 </div>
@@ -342,7 +346,9 @@ export default function DashboardPage() {
             {/* Follow-ups Due Today Widget */}
             <div className="c-card c-card--glow" style={{ position: "relative", overflow: "hidden", textAlign: "right" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--sp-3)" }}>
-                <span style={{ fontSize: "12px", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>متابعات اليوم المجدولة</span>
+                <span style={{ fontSize: "12px", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>
+                  {isSuperAdmin ? "متابعات اليوم المجدولة" : "متابعاتك اليوم المجدولة"}
+                </span>
                 <div style={{ width: "32px", height: "32px", borderRadius: "var(--radius-sm)", backgroundColor: "rgba(16, 185, 129, 0.1)", display: "flex", alignItems: "center", justifyItems: "center", justifyContent: "center", color: "var(--clr-success)" }}>
                   <Clock size={16} />
                 </div>
@@ -354,10 +360,12 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Team Productivity Widget */}
+            {/* Team/Personal Productivity Widget */}
             <div className="c-card c-card--glow" style={{ position: "relative", overflow: "hidden", textAlign: "right" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--sp-3)" }}>
-                <span style={{ fontSize: "12px", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>متوسط إنتاجية الفريق</span>
+                <span style={{ fontSize: "12px", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>
+                  {isSuperAdmin ? "متوسط إنتاجية الفريق" : "معدل إنتاجيتك الشخصية"}
+                </span>
                 <div style={{ width: "32px", height: "32px", borderRadius: "var(--radius-sm)", backgroundColor: "rgba(128, 90, 213, 0.1)", display: "flex", alignItems: "center", justifyItems: "center", justifyContent: "center", color: "#805ad5" }}>
                   <TrendingUp size={16} />
                 </div>
@@ -366,7 +374,11 @@ export default function DashboardPage() {
                 {activeKPIs.avgProductivityScore}%
               </span>
               <div style={{ display: "flex", gap: "var(--sp-3)", marginTop: "var(--sp-2)", fontSize: "11px", color: "var(--clr-text-muted)" }}>
-                <span>عدد الكادر النشط: <strong>{activeKPIs.totalEmployeesCount} موظف</strong></span>
+                <span>
+                  {isSuperAdmin 
+                    ? `عدد الكادر النشط: ${activeKPIs.totalEmployeesCount} موظف` 
+                    : `القسم: ${(user as any)?.department || "عام"}`}
+                </span>
               </div>
             </div>
 
@@ -397,10 +409,12 @@ export default function DashboardPage() {
                   <span>جدولة متابعة</span>
                 </Link>
 
-                <Link href="/dashboard/employees" className="action-button-card">
-                  <Users size={20} style={{ color: "#319795" }} />
-                  <span>إضافة موظف</span>
-                </Link>
+                {isSuperAdmin && (
+                  <Link href="/dashboard/employees" className="action-button-card">
+                    <Users size={20} style={{ color: "#319795" }} />
+                    <span>إضافة موظف</span>
+                  </Link>
+                )}
 
                 <Link href="/dashboard/files" className="action-button-card">
                   <FolderPlus size={20} style={{ color: "#805ad5" }} />
@@ -427,7 +441,9 @@ export default function DashboardPage() {
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "12px" }}>
                     <span style={{ fontWeight: "var(--fw-bold)" }}>{taskCompletionRate}%</span>
-                    <span style={{ color: "var(--clr-text-muted)" }}>معدل إنجاز المهام الكلي</span>
+                    <span style={{ color: "var(--clr-text-muted)" }}>
+                      {isSuperAdmin ? "معدل إنجاز المهام الكلي" : "معدل إنجاز مهامك الشخصية"}
+                    </span>
                   </div>
                   <div style={{ width: "100%", height: "8px", borderRadius: "4px", backgroundColor: "var(--clr-border)", overflow: "hidden" }}>
                     <div style={{ width: `${taskCompletionRate}%`, height: "100%", borderRadius: "4px", backgroundColor: "var(--clr-accent-primary)", transition: "width 1s ease-in-out" }} />
@@ -438,7 +454,9 @@ export default function DashboardPage() {
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "12px" }}>
                     <span style={{ fontWeight: "var(--fw-bold)" }}>{followupSuccessRate}%</span>
-                    <span style={{ color: "var(--clr-text-muted)" }}>معدل نجاح وموثوقية المتابعة</span>
+                    <span style={{ color: "var(--clr-text-muted)" }}>
+                      {isSuperAdmin ? "معدل نجاح وموثوقية المتابعة" : "معدل نجاح متابعاتك الشخصية"}
+                    </span>
                   </div>
                   <div style={{ width: "100%", height: "8px", borderRadius: "4px", backgroundColor: "var(--clr-border)", overflow: "hidden" }}>
                     <div style={{ width: `${followupSuccessRate}%`, height: "100%", borderRadius: "4px", backgroundColor: "var(--clr-success)", transition: "width 1s ease-in-out" }} />
@@ -472,7 +490,7 @@ export default function DashboardPage() {
                     onClick={() => setActiveActivityTab("clients")}
                     className={`activity-tab-btn c-btn-touch-target ${activeActivityTab === "clients" ? "active" : ""}`}
                   >
-                    أحدث العملاء
+                    {isSuperAdmin ? "أحدث العملاء" : "عملائك الأحدث"}
                   </button>
                   <button 
                     role="tab"
@@ -480,7 +498,7 @@ export default function DashboardPage() {
                     onClick={() => setActiveActivityTab("tasks")}
                     className={`activity-tab-btn c-btn-touch-target ${activeActivityTab === "tasks" ? "active" : ""}`}
                   >
-                    أحدث المهام
+                    {isSuperAdmin ? "أحدث المهام" : "مهامك الأحدث"}
                   </button>
                   <button 
                     role="tab"
@@ -488,7 +506,7 @@ export default function DashboardPage() {
                     onClick={() => setActiveActivityTab("followups")}
                     className={`activity-tab-btn c-btn-touch-target ${activeActivityTab === "followups" ? "active" : ""}`}
                   >
-                    المتابعات
+                    {isSuperAdmin ? "المتابعات" : "متابعاتك المجدولة"}
                   </button>
                   {isSuperAdmin && (
                     <button 
