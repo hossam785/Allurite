@@ -12,6 +12,7 @@ import File from "@/models/File";
 import CompanySettings from "@/models/CompanySettings";
 import { verifyClientAccess } from "@/lib/client-auth";
 import { logAuditEvent } from "@/lib/audit-logger";
+import { encryptPayload } from "@/lib/encryption";
 
 export async function GET(request: NextRequest) {
   try {
@@ -84,21 +85,34 @@ export async function POST(request: NextRequest) {
     };
 
     const backupString = JSON.stringify(backupSnapshot, null, 2);
-    const backupBuffer = Buffer.from(backupString, "utf-8");
+    const encryptedPayload = encryptPayload(backupString);
+    const backupBuffer = Buffer.from(encryptedPayload, "utf-8");
     const fileSize = backupBuffer.length;
-    const backupName = `backup-${Date.now()}.json`;
+    const backupName = `backup-${Date.now()}.json.enc`;
 
     // 2. Upload to Vercel Blob / Simulation fallback
     let blobUrl = "";
     if (process.env.BLOB_READ_WRITE_TOKEN) {
-      console.log("Uploading backup file to Vercel Blob Storage...");
+      console.log("Uploading AES-256-GCM encrypted backup file to Blob Storage...");
       const blob = await put(backupName, backupBuffer, {
-        contentType: "application/json",
-        access: "public",
+        contentType: "application/octet-stream",
+        access: "public", // File payload is AES-256-GCM encrypted
       });
       blobUrl = blob.url;
     } else {
-      console.log("BLOB_READ_WRITE_TOKEN not found. Simulating cloud backup URL upload...");
+      if (process.env.NODE_ENV === "production") {
+        return NextResponse.json(
+          {
+            success: false,
+            error: {
+              code: "STORAGE_CONFIGURATION_ERROR",
+              message: "BLOB_READ_WRITE_TOKEN environment variable is required for database backups in production environment",
+            },
+          },
+          { status: 500 }
+        );
+      }
+      console.log("BLOB_READ_WRITE_TOKEN not found. Simulating encrypted backup URL upload...");
       blobUrl = `https://public.blob.vercel-storage.com/simulated-backups/${backupName}`;
     }
 

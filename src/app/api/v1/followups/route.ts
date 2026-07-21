@@ -32,8 +32,8 @@ export async function GET(request: NextRequest) {
 
     await dbConnect();
 
-    // Scan and update overdue follow-ups before returning list
-    await checkOverdueFollowUps();
+    // Trigger overdue updates asynchronously in background without blocking response
+    checkOverdueFollowUps().catch(err => console.error("FollowUp overdue check error:", err));
 
     const pageNum = Math.max(1, parseInt(page) || 1);
     const limitNum = Math.max(1, parseInt(limit) || 10);
@@ -143,12 +143,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const todayMidnight = new Date();
-    todayMidnight.setHours(0, 0, 0, 0);
-    const parsedMidnight = new Date(parsedDate);
-    parsedMidnight.setHours(0, 0, 0, 0);
-
-    if (parsedMidnight < todayMidnight) {
+    if (parsedDate.getTime() < Date.now() - 60 * 1000) {
       return NextResponse.json(
         {
           success: false,

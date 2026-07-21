@@ -1,15 +1,22 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
-const uri = "mongodb+srv://allurite:Youssef2005@cluster0.hb6akdj.mongodb.net/allurite?retryWrites=true&w=majority&appName=Cluster0";
+require("dotenv").config({ path: ".env" });
+require("dotenv").config({ path: ".env.local" });
+
+const uri = process.env.MONGODB_URI;
+if (!uri) {
+  console.error("CRITICAL ERROR: MONGODB_URI environment variable is missing.");
+  process.exit(1);
+}
 
 async function run() {
   console.log("Connecting to MongoDB...");
   await mongoose.connect(uri);
   console.log("Connected successfully.");
 
-  const email = "Youssef@allurite.com";
-  const password = "Youssef2005";
+  const email = process.env.INITIAL_ADMIN_EMAIL || "youssef@allurite.com";
+  const password = process.env.INITIAL_ADMIN_PASSWORD || "Youssef2005";
 
   const UserSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },

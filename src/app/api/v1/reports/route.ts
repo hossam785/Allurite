@@ -59,16 +59,19 @@ export async function GET(request: NextRequest) {
 
     // Caching Strategy: Check if a matching report was compiled in the last 15 minutes
     const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
+    const targetEmpKey = employeeId ? employeeId.toString() : "ALL";
+
     const cachedReport = await Report.findOne({
       category,
       "dateRange.start": startDate,
       "dateRange.end": endDate,
       generatedBy: auth.user._id,
+      "rawMetrics.targetEmployeeId": targetEmpKey,
       createdAt: { $gte: fifteenMinutesAgo },
     });
 
     if (cachedReport) {
-      console.log(`Serving cached analytics snapshot for category ${category}.`);
+      console.log(`Serving cached analytics snapshot for category ${category} (targetEmployee: ${targetEmpKey}).`);
       return NextResponse.json({
         success: true,
         cached: true,
@@ -77,7 +80,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Cache miss - compile fresh calculations
-    console.log(`Cache miss. Compiling fresh KPIs for category ${category}.`);
+    console.log(`Cache miss. Compiling fresh KPIs for category ${category} (targetEmployee: ${targetEmpKey}).`);
     const results = await calculateAnalytics(category, startDate, endDate, employeeId);
 
     const reportTitle = `${category} Reports Snapshot (${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()})`;
@@ -93,7 +96,10 @@ export async function GET(request: NextRequest) {
       },
       kpis: results.kpis,
       chartsData: results.chartsData,
-      rawMetrics: results.rawMetrics,
+      rawMetrics: {
+        targetEmployeeId: targetEmpKey,
+        ...results.rawMetrics,
+      },
     });
 
     await newReport.save();

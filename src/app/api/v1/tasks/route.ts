@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { dbConnect } from "@/lib/db";
+import { dbConnect, escapeRegex } from "@/lib/db";
 import Task from "@/models/Task";
 import Employee from "@/models/Employee";
 import Client from "@/models/Client";
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const page = searchParams.get("page") || "1";
     const limit = searchParams.get("limit") || "10";
-    const search = searchParams.get("search") || "";
+    const search = (searchParams.get("search") || "").substring(0, 100);
     const status = searchParams.get("status") || "";
     const priority = searchParams.get("priority") || "";
     const filterAgent = searchParams.get("assignedTo") || "";
@@ -34,15 +34,15 @@ export async function GET(request: NextRequest) {
 
     await dbConnect();
 
-    // Trigger overdue updates on search queries
-    await checkOverdueTasks();
+    // Trigger overdue updates asynchronously in background without blocking response
+    checkOverdueTasks().catch(err => console.error("Overdue check error:", err));
 
     const pageNum = Math.max(1, parseInt(page) || 1);
     const limitNum = Math.max(1, parseInt(limit) || 10);
     const skipNum = (pageNum - 1) * limitNum;
 
-    // Build filters
-    const query: any = {};
+    // Base filter: exclude soft-deleted tasks
+    const query: any = { deleted: { $ne: true } };
 
     // Apply RBAC scoping
     if (auth.role === "Employee") {
@@ -56,11 +56,12 @@ export async function GET(request: NextRequest) {
     if (priority) query.priority = priority;
     if (filterClient) query.client = filterClient;
 
-    // Apply text search
+    // Apply sanitized text search
     if (search) {
+      const sanitized = escapeRegex(search);
       query.$or = [
-        { title: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
+        { title: { $regex: sanitized, $options: "i" } },
+        { description: { $regex: sanitized, $options: "i" } },
       ];
     }
 
@@ -150,12 +151,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const todayMidnight = new Date();
-    todayMidnight.setHours(0, 0, 0, 0);
-    const parsedMidnight = new Date(parsedDate);
-    parsedMidnight.setHours(0, 0, 0, 0);
-
-    if (parsedMidnight < todayMidnight) {
+    if (parsedDate.getTime() < Date.now() - 60 * 1000) {
       return NextResponse.json(
         {
           success: false,

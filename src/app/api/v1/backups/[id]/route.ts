@@ -14,6 +14,8 @@ import { verifyClientAccess } from "@/lib/client-auth";
 import { logAuditEvent } from "@/lib/audit-logger";
 import bcrypt from "bcryptjs";
 
+import { decryptPayload } from "@/lib/encryption";
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -50,24 +52,22 @@ export async function POST(
     try {
       const fetchRes = await fetch(backup.blobUrl);
       if (!fetchRes.ok) throw new Error("Fetch failed");
-      data = await fetchRes.json();
+      const rawText = await fetchRes.text();
+      const decryptedString = decryptPayload(rawText);
+      data = JSON.parse(decryptedString);
     } catch (err) {
       console.warn("Could not download backup file from Vercel Blob. Checking simulation mode...");
       if (backup.blobUrl.includes("simulated-backups")) {
-        // Mock payload for testing restores in sandbox environment
-        data = {
-          version: "1.0.0",
-          collections: {
-            users: [],
-            employees: [],
-            clients: [],
-            followups: [],
-            tasks: [],
-            notifications: [],
-            files: [],
-            settings: [],
+        return NextResponse.json(
+          {
+            success: false,
+            error: {
+              code: "SIMULATION_RESTORE_BLOCKED",
+              message: "Simulated backup URLs cannot be restored into a live database to prevent data loss. Real cloud storage Blob backups are required.",
+            },
           },
-        };
+          { status: 400 }
+        );
       } else {
         return NextResponse.json(
           { success: false, error: { code: "FETCH_FAILED", message: "Failed to download backup snapshot from cloud storage" } },
@@ -95,6 +95,26 @@ export async function POST(
     ) {
       return NextResponse.json(
         { success: false, error: { code: "INTEGRITY_CHECK_FAILED", message: "Backup file is missing required database collections" } },
+        { status: 400 }
+      );
+    }
+
+    // Ensure backup has actual data before wiping live DB
+    const totalBackupRecords =
+      (collections.users?.length || 0) +
+      (collections.employees?.length || 0) +
+      (collections.clients?.length || 0) +
+      (collections.tasks?.length || 0);
+
+    if (totalBackupRecords === 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "INTEGRITY_CHECK_FAILED",
+            message: "Backup file contains zero records. Database restore aborted to protect current live data.",
+          },
+        },
         { status: 400 }
       );
     }

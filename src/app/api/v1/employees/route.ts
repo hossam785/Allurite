@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { dbConnect } from "@/lib/db";
+import { dbConnect, escapeRegex } from "@/lib/db";
 import User from "@/models/User";
 import Employee from "@/models/Employee";
 import { verifySuperAdmin } from "@/lib/auth-check";
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const page = searchParams.get("page") || "1";
     const limit = searchParams.get("limit") || "10";
-    const search = searchParams.get("search") || "";
+    const search = (searchParams.get("search") || "").substring(0, 100);
     const department = searchParams.get("department") || "";
     const status = searchParams.get("status") || "";
 
@@ -57,16 +57,17 @@ export async function GET(request: NextRequest) {
       { $unwind: "$userDetails" },
     ];
 
-    // If search filter is active, perform text match
+    // If search filter is active, perform sanitized text match
     if (search) {
+      const sanitized = escapeRegex(search);
       pipeline.push({
         $match: {
           $or: [
-            { firstName: { $regex: search, $options: "i" } },
-            { lastName: { $regex: search, $options: "i" } },
-            { department: { $regex: search, $options: "i" } },
-            { position: { $regex: search, $options: "i" } },
-            { "userDetails.email": { $regex: search, $options: "i" } },
+            { firstName: { $regex: sanitized, $options: "i" } },
+            { lastName: { $regex: sanitized, $options: "i" } },
+            { department: { $regex: sanitized, $options: "i" } },
+            { position: { $regex: sanitized, $options: "i" } },
+            { "userDetails.email": { $regex: sanitized, $options: "i" } },
           ],
         },
       });

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { dbConnect } from "@/lib/db";
+import { dbConnect, escapeRegex } from "@/lib/db";
 import Client from "@/models/Client";
 import Employee from "@/models/Employee";
 import { verifyClientAccess } from "@/lib/client-auth";
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const page = searchParams.get("page") || "1";
     const limit = searchParams.get("limit") || "10";
-    const search = searchParams.get("search") || "";
+    const search = (searchParams.get("search") || "").substring(0, 100);
     const status = searchParams.get("status") || "";
     const source = searchParams.get("source") || "";
     const filterAgent = searchParams.get("assignedAgent") || "";
@@ -34,10 +34,10 @@ export async function GET(request: NextRequest) {
     const limitNum = Math.max(1, parseInt(limit) || 10);
     const skipNum = (pageNum - 1) * limitNum;
 
-    // Build query filters
-    const query: any = {};
+    // Base filter: exclude soft-deleted clients
+    const query: any = { deleted: { $ne: true } };
 
-    // Apply scoping based on RBAC rules
+    // Apply RBAC scoping
     if (auth.role === "Employee") {
       query.assignedAgent = auth.employeeId;
     } else if (auth.role === "SuperAdmin" && filterAgent) {
@@ -52,14 +52,15 @@ export async function GET(request: NextRequest) {
       query.source = source;
     }
 
-    // Apply search matches
+    // Apply sanitized search matches
     if (search) {
+      const sanitized = escapeRegex(search);
       query.$or = [
-        { firstName: { $regex: search, $options: "i" } },
-        { lastName: { $regex: search, $options: "i" } },
-        { email: { $regex: search, $options: "i" } },
-        { companyName: { $regex: search, $options: "i" } },
-        { industry: { $regex: search, $options: "i" } },
+        { firstName: { $regex: sanitized, $options: "i" } },
+        { lastName: { $regex: sanitized, $options: "i" } },
+        { email: { $regex: sanitized, $options: "i" } },
+        { companyName: { $regex: sanitized, $options: "i" } },
+        { industry: { $regex: sanitized, $options: "i" } },
       ];
     }
 

@@ -4,10 +4,23 @@ import Employee from "@/models/Employee";
 
 import { sendSystemNotification } from "./notification-service";
 
-export async function checkOverdueTasks() {
-  try {
-    const now = new Date();
+let isTaskCheckRunning = false;
+let lastTaskCheckTime = 0;
+const TASK_CHECK_THROTTLE_MS = 60 * 1000; // Throttle checks to once every 60 seconds
 
+export async function checkOverdueTasks() {
+  const now = new Date();
+  const nowMs = now.getTime();
+
+  // Skip if check is already running or ran within the last 60 seconds
+  if (isTaskCheckRunning || nowMs - lastTaskCheckTime < TASK_CHECK_THROTTLE_MS) {
+    return;
+  }
+
+  isTaskCheckRunning = true;
+  lastTaskCheckTime = nowMs;
+
+  try {
     // Find incomplete tasks that have passed their due dates
     const overdueTasks = await Task.find({
       status: { $in: ["Pending", "In Progress", "Rejected"] },
@@ -49,5 +62,7 @@ export async function checkOverdueTasks() {
     console.log(`Auto-checked tasks: ${overdueTasks.length} marked as Overdue.`);
   } catch (error) {
     console.error("Error in checkOverdueTasks helper:", error);
+  } finally {
+    isTaskCheckRunning = false;
   }
 }

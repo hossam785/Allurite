@@ -4,10 +4,23 @@ import Employee from "@/models/Employee";
 import Client from "@/models/Client";
 import { sendSystemNotification } from "./notification-service";
 
-export async function checkOverdueFollowUps() {
-  try {
-    const now = new Date();
+let isFollowUpCheckRunning = false;
+let lastFollowUpCheckTime = 0;
+const FOLLOWUP_CHECK_THROTTLE_MS = 60 * 1000; // Throttle checks to once every 60 seconds
 
+export async function checkOverdueFollowUps() {
+  const now = new Date();
+  const nowMs = now.getTime();
+
+  // Skip if check is already running or ran within the last 60 seconds
+  if (isFollowUpCheckRunning || nowMs - lastFollowUpCheckTime < FOLLOWUP_CHECK_THROTTLE_MS) {
+    return;
+  }
+
+  isFollowUpCheckRunning = true;
+  lastFollowUpCheckTime = nowMs;
+
+  try {
     // Find scheduled follow-ups that have passed their schedule date
     const overdueFollowUps = await FollowUp.find({
       status: "Scheduled",
@@ -56,5 +69,7 @@ export async function checkOverdueFollowUps() {
     console.log(`Auto-checked follow-ups: ${overdueFollowUps.length} marked as Missed.`);
   } catch (error) {
     console.error("Error in checkOverdueFollowUps helper:", error);
+  } finally {
+    isFollowUpCheckRunning = false;
   }
 }

@@ -1,8 +1,11 @@
 import { SignJWT, jwtVerify } from "jose";
 
 const rawSecret = process.env.JWT_SECRET;
-if (!rawSecret && process.env.NODE_ENV === "production") {
-  throw new Error("CRITICAL SECURITY ERROR: JWT_SECRET environment variable is missing in production environment.");
+if (!rawSecret) {
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("CRITICAL SECURITY ERROR: JWT_SECRET environment variable is missing in production environment.");
+  }
+  console.warn("SECURITY WARNING: JWT_SECRET is not configured. Falling back to development secret key.");
 }
 const JWT_SECRET = rawSecret || "development_secret_key_allurite_crm_2026_fallback";
 const secretKey = new TextEncoder().encode(JWT_SECRET);

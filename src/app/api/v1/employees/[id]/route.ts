@@ -221,13 +221,63 @@ export async function DELETE(
       );
     }
 
-    // 1. Delete associated User account
-    if (employee.user) {
-      await User.deleteOne({ _id: employee.user });
+    // 1. Check for active references (Clients, Tasks, FollowUps) before permanent deletion
+    const Client = require("@/models/Client").default;
+    const Task = require("@/models/Task").default;
+
+    const assignedClientsCount = await Client.countDocuments({ assignedAgent: id });
+    const assignedTasksCount = await Task.countDocuments({ assignedTo: id });
+
+    const body = await request.json().catch(() => ({}));
+    const reassignToId = body?.reassignToId;
+
+    if (assignedClientsCount > 0 || assignedTasksCount > 0) {
+      if (!reassignToId) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: {
+              code: "REASSIGNMENT_REQUIRED",
+              message: `Cannot delete employee while they have assigned records (${assignedClientsCount} clients, ${assignedTasksCount} tasks). Please provide 'reassignToId' in request body to transfer ownership.`,
+              details: {
+                clientsCount: assignedClientsCount,
+                tasksCount: assignedTasksCount,
+              },
+            },
+          },
+          { status: 400 }
+        );
+      }
+
+      // Verify target replacement employee exists and is active
+      const replacement = await Employee.findById(reassignToId);
+      if (!replacement || replacement.status !== "Active") {
+        return NextResponse.json(
+          {
+            success: false,
+            error: {
+              code: "VALIDATION_FAILED",
+              message: "Selected replacement employee profile does not exist or is not Active",
+            },
+          },
+          { status: 400 }
+        );
+      }
+
+      // Execute atomic reassignments
+      await Client.updateMany({ assignedAgent: id }, { assignedAgent: reassignToId });
+      await Task.updateMany({ assignedTo: id }, { assignedTo: reassignToId });
+      console.log(`Reassigned ${assignedClientsCount} clients and ${assignedTasksCount} tasks to employee ${reassignToId}`);
     }
 
-    // 2. Delete Employee record
-    await Employee.deleteOne({ _id: id });
+    // 2. Safely suspend associated User account and deactivate Employee record
+    // preserving historical audit trail, files, and report references.
+    if (employee.user) {
+      await User.findByIdAndUpdate(employee.user, { status: "Suspended" });
+    }
+
+    employee.status = "Inactive";
+    await employee.save();
 
     // 3. Log audit event
     const { logAuditEvent } = require("@/lib/audit-logger");
@@ -235,7 +285,7 @@ export async function DELETE(
       action: "EMPLOYEE_DELETE",
       entityType: "Employee",
       entityId: employee._id,
-      details: `Permanently deleted employee: "${employee.firstName} ${employee.lastName}" and associated login account.`,
+      details: `Deactivated employee profile "${employee.firstName} ${employee.lastName}" and suspended login access. Transferred ${assignedClientsCount} clients and ${assignedTasksCount} tasks.`,
       performedBy: admin._id,
       performedEmail: admin.email,
       performedRole: admin.role,
@@ -244,7 +294,7 @@ export async function DELETE(
 
     return NextResponse.json({
       success: true,
-      message: "Employee profile and associated user account have been deleted successfully",
+      message: "Employee profile deactivated and user access suspended successfully. Historical records preserved.",
     });
   } catch (error: any) {
     console.error("Delete employee error:", error);

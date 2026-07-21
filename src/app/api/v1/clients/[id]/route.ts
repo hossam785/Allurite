@@ -242,6 +242,19 @@ export async function PUT(
         );
       }
       client.assignedAgent = assignedAgentId;
+
+      // Dispatch notification to newly assigned agent
+      const { sendSystemNotification } = require("@/lib/notification-service");
+      if (agentExists.user) {
+        await sendSystemNotification({
+          recipient: agentExists.user.toString(),
+          title: "Client Assigned 👤",
+          message: `You have been assigned responsibility for client "${client.firstName} ${client.lastName}".`,
+          category: "System",
+          priority: "Normal",
+          actionUrl: `/dashboard/clients/${client._id}`,
+        });
+      }
     }
 
     await client.save();
@@ -305,8 +318,8 @@ export async function DELETE(
     const { id } = await params;
     await dbConnect();
 
-    const deletedClient = await Client.findByIdAndDelete(id);
-    if (!deletedClient) {
+    const client = await Client.findById(id);
+    if (!client || client.deleted) {
       return NextResponse.json(
         {
           success: false,
@@ -319,18 +332,25 @@ export async function DELETE(
       );
     }
 
-    // Cascading cleanup of linked task references and pending followups
-    const Task = require("@/models/Task").default;
-    const FollowUp = require("@/models/FollowUp").default;
-    await Task.updateMany({ client: id }, { $unset: { client: "" } });
-    await FollowUp.deleteMany({ client: id });
+    // Apply Soft Delete (archive profile while preserving history)
+    client.deleted = true;
+    client.deletedAt = new Date();
+    client.deletedBy = auth.user._id;
+    await client.save();
+
+    // Cascade soft-delete or cancel associated active tasks and followups
+    const TaskModel = require("@/models/Task").default;
+    const FollowUpModel = require("@/models/FollowUp").default;
+
+    await TaskModel.updateMany({ client: id, deleted: { $ne: true } }, { deleted: true, deletedAt: new Date(), deletedBy: auth.user._id });
+    await FollowUpModel.updateMany({ client: id, status: { $in: ["Pending", "Scheduled"] } }, { status: "Cancelled" });
 
     const { logAuditEvent } = require("@/lib/audit-logger");
     await logAuditEvent({
       action: "CLIENT_DELETE",
       entityType: "Client",
-      entityId: deletedClient._id,
-      details: `Permanently deleted client profile: ${deletedClient.firstName} ${deletedClient.lastName} (${deletedClient.email})`,
+      entityId: client._id,
+      details: `Soft deleted client profile: ${client.firstName} ${client.lastName} (${client.email})`,
       performedBy: auth.user._id,
       performedEmail: auth.user.email,
       performedRole: auth.role,
@@ -339,7 +359,7 @@ export async function DELETE(
 
     return NextResponse.json({
       success: true,
-      message: "Client profile has been deleted successfully",
+      message: "Client profile has been archived (soft-deleted) successfully",
     });
   } catch (error: any) {
     console.error("Delete client error:", error);

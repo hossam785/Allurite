@@ -46,3 +46,11 @@ export async function dbConnect(): Promise<typeof mongoose> {
 
   return cached!.conn;
 }
+
+/**
+ * Escapes special Regular Expression characters in user search inputs
+ * to prevent ReDoS (Regular Expression Denial of Service) and NoSQL injection attacks.
+ */
+export function escapeRegex(text: string): string {
+  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+}

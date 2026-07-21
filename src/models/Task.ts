@@ -37,6 +37,9 @@ export interface ITask extends Document {
   attachments: ITaskAttachment[];
   comments: ITaskComment[];
   history: ITaskHistory[];
+  deleted?: boolean;
+  deletedAt?: Date;
+  deletedBy?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -122,6 +125,18 @@ const TaskSchema = new Schema<ITask>(
     attachments: [AttachmentSchema],
     comments: [CommentSchema],
     history: [TaskHistorySchema],
+    deleted: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    deletedAt: {
+      type: Date,
+    },
+    deletedBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
   },
   {
     timestamps: true,

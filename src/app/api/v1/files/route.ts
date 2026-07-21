@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { put } from "@vercel/blob";
-import { dbConnect } from "@/lib/db";
+import { dbConnect, escapeRegex } from "@/lib/db";
 import File from "@/models/File";
 import Employee from "@/models/Employee";
 import Client from "@/models/Client";
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     const page = searchParams.get("page") || "1";
     const limit = searchParams.get("limit") || "20";
     const category = searchParams.get("category") || "";
-    const search = searchParams.get("search") || "";
+    const search = (searchParams.get("search") || "").substring(0, 100);
     const relatedModule = searchParams.get("relatedModule") || "";
     const relatedId = searchParams.get("relatedId") || "";
     const showArchived = searchParams.get("archived") === "true";
@@ -50,8 +50,8 @@ export async function GET(request: NextRequest) {
     const limitNum = Math.max(1, parseInt(limit) || 20);
     const skipNum = (pageNum - 1) * limitNum;
 
-    // Base query
-    const query: any = { archived: showArchived };
+    // Build query conditions array
+    const conditions: any[] = [{ archived: showArchived }];
 
     // Apply Employee scoping constraints
     if (auth.role === "Employee") {
@@ -63,63 +63,46 @@ export async function GET(request: NextRequest) {
       const assignedTasks = await Task.find({ assignedTo: auth.employeeId }).select("_id");
       const taskIds = assignedTasks.map(t => t._id);
 
-      query.$or = [
-        { owner: auth.employeeId },
-        { relatedModule: "Clients", relatedId: { $in: clientIds } },
-        { relatedModule: "Tasks", relatedId: { $in: taskIds } },
-        { relatedModule: "Employees", relatedId: auth.employeeId }
-      ];
+      conditions.push({
+        $or: [
+          { owner: auth.employeeId },
+          { relatedModule: "Clients", relatedId: { $in: clientIds } },
+          { relatedModule: "Tasks", relatedId: { $in: taskIds } },
+          { relatedModule: "Employees", relatedId: auth.employeeId }
+        ]
+      });
     } else {
-      // SuperAdmin: can optionally filter by related module or owner
+      // SuperAdmin: can optionally filter by owner
       const filterOwner = searchParams.get("owner") || "";
-      if (filterOwner) query.owner = filterOwner;
+      if (filterOwner) conditions.push({ owner: filterOwner });
     }
 
-    // Apply specific filters
+    // Apply category filter
     if (category) {
-      if (query.$or) {
-        query.$and = [{ $or: query.$or }, { category }];
-        delete query.$or;
-      } else {
-        query.category = category;
-      }
+      conditions.push({ category });
     }
 
+    // Apply related module filter
     if (relatedModule) {
       const modFilter: any = { relatedModule };
       if (relatedId) modFilter.relatedId = relatedId;
-
-      if (query.$and) {
-        query.$and.push(modFilter);
-      } else if (query.$or) {
-        query.$and = [{ $or: query.$or }, modFilter];
-        delete query.$or;
-      } else {
-        query.relatedModule = relatedModule;
-        if (relatedId) query.relatedId = relatedId;
-      }
+      conditions.push(modFilter);
     }
 
     // Apply text search
     if (search) {
-      const searchRegex = { $regex: search, $options: "i" };
-      const searchFilter = {
+      const sanitized = escapeRegex(search);
+      const searchRegex = { $regex: sanitized, $options: "i" };
+      conditions.push({
         $or: [
           { fileName: searchRegex },
           { originalName: searchRegex },
           { tags: searchRegex }
         ]
-      };
-
-      if (query.$and) {
-        query.$and.push(searchFilter);
-      } else if (query.$or) {
-        query.$and = [{ $or: query.$or }, searchFilter];
-        delete query.$or;
-      } else {
-        query.$or = searchFilter.$or;
-      }
+      });
     }
+
+    const query = conditions.length === 1 ? conditions[0] : { $and: conditions };
 
     const total = await File.countDocuments(query);
     const files = await File.find(query)
@@ -198,6 +181,27 @@ export async function POST(request: NextRequest) {
 
     await dbConnect();
 
+    // Verify module access permissions for Employee role
+    if (auth.role === "Employee" && relatedModule && relatedId) {
+      if (relatedModule === "Clients") {
+        const client = await Client.findOne({ _id: relatedId, assignedAgent: auth.employeeId, deleted: { $ne: true } });
+        if (!client) {
+          return NextResponse.json(
+            { success: false, error: { code: "FORBIDDEN", message: "You do not have access to link files to this client profile" } },
+            { status: 403 }
+          );
+        }
+      } else if (relatedModule === "Tasks") {
+        const task = await Task.findOne({ _id: relatedId, assignedTo: auth.employeeId, deleted: { $ne: true } });
+        if (!task) {
+          return NextResponse.json(
+            { success: false, error: { code: "FORBIDDEN", message: "You do not have access to link files to this task" } },
+            { status: 403 }
+          );
+        }
+      }
+    }
+
     // Resolve owner
     let ownerId = auth.employeeId;
     if (!ownerId) {
@@ -251,7 +255,19 @@ export async function POST(request: NextRequest) {
       const blob = await put(fileName, buffer, { access: "public" });
       blobUrl = blob.url;
     } else {
-      // Simulation fallback (zero local disk writes)
+      if (process.env.NODE_ENV === "production") {
+        return NextResponse.json(
+          {
+            success: false,
+            error: {
+              code: "STORAGE_CONFIGURATION_ERROR",
+              message: "BLOB_READ_WRITE_TOKEN environment variable is required for file storage in production environment",
+            },
+          },
+          { status: 500 }
+        );
+      }
+      // Simulation fallback for local development (zero local disk writes)
       const uniqueId = new mongoose.Types.ObjectId().toString();
       blobUrl = `https://public.blob.vercel-storage.com/simulated-upload/${uniqueId}/${encodeURIComponent(fileName)}`;
     }

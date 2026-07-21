@@ -430,8 +430,8 @@ export async function DELETE(
     const { id } = await params;
     await dbConnect();
 
-    const deletedTask = await Task.findByIdAndDelete(id);
-    if (!deletedTask) {
+    const task = await Task.findById(id);
+    if (!task || task.deleted) {
       return NextResponse.json(
         {
           success: false,
@@ -444,13 +444,19 @@ export async function DELETE(
       );
     }
 
+    // Apply Soft Delete (archive task while preserving audit history)
+    task.deleted = true;
+    task.deletedAt = new Date();
+    task.deletedBy = auth.user._id;
+    await task.save();
+
     // Log audit event
     const { logAuditEvent } = require("@/lib/audit-logger");
     await logAuditEvent({
       action: "TASK_DELETE",
       entityType: "Task",
-      entityId: deletedTask._id,
-      details: `Permanently deleted task: "${deletedTask.title}"`,
+      entityId: task._id,
+      details: `Soft deleted (archived) task: "${task.title}"`,
       performedBy: auth.user._id,
       performedEmail: auth.user.email,
       performedRole: auth.role,
@@ -459,7 +465,7 @@ export async function DELETE(
 
     return NextResponse.json({
       success: true,
-      message: "Task profile has been deleted successfully",
+      message: "Task has been soft-deleted (archived) successfully",
     });
   } catch (error: any) {
     console.error("Delete task error:", error);

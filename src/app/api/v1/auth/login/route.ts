@@ -9,21 +9,6 @@ export async function POST(request: NextRequest) {
   try {
     await dbConnect();
 
-    // Ensure the Youssef@allurite.com SuperAdmin exists in the database
-    const youssefEmail = "youssef@allurite.com";
-    const youssefUser = await User.findOne({ email: youssefEmail });
-    if (!youssefUser) {
-      const initialPassword = process.env.INITIAL_ADMIN_PASSWORD || "Youssef2005";
-      const hashedPassword = await hashPassword(initialPassword);
-      await User.create({
-        email: youssefEmail,
-        passwordHash: hashedPassword,
-        role: "SuperAdmin",
-        status: "Active",
-      });
-      console.log(`Seeded youssef@allurite.com superadmin account`);
-    }
-
     const body = await request.json().catch(() => ({}));
     const { email, password } = body;
 
@@ -42,6 +27,9 @@ export async function POST(request: NextRequest) {
 
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
+      // Execute dummy hash comparison to prevent timing attacks and account enumeration
+      const dummyHash = "$2b$10$abcdefghijklmnopqrstuuabcdefghijklmnopqrstuuuuuuuuuuu";
+      await comparePassword(password, dummyHash).catch(() => {});
       return NextResponse.json(
         {
           success: false,

@@ -20,6 +20,9 @@ export interface IClient extends Document {
   source: string;
   assignedAgent: mongoose.Types.ObjectId;
   notes: INote[];
+  deleted?: boolean;
+  deletedAt?: Date;
+  deletedBy?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -97,6 +100,18 @@ const ClientSchema = new Schema<IClient>(
       required: [true, "Assigned Agent is required"],
     },
     notes: [NoteSchema],
+    deleted: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    deletedAt: {
+      type: Date,
+    },
+    deletedBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
   },
   {
     timestamps: true,
