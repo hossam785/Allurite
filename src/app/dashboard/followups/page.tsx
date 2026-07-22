@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useAuth } from "../layout";
 import { useLanguage } from "@/context/LanguageContext";
 import { useToast } from "@/context/ToastContext";
@@ -104,6 +105,24 @@ export default function FollowUpsPage() {
   });
   const [modalError, setModalError] = useState("");
   const [modalLoading, setModalLoading] = useState(false);
+
+  const searchParams = useSearchParams();
+
+  // Handle URL search parameters
+  useEffect(() => {
+    if (searchParams.get("action") === "new") {
+      setIsModalOpen(true);
+    }
+    const qId = searchParams.get("id");
+    if (qId) {
+      const found = followups.find((f) => f._id === qId);
+      if (found) {
+        handleOpenInspector(found);
+      } else {
+        setSearchTerm(qId);
+      }
+    }
+  }, [searchParams, followups]);
 
   // Fetch follow-ups list
   const fetchFollowUps = async () => {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
 import User from "@/models/User";
+import CompanySettings from "@/models/CompanySettings";
 import { comparePassword, hashPassword } from "@/lib/auth";
 import { signToken } from "@/lib/jwt";
 import { logAuditEvent } from "@/lib/audit-logger";
@@ -75,7 +76,6 @@ export async function POST(request: NextRequest) {
       // Load lockout policies from CompanySettings
       let maxAttempts = 5;
       try {
-        const CompanySettings = require("@/models/CompanySettings").default;
         const settings = await CompanySettings.findOne({ key: "global_settings" });
         if (settings && settings.maxLoginAttempts) {
           maxAttempts = settings.maxLoginAttempts;

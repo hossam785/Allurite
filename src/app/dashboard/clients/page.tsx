@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useAuth } from "../layout";
 import { useLanguage } from "@/context/LanguageContext";
 import { useToast } from "@/context/ToastContext";
@@ -52,6 +53,7 @@ export default function ClientsPage() {
   const { user: currentUser } = useAuth();
   const { t, isRtl } = useLanguage();
   const { toast } = useToast();
+  const searchParams = useSearchParams();
 
   const isSuperAdmin = currentUser?.role === "SuperAdmin";
 
@@ -92,6 +94,17 @@ export default function ClientsPage() {
 
   const sources = ["Website", "Referral", "ColdOutreach", "LinkedIn", "Advertisement", "Other"];
   const statuses = ["Lead", "Qualified", "ActiveCustomer", "Churned"];
+
+  // Handle URL search parameters (e.g. ?action=new or ?id=...)
+  useEffect(() => {
+    if (searchParams.get("action") === "new") {
+      setIsModalOpen(true);
+    }
+    const qId = searchParams.get("id");
+    if (qId) {
+      setSearchTerm(qId);
+    }
+  }, [searchParams]);
 
   // Debounce search term
   useEffect(() => {

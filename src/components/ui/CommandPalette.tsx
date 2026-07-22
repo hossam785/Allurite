@@ -271,14 +271,15 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
 
       if (clientsRes && clientsRes.ok) {
         const cJson = await clientsRes.json();
-        const clientsList = cJson.data?.clients || cJson.data || [];
+        const clientsList = Array.isArray(cJson.data) ? cJson.data : (cJson.data?.clients || []);
         if (Array.isArray(clientsList)) {
           clientsList.slice(0, 4).forEach((client: any) => {
+            const fullName = `${client.firstName || ""} ${client.lastName || ""}`.trim();
             results.push({
               id: `live-client-${client._id}`,
               category: "Live Search",
-              title: client.name || client.companyName || "عميل بدون اسم",
-              subtitle: `عميل • ${client.phone || client.email || client.status || ""}`,
+              title: fullName || client.companyName || "عميل بدون اسم",
+              subtitle: `عميل • ${client.companyName ? client.companyName + " • " : ""}${client.phone || client.email || client.status || ""}`,
               icon: <Users size={18} />,
               action: () => {
                 router.push(`/dashboard/clients?id=${client._id}`);
@@ -291,14 +292,14 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
 
       if (tasksRes && tasksRes.ok) {
         const tJson = await tasksRes.json();
-        const tasksList = tJson.data?.tasks || tJson.data || [];
+        const tasksList = Array.isArray(tJson.data) ? tJson.data : (tJson.data?.tasks || []);
         if (Array.isArray(tasksList)) {
           tasksList.slice(0, 4).forEach((task: any) => {
             results.push({
               id: `live-task-${task._id}`,
               category: "Live Search",
               title: task.title || "مهمة بدون عنوان",
-              subtitle: `مهمة • الحالة: ${task.status || "قيد الانتظار"}`,
+              subtitle: `مهمة • الحالة: ${task.status || "قيد الانتظار"} • الأولوية: ${task.priority || ""}`,
               icon: <CheckSquare size={18} />,
               action: () => {
                 router.push(`/dashboard/tasks?id=${task._id}`);

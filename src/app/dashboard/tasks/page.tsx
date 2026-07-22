@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useAuth } from "../layout";
 import { useLanguage } from "@/context/LanguageContext";
 import { useToast } from "@/context/ToastContext";
@@ -64,6 +65,7 @@ export default function TasksPage() {
   const { user: currentUser } = useAuth();
   const { t, isRtl } = useLanguage();
   const { toast } = useToast();
+  const searchParams = useSearchParams();
   const isSuperAdmin = currentUser?.role === "SuperAdmin";
 
   // Data states
@@ -95,12 +97,23 @@ export default function TasksPage() {
   const [modalError, setModalError] = useState("");
   const [modalLoading, setModalLoading] = useState(false);
 
+  // Handle URL search parameters
+  useEffect(() => {
+    if (searchParams.get("action") === "new") {
+      setIsModalOpen(true);
+    }
+    const qId = searchParams.get("id");
+    if (qId) {
+      setSearchTerm(qId);
+    }
+  }, [searchParams]);
+
   // Fetch Tasks
   const fetchTasks = async () => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/v1/tasks");
+      const res = await fetch("/api/v1/tasks?limit=250");
       const json = await res.json();
       if (!res.ok) {
         throw new Error(json.error?.message || "Failed to fetch tasks");

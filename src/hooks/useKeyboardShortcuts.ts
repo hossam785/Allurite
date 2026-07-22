@@ -24,7 +24,15 @@ export function useKeyboardShortcuts(shortcuts: ShortcutHandler[]) {
           continue;
         }
 
-        const isKeyMatch = event.key.toLowerCase() === shortcut.key.toLowerCase();
+        const targetKey = shortcut.key.toLowerCase();
+        const eventKey = event.key.toLowerCase();
+        const eventCode = event.code.toLowerCase();
+
+        const isKeyMatch =
+          eventKey === targetKey ||
+          eventCode === `key${targetKey}` ||
+          eventCode === targetKey;
+
         const isCtrlCmdMatch = shortcut.ctrlOrCmd
           ? event.metaKey || event.ctrlKey
           : !event.metaKey && !event.ctrlKey;

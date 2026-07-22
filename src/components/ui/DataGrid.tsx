@@ -155,6 +155,26 @@ export default function DataGrid<T>({
     });
   }, [data, sortKey, sortOrder]);
 
+  // Apply instant local search filtering on sortedData
+  const displayData = useMemo(() => {
+    if (!searchValue || !searchValue.trim()) return sortedData;
+    const q = searchValue.toLowerCase().trim();
+    return sortedData.filter((item: any) => {
+      return Object.values(item).some((val) => {
+        if (val == null) return false;
+        if (typeof val === "string" || typeof val === "number") {
+          return String(val).toLowerCase().includes(q);
+        }
+        if (typeof val === "object") {
+          return Object.values(val).some(
+            (subVal) => subVal != null && String(subVal).toLowerCase().includes(q)
+          );
+        }
+        return false;
+      });
+    });
+  }, [sortedData, searchValue]);
+
   const py = density === "compact" ? "8px" : "14px";
   const px = "16px";
 
@@ -485,7 +505,7 @@ export default function DataGrid<T>({
               </tr>
             )}
 
-            {!loading && sortedData.length === 0 && (
+            {!loading && displayData.length === 0 && (
               <tr>
                 <td
                   colSpan={columns.length + (enableSelection ? 1 : 0)}
@@ -501,7 +521,7 @@ export default function DataGrid<T>({
             )}
 
             {!loading &&
-              sortedData.map((item, idx) => {
+              displayData.map((item, idx) => {
                 const rowId = keyExtractor(item);
                 const isSelected = selectedIds.includes(rowId);
 
