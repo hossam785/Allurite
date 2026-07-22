@@ -387,29 +387,69 @@ export default function FollowUpsPage() {
     }
   };
 
+  // Compute counts for tab badges
+  const todayCount = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return followups.filter((fup) => {
+      const d = new Date(fup.scheduledAt);
+      return (fup.status === "Scheduled" || fup.status === "Pending") && d >= today && d < tomorrow;
+    }).length;
+  }, [followups]);
+
+  const upcomingCount = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return followups.filter((fup) => {
+      const d = new Date(fup.scheduledAt);
+      return (fup.status === "Scheduled" || fup.status === "Pending") && d >= tomorrow;
+    }).length;
+  }, [followups]);
+
+  const missedCount = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return followups.filter((fup) => {
+      const d = new Date(fup.scheduledAt);
+      return fup.status !== "Completed" && fup.status !== "Cancelled" && (d < today || fup.status === "Missed");
+    }).length;
+  }, [followups]);
+
+  const completedCount = useMemo(() => {
+    return followups.filter((fup) => fup.status === "Completed").length;
+  }, [followups]);
+
   // Quick Filter Tabs
   const quickFilters: QuickFilter[] = [
     {
       id: "today",
       label: "متابعات اليوم",
+      count: todayCount,
       active: activeTab === "today",
       onClick: () => setActiveTab("today"),
     },
     {
       id: "upcoming",
       label: "القادمة",
+      count: upcomingCount,
       active: activeTab === "upcoming",
       onClick: () => setActiveTab("upcoming"),
     },
     {
       id: "missed",
       label: "فائتة / متأخرة",
+      count: missedCount,
       active: activeTab === "missed",
       onClick: () => setActiveTab("missed"),
     },
     {
       id: "completed",
       label: "المكتملة",
+      count: completedCount,
       active: activeTab === "completed",
       onClick: () => setActiveTab("completed"),
     },
