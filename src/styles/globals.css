@@ -146,6 +146,23 @@ a:hover {
   color: var(--clr-accent-secondary);
 }
 
+/* Accessibility Focus Rings (WCAG 2.1 AA Compliance) */
+*:focus-visible {
+  outline: 2px solid var(--clr-accent-primary) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px var(--clr-accent-glow) !important;
+}
+
+/* Accessibility & Reduced Motion Preferences */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* BEM Components styling */
 
 /* Button */

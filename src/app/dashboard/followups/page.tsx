@@ -1,29 +1,31 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { useAuth } from "../layout";
 import { useLanguage } from "@/context/LanguageContext";
-import { 
-  Search, 
-  Plus, 
-  ChevronLeft, 
-  ChevronRight, 
-  Eye, 
-  X,
+import { useToast } from "@/context/ToastContext";
+import DataGrid, { ColumnDef, BulkAction, QuickFilter } from "@/components/ui/DataGrid";
+import Badge, { StatusBadge } from "@/components/ui/Badge";
+import SplitPaneInspector from "@/components/ui/SplitPaneInspector";
+import ActivityFeed, { ActivityItem } from "@/components/ui/ActivityFeed";
+import {
+  Calendar,
+  Clock,
   Phone,
   Mail,
-  Users,
   Video,
-  FileText,
-  Calendar,
-  AlertTriangle,
-  CheckCircle,
+  Plus,
+  Eye,
+  Trash2,
+  Download,
+  CheckCircle2,
   XCircle,
-  HelpCircle,
-  Clock,
-  Briefcase,
-  UserPlus
+  Building,
+  User,
+  X,
+  FileText,
+  AlertTriangle,
 } from "lucide-react";
 
 interface FollowUpItem {
@@ -68,6 +70,7 @@ interface AgentSummary {
 export default function FollowUpsPage() {
   const { user: currentUser } = useAuth();
   const { t, isRtl } = useLanguage();
+  const { toast } = useToast();
   const isSuperAdmin = currentUser?.role === "SuperAdmin";
 
   // Data states
@@ -76,14 +79,18 @@ export default function FollowUpsPage() {
   const [agents, setAgents] = useState<AgentSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
-  // Tab State: "today" | "upcoming" | "missed" | "completed"
-  const [activeTab, setActiveTab] = useState<"today" | "upcoming" | "missed" | "completed">("today");
+  // Selected follow-up for SplitPaneInspector drawer
+  const [inspectingItem, setInspectingItem] = useState<FollowUpItem | null>(null);
+  const [activities, setActivities] = useState<ActivityItem[]>([]);
+
+  // Tab State: "today" | "upcoming" | "missed" | "completed" | "all"
+  const [activeTab, setActiveTab] = useState<string>("today");
 
   // Search & Filter parameters
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState("");
-  const [selectedAgent, setSelectedAgent] = useState("");
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -103,13 +110,9 @@ export default function FollowUpsPage() {
     setLoading(true);
     setError("");
     try {
-      // Fetch a larger limit to partition client-side or we can fetch per category,
-      // but fetching the full set allows smooth tab switching. We filter by status
-      // or fetch all active. Let's fetch all and filter in memory for best responsiveness.
       const params = new URLSearchParams({
         limit: "250",
         type: selectedType,
-        assignedAgent: selectedAgent,
       });
 
       const res = await fetch(`/api/v1/followups?${params.toString()}`);
@@ -117,35 +120,36 @@ export default function FollowUpsPage() {
       if (!res.ok) {
         throw new Error(json.error?.message || "Failed to fetch follow-ups");
       }
-      setFollowups(json.data);
+      setFollowups(json.data || []);
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred");
+      toast.error(err.message || "فشل تحميل تذكيرات المتابعة");
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch client details (for dropdown selection)
+  // Fetch client details
   const fetchClients = async () => {
     try {
       const res = await fetch("/api/v1/clients?limit=100");
       const json = await res.json();
       if (res.ok) {
-        setClients(json.data);
+        setClients(json.data?.clients || json.data || []);
       }
     } catch (err) {
       console.error("Failed to load clients list", err);
     }
   };
 
-  // Fetch agents list if SuperAdmin
+  // Fetch agents list
   const fetchAgents = async () => {
     if (!isSuperAdmin) return;
     try {
       const res = await fetch("/api/v1/employees?limit=100");
       const json = await res.json();
       if (res.ok) {
-        setAgents(json.data);
+        setAgents(json.data || []);
       }
     } catch (err) {
       console.error("Failed to load employees list", err);
@@ -154,7 +158,7 @@ export default function FollowUpsPage() {
 
   useEffect(() => {
     fetchFollowUps();
-  }, [selectedType, selectedAgent]);
+  }, [selectedType]);
 
   useEffect(() => {
     if (isModalOpen) {
@@ -163,24 +167,135 @@ export default function FollowUpsPage() {
     }
   }, [isModalOpen]);
 
+  // Open inspector drawer with populated activity history
+  const handleOpenInspector = (item: FollowUpItem) => {
+    setInspectingItem(item);
+    setActivities([
+      {
+        id: "act-created",
+        type: "System",
+        authorName: "النظام الألي",
+        content: `تم جدولة التذكير بنجاح للموعد: ${new Date(item.scheduledAt).toLocaleString("ar-EG")}`,
+        timestamp: item.createdAt || new Date().toISOString(),
+      },
+      ...(item.notes
+        ? [
+            {
+              id: "act-notes",
+              type: "Note" as const,
+              authorName: item.assignedAgent
+                ? `${item.assignedAgent.firstName} ${item.assignedAgent.lastName}`
+                : "المسؤول",
+              content: item.notes,
+              timestamp: item.createdAt || new Date().toISOString(),
+            },
+          ]
+        : []),
+    ]);
+  };
+
+  // Add new note inside inspector drawer
+  const handleAddActivityNote = async (noteText: string, noteType: ActivityItem["type"]) => {
+    if (!inspectingItem) return;
+
+    const newAct: ActivityItem = {
+      id: Math.random().toString(36).substring(2, 9),
+      type: noteType,
+      authorName: currentUser?.name || currentUser?.email.split("@")[0] || "المستخدم الحالي",
+      content: noteText,
+      timestamp: new Date().toISOString(),
+    };
+
+    setActivities((prev) => [newAct, ...prev]);
+
+    // Also update server notes if needed
+    try {
+      await fetch(`/api/v1/followups/${inspectingItem._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notes: `${inspectingItem.notes || ""}\n${noteText}`.trim() }),
+      });
+    } catch (err) {
+      console.error("Failed to sync note to backend", err);
+    }
+  };
+
+  // Mark Follow-Up Completed
+  const handleMarkCompleted = async (id: string) => {
+    try {
+      const res = await fetch(`/api/v1/followups/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "Completed" }),
+      });
+      if (res.ok) {
+        toast.success("تم علم المتابعة كمكتملة بنجاح");
+        fetchFollowUps();
+        if (inspectingItem?._id === id) {
+          setInspectingItem((prev) => (prev ? { ...prev, status: "Completed" } : null));
+        }
+      }
+    } catch (err) {
+      toast.error("فشل تحديث حالة المتابعة");
+    }
+  };
+
+  // Categorize follow-ups in memory for tabs
+  const filteredFollowUps = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    return followups.filter((fup) => {
+      const schedDate = new Date(fup.scheduledAt);
+
+      // Tab filtering
+      if (activeTab === "today") {
+        if (fup.status !== "Scheduled" && fup.status !== "Pending") return false;
+        if (!(schedDate >= today && schedDate < tomorrow)) return false;
+      } else if (activeTab === "upcoming") {
+        if (fup.status !== "Scheduled" && fup.status !== "Pending") return false;
+        if (!(schedDate >= tomorrow)) return false;
+      } else if (activeTab === "missed") {
+        if (fup.status === "Completed" || fup.status === "Cancelled") return false;
+        if (!(schedDate < today || fup.status === "Missed")) return false;
+      } else if (activeTab === "completed") {
+        if (fup.status !== "Completed") return false;
+      }
+
+      // Search filtering
+      if (searchTerm.trim()) {
+        const q = searchTerm.toLowerCase();
+        const titleMatch = fup.title.toLowerCase().includes(q);
+        const typeMatch = fup.type.toLowerCase().includes(q);
+        const clientName = `${fup.client?.firstName || ""} ${fup.client?.lastName || ""}`.toLowerCase();
+        return titleMatch || typeMatch || clientName.includes(q);
+      }
+
+      return true;
+    });
+  }, [followups, activeTab, searchTerm]);
+
   // Submit Schedule form
   const handleScheduleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setModalError("");
 
     if (!formFields.client || !formFields.title.trim() || !formFields.scheduledAt) {
-      setModalError("Please select a client, enter a title, and pick a schedule date");
+      setModalError("يرجى اختيار العميل وتحديد عنوان المتابعة وتاريخ الجدولة");
       return;
     }
 
     const parsedDate = new Date(formFields.scheduledAt);
     if (parsedDate < new Date()) {
-      setModalError("A follow-up cannot be scheduled in the past");
+      setModalError("لا يمكن جدولة متابعة في تاريخ سابق للوقت الحالي");
       return;
     }
 
     if (isSuperAdmin && !formFields.assignedAgentId) {
-      setModalError("Please select an assigned agent employee");
+      setModalError("يرجى اختيار العضو المسؤول عن المتابعة");
       return;
     }
 
@@ -193,9 +308,10 @@ export default function FollowUpsPage() {
       });
       const json = await res.json();
       if (!res.ok) {
-        throw new Error(json.error?.message || "Failed to schedule follow-up");
+        throw new Error(json.error?.message || "فشل جدولة المتابعة");
       }
 
+      toast.success("تم جدولة المتابعة بنجاح", "تم التجديل");
       fetchFollowUps();
       setIsModalOpen(false);
       setFormFields({
@@ -207,584 +323,597 @@ export default function FollowUpsPage() {
         assignedAgentId: "",
       });
     } catch (err: any) {
-      setModalError(err.message || "Error scheduling follow-up");
+      setModalError(err.message || "خطأ أثناء الجدولة");
     } finally {
       setModalLoading(false);
     }
   };
 
-  // Categorize follow-ups in memory
-  const getCategorizedFollowUps = () => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    // Apply text search first
-    const filtered = followups.filter(fup => {
-      if (!searchTerm) return true;
-      const searchLower = searchTerm.toLowerCase();
-      const clientName = `${fup.client?.firstName || ""} ${fup.client?.lastName || ""}`.toLowerCase();
-      return (
-        fup.title.toLowerCase().includes(searchLower) ||
-        fup.type.toLowerCase().includes(searchLower) ||
-        clientName.includes(searchLower)
-      );
-    });
-
-    switch (activeTab) {
-      case "today":
-        return filtered.filter(fup => {
-          if (fup.status !== "Scheduled" && fup.status !== "Pending") return false;
-          const schedDate = new Date(fup.scheduledAt);
-          return schedDate >= today && schedDate < tomorrow;
+  // Bulk Actions
+  const handleBulkComplete = async (idsToComplete: string[]) => {
+    try {
+      let count = 0;
+      for (const id of idsToComplete) {
+        const res = await fetch(`/api/v1/followups/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "Completed" }),
         });
+        if (res.ok) count++;
+      }
 
-      case "upcoming":
-        return filtered.filter(fup => {
-          if (fup.status !== "Scheduled" && fup.status !== "Pending") return false;
-          const schedDate = new Date(fup.scheduledAt);
-          return schedDate >= tomorrow;
-        });
-
-      case "missed":
-        return filtered.filter(fup => fup.status === "Missed");
-
-      case "completed":
-        return filtered.filter(fup => fup.status === "Completed" || fup.status === "Cancelled");
-
-      default:
-        return filtered;
+      toast.success(`تم إكمال ${count} متابعة بنجاح`);
+      setSelectedIds([]);
+      fetchFollowUps();
+    } catch (err) {
+      toast.error("حدث خطأ أثناء التحديث الجماعي");
     }
   };
 
-  const activeList = getCategorizedFollowUps();
+  const handleBulkDelete = async (idsToDelete: string[]) => {
+    if (!confirm(`هل أنت تأكد من حذف ${idsToDelete.length} تذكير متابعة؟`)) return;
 
-  // Helper to resolve Icons
+    try {
+      let count = 0;
+      for (const id of idsToDelete) {
+        const res = await fetch(`/api/v1/followups/${id}`, { method: "DELETE" });
+        if (res.ok) count++;
+      }
+
+      toast.success(`تم حذف ${count} متابعة بنجاح`);
+      setSelectedIds([]);
+      fetchFollowUps();
+    } catch (err) {
+      toast.error("حدث خطأ أثناء الحذف الجماعي");
+    }
+  };
+
+  // Quick Filter Tabs
+  const quickFilters: QuickFilter[] = [
+    {
+      id: "today",
+      label: "متابعات اليوم",
+      active: activeTab === "today",
+      onClick: () => setActiveTab("today"),
+    },
+    {
+      id: "upcoming",
+      label: "القادمة",
+      active: activeTab === "upcoming",
+      onClick: () => setActiveTab("upcoming"),
+    },
+    {
+      id: "missed",
+      label: "فائتة / متأخرة",
+      active: activeTab === "missed",
+      onClick: () => setActiveTab("missed"),
+    },
+    {
+      id: "completed",
+      label: "المكتملة",
+      active: activeTab === "completed",
+      onClick: () => setActiveTab("completed"),
+    },
+    {
+      id: "all",
+      label: "جميع المتابعات",
+      count: followups.length,
+      active: activeTab === "all",
+      onClick: () => setActiveTab("all"),
+    },
+  ];
+
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case "Call": return <Phone size={16} />;
-      case "Email": return <Mail size={16} />;
-      case "Meeting": return <Users size={16} />;
-      case "Demo": return <Video size={16} />;
-      default: return <FileText size={16} />;
-    }
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "Scheduled":
-      case "Pending":
-        return <span className="c-badge c-badge--info">Scheduled</span>;
-      case "Completed":
-        return <span className="c-badge c-badge--success">Completed</span>;
-      case "Missed":
-        return <span className="c-badge c-badge--error" style={{ display: "inline-flex", gap: "4px" }}><AlertTriangle size={12} /> Missed</span>;
-      case "Cancelled":
-        return <span className="c-badge" style={{ backgroundColor: "rgba(160, 174, 192, 0.15)", color: "var(--clr-text-muted)" }}>Cancelled</span>;
+      case "Call":
+        return <Phone size={14} style={{ color: "var(--clr-accent-primary)" }} />;
+      case "Email":
+        return <Mail size={14} style={{ color: "#A855F7" }} />;
+      case "Meeting":
+      case "Demo":
+        return <Video size={14} style={{ color: "#F59E0B" }} />;
       default:
-        return <span className="c-badge">{status}</span>;
+        return <FileText size={14} style={{ color: "#94A3B8" }} />;
     }
   };
 
-  const tabTitles = {
-    today: "اليوم",
-    upcoming: "المقبلة",
-    missed: "الفائتة",
-    completed: "المكتملة"
-  };
+  // Table Columns Definition
+  const columns: ColumnDef<FollowUpItem>[] = [
+    {
+      key: "type",
+      header: "نوع التواصل",
+      render: (item) => (
+        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          {getTypeIcon(item.type)}
+          <Badge variant="neutral" size="sm" dot={false}>
+            {item.type}
+          </Badge>
+        </div>
+      ),
+    },
+    {
+      key: "title",
+      header: "عنوان المتابعة والتفاصيل",
+      sortable: true,
+      render: (item) => (
+        <div>
+          <div style={{ fontWeight: 600, color: "var(--clr-text-primary)" }}>{item.title}</div>
+          {item.description && (
+            <div
+              style={{
+                fontSize: "11px",
+                color: "var(--clr-text-muted)",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                maxWidth: "280px",
+                marginTop: "2px",
+              }}
+            >
+              {item.description}
+            </div>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "client",
+      header: "العميل المرتبط",
+      render: (item) => (
+        <div>
+          <div style={{ fontWeight: 500, color: "var(--clr-text-primary)" }}>
+            {item.client ? `${item.client.firstName} ${item.client.lastName}` : "عميل ملغي"}
+          </div>
+          {item.client?.companyName && (
+            <div style={{ fontSize: "11px", color: "var(--clr-text-muted)" }}>
+              {item.client.companyName}
+            </div>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "scheduledAt",
+      header: "موعد الاستحقاق (SLA)",
+      sortable: true,
+      render: (item) => {
+        const isPast = new Date(item.scheduledAt) < new Date() && item.status !== "Completed";
+        return (
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "4px",
+              fontSize: "12px",
+              fontWeight: isPast ? 600 : 400,
+              color: isPast ? "var(--clr-error)" : "var(--clr-text-secondary)",
+            }}
+          >
+            <Clock size={13} />
+            <span>
+              {new Date(item.scheduledAt).toLocaleString("ar-EG", {
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </span>
+          </div>
+        );
+      },
+    },
+    {
+      key: "status",
+      header: "الحالة",
+      sortable: true,
+      render: (item) => <StatusBadge status={item.status} />,
+    },
+    {
+      key: "assignedAgent",
+      header: "المسؤول",
+      render: (item) => (
+        <span style={{ fontSize: "12px", color: "var(--clr-text-secondary)" }}>
+          {item.assignedAgent
+            ? `${item.assignedAgent.firstName} ${item.assignedAgent.lastName}`
+            : "غير مسند"}
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      header: "معاينة سريعة",
+      align: "center",
+      render: (item) => (
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+          <button
+            onClick={() => handleOpenInspector(item)}
+            style={{
+              padding: "6px",
+              borderRadius: "6px",
+              backgroundColor: "rgba(0, 210, 255, 0.1)",
+              color: "var(--clr-accent-primary)",
+              border: "none",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            title="معاينة المتابعة وسجل التفاعل"
+          >
+            <Eye size={15} />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  const bulkActions: BulkAction[] = [
+    {
+      id: "complete",
+      label: "إكمال المحدد",
+      icon: <CheckCircle2 size={14} />,
+      variant: "primary",
+      onClick: handleBulkComplete,
+    },
+    {
+      id: "delete",
+      label: "حذف المتابعات",
+      icon: <Trash2 size={14} />,
+      variant: "danger",
+      onClick: handleBulkDelete,
+    },
+  ];
 
   return (
-    <main className="responsive-main">
-      {/* Sub-Header Toolbar */}
-      <div className="responsive-page-header">
+    <main className="responsive-main" style={{ padding: "24px" }}>
+      {/* Header Bar */}
+      <header
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "20px",
+          flexWrap: "wrap",
+          gap: "12px",
+        }}
+      >
         <div>
-          <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-            مراقبة جداول المتابعة والاتصالات، تدوين نتائج المبيعات، ومراجعة سجل المكالمات والاجتماعات
+          <h1 style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "4px", fontFamily: "Outfit" }}>
+            {t("navigation.followups")}
+          </h1>
+          <p style={{ color: "var(--clr-text-muted)", fontSize: "13px" }}>
+            جدولة ومتابعة اتصالات وعروض العملاء وضمان الالتزام بمواعيد الـ SLA للمبيعات
           </p>
         </div>
-        <button 
+
+        <button
           onClick={() => setIsModalOpen(true)}
           className="c-btn c-btn--primary"
-          style={{ gap: "var(--sp-2)", boxShadow: "var(--shadow-glow-accent)" }}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            padding: "10px 18px",
+            boxShadow: "0 0 15px rgba(0, 210, 255, 0.25)",
+          }}
         >
           <Plus size={16} />
           <span>جدولة متابعة جديدة</span>
         </button>
-      </div>
+      </header>
 
-      {/* Categories Tabs Selector */}
-      <div 
-        className="responsive-tab-list"
-        style={{ 
-          borderBottom: "1px solid var(--clr-border)", 
-          position: "relative"
-        }}
-      >
-        {(["today", "upcoming", "missed", "completed"] as const).map(tab => {
-          const isActive = activeTab === tab;
-          const count = followups.filter(fup => {
-            const today = new Date(); today.setHours(0,0,0,0);
-            const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1);
-            const schedDate = new Date(fup.scheduledAt);
+      {/* Main DataGrid Table */}
+      <DataGrid
+        columns={columns}
+        data={filteredFollowUps}
+        keyExtractor={(item) => item._id}
+        loading={loading}
+        emptyMessage={error || "لا توجد تذكيرات متابعة مضافة في هذه الفئة"}
+        enableSelection={true}
+        selectedIds={selectedIds}
+        onSelectionChange={setSelectedIds}
+        bulkActions={bulkActions}
+        searchPlaceholder="البحث باسم المتابعة، نوع التواصل، العميل..."
+        searchValue={searchTerm}
+        onSearchChange={setSearchTerm}
+        quickFilters={quickFilters}
+        onRowClick={handleOpenInspector}
+      />
 
-            if (tab === "today") return (fup.status === "Scheduled" || fup.status === "Pending") && schedDate >= today && schedDate < tomorrow;
-            if (tab === "upcoming") return (fup.status === "Scheduled" || fup.status === "Pending") && schedDate >= tomorrow;
-            if (tab === "missed") return fup.status === "Missed";
-            if (tab === "completed") return fup.status === "Completed" || fup.status === "Cancelled";
-            return false;
-          }).length;
-
-          return (
+      {/* Contextual SplitPaneInspector Drawer */}
+      <SplitPaneInspector
+        isOpen={!!inspectingItem}
+        onClose={() => setInspectingItem(null)}
+        title={inspectingItem?.title || ""}
+        subtitle={
+          inspectingItem?.client
+            ? `العميل: ${inspectingItem.client.firstName} ${inspectingItem.client.lastName} (${inspectingItem.client.companyName || inspectingItem.client.email})`
+            : undefined
+        }
+        status={inspectingItem?.status}
+        typeBadge={inspectingItem?.type}
+        headerIcon={<Clock size={20} style={{ color: "var(--clr-accent-primary)" }} />}
+        actions={
+          inspectingItem && inspectingItem.status !== "Completed" ? (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              style={{
-                padding: "var(--sp-3) var(--sp-4)",
-                background: "none",
-                border: "none",
-                borderBottom: isActive ? "3px solid var(--clr-accent-primary)" : "3px solid transparent",
-                color: isActive ? "var(--clr-text-primary)" : "var(--clr-text-muted)",
-                fontWeight: isActive ? "var(--fw-bold)" : "var(--fw-medium)",
-                cursor: "pointer",
-                fontSize: "var(--fs-body-sm)",
-                display: "flex",
-                alignItems: "center",
-                gap: "var(--sp-2)",
-                transition: "var(--transition-fast)"
-              }}
-              className="tab-btn"
+              onClick={() => handleMarkCompleted(inspectingItem._id)}
+              className="c-btn c-btn--primary"
+              style={{ padding: "6px 12px", fontSize: "12px", gap: "6px" }}
             >
-              <span>{tabTitles[tab]}</span>
-              <span 
-                style={{ 
-                  fontSize: "10px", 
-                  backgroundColor: isActive ? "var(--clr-accent-primary)" : "var(--clr-border)",
-                  color: isActive ? "var(--clr-bg-primary)" : "var(--clr-text-muted)",
-                  padding: "1px 6px",
-                  borderRadius: "var(--radius-full)",
-                  fontWeight: "bold"
-                }}
-              >
-                {count}
-              </span>
+              <CheckCircle2 size={14} />
+              <span>تعليم كمكتملة</span>
             </button>
-          );
-        })}
-      </div>
+          ) : undefined
+        }
+      >
+        {inspectingItem && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+            {/* Overview Card */}
+            <div
+              style={{
+                backgroundColor: "var(--clr-bg-surface, #131A26)",
+                borderRadius: "12px",
+                border: "1px solid var(--clr-border, #1E293B)",
+                padding: "16px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "12px",
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--clr-text-muted)" }}>
+                  موعد الاستحقاق (SLA)
+                </span>
+                <span
+                  style={{
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    color: "var(--clr-accent-primary)",
+                  }}
+                >
+                  {new Date(inspectingItem.scheduledAt).toLocaleString("ar-EG")}
+                </span>
+              </div>
 
-      {/* Filters & Search Toolbar */}
-      <div className="responsive-toolbar">
-        <div style={{ display: "flex", flex: 1, minWidth: "260px" }}>
-          {/* Search bar */}
-          <div style={{ position: "relative", flex: 1 }}>
-            <Search 
-              size={18} 
-              style={{ 
-                position: "absolute", 
-                right: isRtl ? "12px" : "auto",
-                left: isRtl ? "auto" : "12px", 
-                top: "50%", 
-                transform: "translateY(-50%)", 
-                color: "var(--clr-text-muted)" 
-              }} 
-            />
-            <input 
-              type="text" 
-              placeholder="ابحث عن المتابعات بالعنوان أو اسم العميل..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="c-input__field"
-              style={{ paddingLeft: isRtl ? "12px" : "40px", paddingRight: isRtl ? "40px" : "12px", width: "100%", height: "42px", textAlign: "right" }}
-            />
-            {searchTerm && (
-              <button 
-                onClick={() => setSearchTerm("")}
-                style={{ 
-                  position: "absolute", 
-                  left: isRtl ? "12px" : "auto",
-                  right: isRtl ? "auto" : "12px",
-                  top: "50%", 
-                  transform: "translateY(-50%)", 
-                  background: "none", 
-                  border: "none", 
-                  color: "var(--clr-text-muted)",
-                  cursor: "pointer" 
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--clr-text-muted)" }}>
+                  المسؤول عن التنفيذ
+                </span>
+                <span style={{ fontSize: "13px", color: "var(--clr-text-primary)" }}>
+                  {inspectingItem.assignedAgent
+                    ? `${inspectingItem.assignedAgent.firstName} ${inspectingItem.assignedAgent.lastName}`
+                    : "غير مسند"}
+                </span>
+              </div>
+
+              {inspectingItem.description && (
+                <div style={{ borderTop: "1px solid var(--clr-border)", paddingTop: "10px" }}>
+                  <span
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      color: "var(--clr-text-muted)",
+                      display: "block",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    وصف التذكير والتوجيهات:
+                  </span>
+                  <p style={{ fontSize: "13px", color: "var(--clr-text-secondary)", lineHeight: 1.5 }}>
+                    {inspectingItem.description}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Visual Activity Feed */}
+            <div>
+              <h3
+                style={{
+                  fontSize: "14px",
+                  fontWeight: "bold",
+                  marginBottom: "12px",
+                  color: "var(--clr-text-primary)",
                 }}
               >
-                <X size={16} />
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Filter dropdowns */}
-        <div style={{ display: "flex", gap: "var(--sp-4)", flexWrap: "wrap", alignItems: "center" }}>
-          {/* Type Filter */}
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
-            <span style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)" }}>النوع:</span>
-            <select
-              value={selectedType}
-              onChange={(e) => setSelectedType(e.target.value)}
-              className="c-input__field"
-              style={{ height: "42px", padding: "0 var(--sp-3)", minWidth: "140px", background: "var(--clr-bg-primary)" }}
-            >
-              <option value="">كل الأنواع</option>
-              <option value="Call">مكالمة هاتفية (Call)</option>
-              <option value="Email">بريد إلكتروني (Email)</option>
-              <option value="Meeting">اجتماع (Meeting)</option>
-              <option value="Demo">عرض تقديمي (Demo)</option>
-              <option value="Other">أخرى (Other)</option>
-            </select>
-          </div>
-
-          {/* Agent Filter (Admin only) */}
-          {isSuperAdmin && (
-            <div style={{ display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
-              <span style={{ fontSize: "var(--fs-body-sm)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-medium)" }}>المسؤول:</span>
-              <select
-                value={selectedAgent}
-                onChange={(e) => setSelectedAgent(e.target.value)}
-                className="c-input__field"
-                style={{ height: "42px", padding: "0 var(--sp-3)", minWidth: "150px", background: "var(--clr-bg-primary)" }}
-              >
-                <option value="">كل المسؤولين</option>
-                {agents.map(ag => (
-                  <option key={ag._id} value={ag._id}>{ag.firstName} {ag.lastName}</option>
-                ))}
-              </select>
+                سجل النشاط والتواصل مع العميل
+              </h3>
+              <ActivityFeed activities={activities} onAddNote={handleAddActivityNote} />
             </div>
-          )}
-        </div>
-      </div>
-
-      {/* Grid listing */}
-      {loading ? (
-        <div className="c-card" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)", padding: "var(--sp-8)" }}>
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="shimmer-row" style={{ height: "60px", width: "100%", background: "var(--clr-border)", opacity: 0.25, borderRadius: "var(--radius-sm)" }} />
-          ))}
-          <style jsx>{`
-            .shimmer-row {
-              animation: shimmer 1.5s infinite linear;
-              background: linear-gradient(90deg, var(--clr-border) 25%, rgba(30,46,93,0.6) 50%, var(--clr-border) 75%) !important;
-              background-size: 200% 100% !important;
-            }
-            @keyframes shimmer {
-              0% { background-position: 200% 0; }
-              100% { background-position: -200% 0; }
-            }
-          `}</style>
-        </div>
-      ) : error ? (
-        <div className="c-card" style={{ borderColor: "var(--clr-error)", textAlign: "center", padding: "var(--sp-8)" }}>
-          <p style={{ color: "var(--clr-error)", fontWeight: "var(--fw-medium)", marginBottom: "var(--sp-4)" }}>{error}</p>
-          <button onClick={fetchFollowUps} className="c-btn c-btn--secondary">إعادة المحاولة</button>
-        </div>
-      ) : activeList.length === 0 ? (
-        <div className="c-card" style={{ textAlign: "center", padding: "var(--sp-12)", display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--sp-4)" }}>
-          <Clock size={48} style={{ color: "var(--clr-text-muted)" }} />
-          <div>
-            <h3 style={{ fontSize: "var(--fs-h3)", marginBottom: "var(--sp-1)" }}>لا توجد أي متابعات مسجلة</h3>
-            <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-              لا توجد أي متابعات مجدولة تطابق هذا القسم أو كلمة البحث.
-            </p>
           </div>
-        </div>
-      ) : (
-        <div 
-          style={{ 
-            backgroundColor: "var(--clr-bg-surface)",
-            borderRadius: "var(--radius-lg)",
-            border: "1px solid var(--clr-border)",
-            overflow: "hidden",
-            boxShadow: "var(--shadow-md)"
+        )}
+      </SplitPaneInspector>
+
+      {/* Schedule FollowUp Modal Overlay */}
+      {isModalOpen && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(15, 23, 42, 0.75)",
+            backdropFilter: "blur(6px)",
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "16px",
           }}
         >
-          <div className="c-table-container">
-            <table className="c-table" style={{ width: "100%", borderCollapse: "collapse", minWidth: "900px" }}>
-              <thead>
-                <tr style={{ borderBottom: "2px solid var(--clr-border)", backgroundColor: "rgba(4, 13, 33, 0.4)" }}>
-                  <th style={{ textAlign: "center", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)", width: "80px" }}>النوع</th>
-                  <th style={{ textAlign: "right", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>الموضوع / العنوان</th>
-                  <th style={{ textAlign: "right", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>حساب العميل</th>
-                  <th style={{ textAlign: "right", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>وقت المتابعة المجدول</th>
-                  <th style={{ textAlign: "center", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>الحالة</th>
-                  <th style={{ textAlign: "right", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>المسؤول المتابع</th>
-                  <th style={{ textAlign: "center", padding: "var(--sp-4)", color: "var(--clr-text-muted)", fontWeight: "var(--fw-bold)" }}>الإجراءات</th>
-                </tr>
-              </thead>
-              <tbody>
-                {activeList.map((fup) => {
-                  let fupTypeArabic: string = fup.type;
-                  if (fup.type === "Call") fupTypeArabic = "مكالمة 📞";
-                  else if (fup.type === "Email") fupTypeArabic = "بريد ✉️";
-                  else if (fup.type === "Meeting") fupTypeArabic = "اجتماع 👥";
-                  else if (fup.type === "Demo") fupTypeArabic = "عرض 🖥️";
-                  else if (fup.type === "Other") fupTypeArabic = "أخرى 📝";
-
-                  let fupStatusArabic: string = fup.status;
-                  let fupStatusBadge = "c-badge--info";
-                  if (fup.status === "Scheduled" || fup.status === "Pending") {
-                    fupStatusArabic = "مجدولة";
-                    fupStatusBadge = "c-badge--info";
-                  } else if (fup.status === "Completed") {
-                    fupStatusArabic = "مكتملة";
-                    fupStatusBadge = "c-badge--success";
-                  } else if (fup.status === "Missed") {
-                    fupStatusArabic = "فات موعدها";
-                    fupStatusBadge = "c-badge--error";
-                  } else if (fup.status === "Cancelled") {
-                    fupStatusArabic = "ملغاة";
-                    fupStatusBadge = "c-badge";
-                  }
-
-                  return (
-                    <tr 
-                      key={fup._id} 
-                      style={{ 
-                        borderBottom: "1px solid var(--clr-border)",
-                        transition: "var(--transition-fast)" 
-                      }}
-                      className="table-row-hover"
-                    >
-                      <td style={{ padding: "var(--sp-4)", textAlign: "center" }}>
-                        <span className="c-badge c-badge--info" style={{ textTransform: "none" }}>
-                          {fupTypeArabic}
-                        </span>
-                      </td>
-                      <td style={{ padding: "var(--sp-4)", fontWeight: "var(--fw-medium)", textAlign: "right" }} title={fup.title}>
-                        <div style={{ fontSize: "var(--fs-body-sm)" }}>{fup.title}</div>
-                        {fup.description && (
-                          <div style={{ fontSize: "11px", color: "var(--clr-text-muted)", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "240px" }} title={fup.description}>
-                            {fup.description}
-                          </div>
-                        )}
-                      </td>
-                      <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)", textAlign: "right" }}>
-                        {fup.client 
-                          ? `${fup.client.firstName} ${fup.client.lastName}` 
-                          : "لا يوجد عميل مرتبط"}
-                        {fup.client?.companyName && (
-                          <div style={{ fontSize: "11px", color: "var(--clr-text-muted)" }}>{fup.client.companyName}</div>
-                        )}
-                      </td>
-                      <td style={{ padding: "var(--sp-4)", textAlign: "right" }}>
-                        <div style={{ fontWeight: "var(--fw-medium)" }}>
-                          {new Date(fup.scheduledAt).toLocaleDateString("ar-EG", { month: "short", day: "numeric" })}
-                        </div>
-                        <div style={{ fontSize: "11px", color: "var(--clr-text-muted)", marginTop: "2px", direction: "ltr", textAlign: "right" }}>
-                          {new Date(fup.scheduledAt).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" })}
-                        </div>
-                      </td>
-                      <td style={{ padding: "var(--sp-4)", textAlign: "center" }}>
-                        <span className={`c-badge ${fupStatusBadge}`}>{fupStatusArabic}</span>
-                      </td>
-                      <td style={{ padding: "var(--sp-4)", color: "var(--clr-text-muted)", textAlign: "right" }}>
-                        {fup.assignedAgent 
-                          ? `${fup.assignedAgent.firstName} ${fup.assignedAgent.lastName}` 
-                          : "غير مسند"}
-                      </td>
-                      <td style={{ padding: "var(--sp-4)", textAlign: "center" }}>
-                        <Link 
-                          href={`/dashboard/followups/${fup._id}`}
-                          className="c-btn c-btn--secondary c-btn-touch-target"
-                          style={{ padding: "var(--sp-2) var(--sp-3)", display: "inline-flex", gap: "var(--sp-2)" }}
-                        >
-                          <Eye size={14} />
-                          <span style={{ fontSize: "var(--fs-caption)" }}>التفاصيل</span>
-                        </Link>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          <style jsx global>{`
-            .table-row-hover:hover {
-              background-color: rgba(0, 210, 255, 0.04) !important;
-            }
-          `}</style>
-        </div>
-      )}
-
-      {/* Schedule Follow-Up Modal */}
-      {isModalOpen && (
-        <div 
-          className="c-modal-overlay"
-          onClick={() => setIsModalOpen(false)}
-        >
-          <div 
-            className="c-card c-card--glow c-modal-content"
-            onClick={(e) => e.stopPropagation()}
+          <div
+            className="c-card"
+            style={{
+              width: "100%",
+              maxWidth: "540px",
+              backgroundColor: "var(--clr-bg-card, #0F172A)",
+              border: "1px solid var(--clr-border, #1E293B)",
+              borderRadius: "16px",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+              padding: "24px",
+            }}
           >
-            {/* Modal Header */}
-            <div className="c-modal-header">
-              <div style={{ textAlign: "right" }}>
-                <h2 style={{ fontSize: "var(--fs-h3)", color: "var(--clr-text-primary)", display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
-                  <Clock size={20} style={{ color: "var(--clr-accent-primary)" }} />
-                  <span>جدولة متابعة جديدة</span>
-                </h2>
-                <p style={{ color: "var(--clr-text-muted)", fontSize: "var(--fs-body-sm)" }}>
-                  تسجيل مكالمة، اجتماع، أو بريد إلكتروني مجدول وتعيينه لملف العميل للمتابعة
-                </p>
-              </div>
-              <button 
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "20px",
+                borderBottom: "1px solid var(--clr-border)",
+                paddingBottom: "12px",
+              }}
+            >
+              <h2 style={{ fontSize: "18px", fontWeight: "bold" }}>جدولة متابعة عميل جديدة</h2>
+              <button
                 onClick={() => setIsModalOpen(false)}
-                aria-label="إغلاق النافذة"
-                className="c-btn-touch-target"
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "var(--clr-text-muted)",
-                  cursor: "pointer"
-                }}
+                style={{ background: "none", border: "none", color: "var(--clr-text-muted)", cursor: "pointer" }}
               >
                 <X size={20} />
               </button>
             </div>
 
             {modalError && (
-              <div 
-                style={{ 
-                  backgroundColor: "rgba(229, 62, 62, 0.12)", 
-                  border: "1px solid var(--clr-error)", 
+              <div
+                style={{
+                  padding: "10px 14px",
+                  borderRadius: "8px",
+                  backgroundColor: "rgba(239, 68, 68, 0.12)",
+                  border: "1px solid var(--clr-error)",
                   color: "var(--clr-error)",
-                  borderRadius: "var(--radius-md)",
-                  padding: "var(--sp-3) var(--sp-4)",
-                  marginBottom: "var(--sp-4)",
-                  fontSize: "var(--fs-body-sm)",
-                  textAlign: "right"
+                  fontSize: "13px",
+                  marginBottom: "16px",
                 }}
               >
                 {modalError}
               </div>
             )}
 
-            {/* Modal Body Form */}
-            <form onSubmit={handleScheduleSubmit} style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, overflow: "hidden", textAlign: "right" }}>
-              <div className="c-modal-body" style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
-                {/* Select Client */}
-                <div className="c-input">
-                  <label htmlFor="fup-client-select" className="c-input__label">العميل المستهدف *</label>
-                  <select
-                    id="fup-client-select"
-                    value={formFields.client}
-                    onChange={(e) => setFormFields(f => ({ ...f, client: e.target.value }))}
-                    className="c-input__field" 
-                    style={{ background: "var(--clr-bg-primary)" }}
+            <form onSubmit={handleScheduleSubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+              <div>
+                <label style={{ fontSize: "12px", fontWeight: 600, marginBottom: "4px", display: "block" }}>
+                  العميل المستهدف *
+                </label>
+                <select
+                  required
+                  value={formFields.client}
+                  onChange={(e) => setFormFields({ ...formFields, client: e.target.value })}
+                  className="c-input__field"
+                  style={{ width: "100%" }}
+                >
+                  <option value="">اختر العميل...</option>
+                  {clients.map((c) => (
+                    <option key={c._id} value={c._id}>
+                      {c.companyName ? `${c.companyName} (${c.firstName} ${c.lastName})` : `${c.firstName} ${c.lastName}`}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <div>
+                  <label style={{ fontSize: "12px", fontWeight: 600, marginBottom: "4px", display: "block" }}>
+                    عنوان المتابعة *
+                  </label>
+                  <input
+                    type="text"
                     required
+                    placeholder="مثال: المكالمة التنسيقية الثانية..."
+                    value={formFields.title}
+                    onChange={(e) => setFormFields({ ...formFields, title: e.target.value })}
+                    className="c-input__field"
+                    style={{ width: "100%" }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: "12px", fontWeight: 600, marginBottom: "4px", display: "block" }}>
+                    نوع التواصل
+                  </label>
+                  <select
+                    value={formFields.type}
+                    onChange={(e) => setFormFields({ ...formFields, type: e.target.value as any })}
+                    className="c-input__field"
+                    style={{ width: "100%" }}
                   >
-                    <option value="">-- اختر العميل من القائمة --</option>
-                    {clients.map(cli => (
-                      <option key={cli._id} value={cli._id}>
-                        {cli.firstName} {cli.lastName} {cli.companyName ? `(${cli.companyName})` : ""}
+                    <option value="Call">مكالمة هاتفية (Call)</option>
+                    <option value="Email">بريد إلكتروني (Email)</option>
+                    <option value="Meeting">اجتماع مباشر (Meeting)</option>
+                    <option value="Demo">عرض توضيحي (Demo)</option>
+                    <option value="Other">أنواع أخرى</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ fontSize: "12px", fontWeight: 600, marginBottom: "4px", display: "block" }}>
+                  موعد الاستحقاق والجدولة *
+                </label>
+                <input
+                  type="datetime-local"
+                  required
+                  value={formFields.scheduledAt}
+                  onChange={(e) => setFormFields({ ...formFields, scheduledAt: e.target.value })}
+                  className="c-input__field"
+                  style={{ width: "100%" }}
+                />
+              </div>
+
+              <div>
+                <label style={{ fontSize: "12px", fontWeight: 600, marginBottom: "4px", display: "block" }}>
+                  ملاحظات وتوجيهات
+                </label>
+                <textarea
+                  rows={2}
+                  value={formFields.description}
+                  onChange={(e) => setFormFields({ ...formFields, description: e.target.value })}
+                  className="c-input__field"
+                  style={{ width: "100%", padding: "10px" }}
+                />
+              </div>
+
+              {isSuperAdmin && (
+                <div>
+                  <label style={{ fontSize: "12px", fontWeight: 600, marginBottom: "4px", display: "block" }}>
+                    المسؤول عن التنفيذ *
+                  </label>
+                  <select
+                    value={formFields.assignedAgentId}
+                    onChange={(e) => setFormFields({ ...formFields, assignedAgentId: e.target.value })}
+                    className="c-input__field"
+                    style={{ width: "100%" }}
+                  >
+                    <option value="">اختر الموظف المسؤول...</option>
+                    {agents.map((agent) => (
+                      <option key={agent._id} value={agent._id}>
+                        {agent.firstName} {agent.lastName}
                       </option>
                     ))}
                   </select>
                 </div>
+              )}
 
-                {/* Topic / Title */}
-                <div className="c-input">
-                  <label htmlFor="fup-title-input" className="c-input__label">عنوان / موضوع المتابعة *</label>
-                  <input 
-                    id="fup-title-input"
-                    type="text" 
-                    required
-                    placeholder="مثال: مناقشة أسعار وتفاصيل الاشتراك"
-                    value={formFields.title}
-                    onChange={(e) => setFormFields(f => ({ ...f, title: e.target.value }))}
-                    className="c-input__field" 
-                    style={{ textAlign: "right" }}
-                  />
-                </div>
-
-                {/* Grid: Type and DateTime */}
-                <div className="responsive-grid-2">
-                  <div className="c-input">
-                    <label htmlFor="fup-type-select" className="c-input__label">قناة الاتصال *</label>
-                    <select
-                      id="fup-type-select"
-                      value={formFields.type}
-                      onChange={(e) => setFormFields(f => ({ ...f, type: e.target.value as any }))}
-                      className="c-input__field" 
-                      style={{ background: "var(--clr-bg-primary)" }}
-                    >
-                      <option value="Call">مكالمة هاتفية 📞</option>
-                      <option value="Email">بريد إلكتروني ✉️</option>
-                      <option value="Meeting">اجتماع 👥</option>
-                      <option value="Demo">عرض تقديمي 🖥️</option>
-                      <option value="Other">أخرى 📝</option>
-                    </select>
-                  </div>
-                  <div className="c-input">
-                    <label htmlFor="fup-date-input" className="c-input__label">التاريخ والوقت *</label>
-                    <input 
-                      id="fup-date-input"
-                      type="datetime-local" 
-                      required
-                      value={formFields.scheduledAt}
-                      onChange={(e) => setFormFields(f => ({ ...f, scheduledAt: e.target.value }))}
-                      className="c-input__field" 
-                      style={{ textAlign: "left", direction: "ltr" }}
-                    />
-                  </div>
-                </div>
-
-                {/* Assigned Agent (Admin only) */}
-                {isSuperAdmin && (
-                  <div className="c-input">
-                    <label htmlFor="fup-agent-select" className="c-input__label">الموظف المسؤول والمتابع *</label>
-                    <select
-                      id="fup-agent-select"
-                      value={formFields.assignedAgentId}
-                      onChange={(e) => setFormFields(f => ({ ...f, assignedAgentId: e.target.value }))}
-                      className="c-input__field" 
-                      style={{ background: "var(--clr-bg-primary)" }}
-                    >
-                      <option value="">-- اختر الموظف المسؤول --</option>
-                      {agents.map(ag => (
-                        <option key={ag._id} value={ag._id}>{ag.firstName} {ag.lastName}</option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                {/* Description */}
-                <div className="c-input">
-                  <label htmlFor="fup-desc-input" className="c-input__label">تفاصيل الوصف والأجندة</label>
-                  <textarea
-                    id="fup-desc-input"
-                    placeholder="اكتب سياق المتابعة، الأسئلة المطروحة، أو أهداف الاجتماع..."
-                    value={formFields.description}
-                    onChange={(e) => setFormFields(f => ({ ...f, description: e.target.value }))}
-                    rows={3}
-                    className="c-input__field" 
-                    style={{ resize: "none", padding: "var(--sp-3)", textAlign: "right" }}
-                  />
-                </div>
-              </div>
-
-              {/* Sticky Footer Buttons */}
-              <div className="c-modal-footer">
-                <button 
-                  type="button" 
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  gap: "10px",
+                  marginTop: "16px",
+                  borderTop: "1px solid var(--clr-border)",
+                  paddingTop: "16px",
+                }}
+              >
+                <button
+                  type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="c-btn c-btn--secondary c-btn-touch-target"
+                  className="c-btn c-btn--secondary"
                 >
-                  {t("common.cancel")}
+                  إلغاء
                 </button>
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   disabled={modalLoading}
-                  className="c-btn c-btn--primary c-btn-touch-target"
-                  style={{ minWidth: "120px", gap: "var(--sp-2)" }}
+                  className="c-btn c-btn--primary"
+                  style={{ minWidth: "120px" }}
                 >
-                  {modalLoading ? <div className="btn-spinner" /> : null}
-                  <span>جدولة المتابعة</span>
+                  {modalLoading ? "جاري الحفظ..." : "جدولة المتابعة"}
                 </button>
               </div>
             </form>

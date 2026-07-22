@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Bell, Shield, User, Check, Trash2, Calendar, AlertCircle, Clock, ShieldAlert, FileText, CheckCircle, Sun, Moon, Menu, LogOut, Settings } from "lucide-react";
+import { Bell, Shield, User, Check, Trash2, Calendar, AlertCircle, Clock, ShieldAlert, FileText, CheckCircle, Sun, Moon, Menu, LogOut, Settings, Search, Command } from "lucide-react";
 import { useAuth } from "@/app/dashboard/layout";
 import { useLanguage } from "@/context/LanguageContext";
 import { useTheme } from "@/context/ThemeContext";
@@ -193,9 +193,48 @@ export default function Header({
         </h1>
       </div>
 
-      {/* Right Controls: Bell and User */}
+      {/* Right Controls: Bell, Command Palette, Theme, and User */}
       <div className="c-header-controls" style={{ display: "flex", alignItems: "center", gap: "var(--sp-3)" }}>
-        
+        {/* Command Palette Launcher Button */}
+        <button
+          onClick={() => window.dispatchEvent(new CustomEvent("open-command-palette"))}
+          aria-label="فتح قائمة البحث السريع والأوامر"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--sp-2)",
+            background: "var(--clr-bg-surface, rgba(255, 255, 255, 0.05))",
+            border: "1px solid var(--clr-border)",
+            borderRadius: "var(--radius-md, 8px)",
+            padding: "6px 12px",
+            color: "var(--clr-text-muted)",
+            cursor: "pointer",
+            fontSize: "var(--fs-caption, 12px)",
+            transition: "var(--transition-fast)",
+          }}
+          className="cmd-palette-btn-hover"
+          title="البحث السريع والتنقل (Cmd+K)"
+        >
+          <Search size={15} style={{ color: "var(--clr-accent-primary)" }} />
+          <span style={{ fontWeight: "var(--fw-medium)", display: "none" }} className="cmd-btn-text">
+            {isRtl ? "بحث سريع..." : "Search..."}
+          </span>
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "2px",
+              fontSize: "10px",
+              fontWeight: "var(--fw-bold)",
+              background: "var(--clr-bg-primary)",
+              padding: "2px 6px",
+              borderRadius: "4px",
+              border: "1px solid var(--clr-border)",
+            }}
+          >
+            <Command size={10} /> K
+          </span>
+        </button>
 
         {/* Theme Switcher Toggle */}
         <button
@@ -595,6 +634,16 @@ export default function Header({
         @keyframes fadeSlide {
           from { opacity: 0; transform: translateY(-10px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+        .cmd-palette-btn-hover:hover {
+          background-color: var(--clr-bg-hover, rgba(255, 255, 255, 0.1)) !important;
+          border-color: var(--clr-accent-primary) !important;
+          color: var(--clr-text-primary) !important;
+        }
+        @media (min-width: 640px) {
+          .cmd-btn-text {
+            display: inline !important;
+          }
         }
         .bell-btn-hover:hover {
           color: var(--clr-text-primary) !important;

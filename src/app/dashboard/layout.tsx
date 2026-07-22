@@ -4,8 +4,11 @@ import React, { useEffect, useState, createContext, useContext } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import Header from "@/components/layout/Header";
+import CommandPalette from "@/components/ui/CommandPalette";
 import { LanguageProvider, useLanguage } from "@/context/LanguageContext";
 import { ThemeProvider, useTheme } from "@/context/ThemeContext";
+import { ToastProvider } from "@/context/ToastContext";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
 interface UserInfo {
   id: string;
@@ -44,7 +47,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <LanguageProvider>
       <ThemeProvider>
-        <DashboardLayoutInner>{children}</DashboardLayoutInner>
+        <ToastProvider>
+          <DashboardLayoutInner>{children}</DashboardLayoutInner>
+        </ToastProvider>
       </ThemeProvider>
     </LanguageProvider>
   );
@@ -61,6 +66,23 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [hasSyncedTheme, setHasSyncedTheme] = useState(false);
+  const [isCmdPaletteOpen, setIsCmdPaletteOpen] = useState(false);
+
+  // Keyboard shortcut listener for Cmd+K / Ctrl+K
+  useKeyboardShortcuts([
+    {
+      key: "k",
+      ctrlOrCmd: true,
+      handler: () => setIsCmdPaletteOpen((prev) => !prev),
+    },
+  ]);
+
+  // Listen for custom event trigger from header search button
+  useEffect(() => {
+    const handleOpen = () => setIsCmdPaletteOpen(true);
+    window.addEventListener("open-command-palette", handleOpen);
+    return () => window.removeEventListener("open-command-palette", handleOpen);
+  }, []);
 
   // Load sidebar collapse preference from localStorage on mount
   useEffect(() => {
@@ -239,6 +261,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
           {children}
         </div>
       </div>
+      <CommandPalette isOpen={isCmdPaletteOpen} onClose={() => setIsCmdPaletteOpen(false)} />
     </AuthContext.Provider>
   );
 }
