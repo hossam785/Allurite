@@ -10,7 +10,21 @@ export async function POST(request: NextRequest) {
   try {
     await dbConnect();
 
-    const body = await request.json().catch(() => ({}));
+    let body: any = {};
+    const contentType = request.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      body = await request.json().catch(() => ({}));
+    } else if (contentType.includes("form") || contentType.includes("urlencoded")) {
+      const formData = await request.formData().catch(() => null);
+      if (formData) {
+        body = {
+          email: formData.get("email"),
+          password: formData.get("password"),
+        };
+      }
+    } else {
+      body = await request.json().catch(() => ({}));
+    }
     const { email, password } = body;
 
     if (!email || !password || typeof email !== "string" || typeof password !== "string") {

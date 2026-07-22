@@ -1,4 +1,13 @@
 import mongoose from "mongoose";
+import dns from "dns";
+
+// Force IPv4 first and set Google DNS fallback to prevent querySrv ECONNREFUSED on Windows
+try {
+  dns.setDefaultResultOrder("ipv4first");
+  dns.setServers(["8.8.8.8", "1.1.1.1", "8.8.4.4"]);
+} catch (e) {
+  console.warn("DNS fallback config skipped:", e);
+}
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
