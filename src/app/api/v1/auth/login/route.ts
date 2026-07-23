@@ -146,12 +146,12 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Set JWT token in an HTTP-Only cookie
+    // Set JWT token in an HTTP-Only persistent cookie (365 days)
     response.cookies.set("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 60 * 60 * 2, // 2 hours
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 365, // 365 days (persistent session)
       path: "/",
     });
 

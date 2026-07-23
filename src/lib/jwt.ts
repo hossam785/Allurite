@@ -14,7 +14,7 @@ export async function signToken(payload: { userId: string; email: string; role: 
   return new SignJWT({ ...payload })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime("2h") // Token expires in 2 hours
+    .setExpirationTime("365d") // Token expires in 365 days (persistent session)
     .sign(secretKey);
 }
 

@@ -165,9 +165,8 @@ sequenceDiagram
     alt Invalid Credentials
         Server-->>User: HTTP 401 Unauthorized
     else Valid Credentials
-        Server->>Server: Generate JWT Access Token (15m expiry) & Refresh Token (7d expiry)
-        Server->>DB: Store active session & refresh token hash
-        Server-->>User: Set HTTP-Only cookies & HTTP 200 OK
+        Server->>Server: Generate persistent JWT Token (365d expiration)
+        Server-->>User: Set HTTP-Only persistent cookie & HTTP 200 OK
     end
 ```
 

@@ -104,25 +104,20 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   }, [pathname]);
 
   const fetchMe = async () => {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3500);
-
     try {
-      const res = await fetch("/api/v1/auth/me", { signal: controller.signal });
-      clearTimeout(timeoutId);
+      const res = await fetch("/api/v1/auth/me");
       const json = await res.json();
       if (!res.ok) {
-        setError(json.error?.message || "فشل تحميل جلسة المستخدم");
+        setError(json.error?.message || "يرجى تسجيل الدخول للوصول إلى لوحة التحكم");
         setTimeout(() => {
           router.push("/login");
-        }, 2000);
+        }, 1500);
       } else {
         setUser(json.data);
       }
     } catch (err: any) {
-      clearTimeout(timeoutId);
-      console.error("fetchMe session error or timeout:", err);
-      setError("خطأ في الاتصال بالسيرفر أو انتهت مهلة الجلسة");
+      console.error("fetchMe error:", err);
+      setError("خطأ في الاتصال بالسيرفر، يرجى التحقق من الاتصال بالإنترنت");
       setTimeout(() => {
         router.push("/login");
       }, 2000);

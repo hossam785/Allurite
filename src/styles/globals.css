@@ -165,7 +165,6 @@ a:hover {
 
 /* BEM Components styling */
 
-/* Button */
 .c-btn {
   display: inline-flex;
   align-items: center;
@@ -177,8 +176,11 @@ a:hover {
   border-radius: var(--radius-md);
   border: 1px solid transparent;
   cursor: pointer;
-  transition: var(--transition-normal);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   outline: none;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
 }
 
 .c-btn:disabled {
@@ -186,28 +188,35 @@ a:hover {
   cursor: not-allowed;
 }
 
+.c-btn:active:not(:disabled) {
+  transform: scale(0.97) !important;
+}
+
 .c-btn--primary {
-  background-color: var(--clr-accent-primary);
+  background: linear-gradient(135deg, var(--clr-accent-primary) 0%, var(--clr-accent-secondary) 100%);
   color: #030712;
   box-shadow: var(--shadow-glow-accent);
 }
 
 .c-btn--primary:hover:not(:disabled) {
-  background-color: #38bdf8;
+  background: linear-gradient(135deg, #38bdf8 0%, var(--clr-accent-primary) 100%);
   color: #030712;
-  transform: translateY(-1px);
-  box-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 210, 255, 0.45);
 }
 
 .c-btn--secondary {
-  background-color: transparent;
-  border: 1px solid var(--clr-accent-primary);
+  background-color: rgba(0, 210, 255, 0.05);
+  border: 1px solid rgba(0, 210, 255, 0.3);
   color: var(--clr-accent-primary);
+  backdrop-filter: blur(8px);
 }
 
 .c-btn--secondary:hover:not(:disabled) {
-  background-color: rgba(0, 210, 255, 0.12);
+  background-color: rgba(0, 210, 255, 0.15);
+  border-color: var(--clr-accent-primary);
   transform: translateY(-1px);
+  box-shadow: 0 0 12px var(--clr-accent-glow);
 }
 
 .c-btn--destructive {
@@ -228,19 +237,20 @@ a:hover {
   border-radius: var(--radius-lg);
   padding: var(--sp-6);
   box-shadow: var(--shadow-md);
-  transition: var(--transition-normal);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
 }
 
 .c-card--glass {
   background: var(--clr-bg-surface-translucent);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .c-card--glow {
   box-shadow: var(--shadow-glow-accent);
-  border-color: rgba(0, 210, 255, 0.35);
+  border-color: rgba(0, 210, 255, 0.4);
 }
 
 .c-card--interactive {
@@ -248,9 +258,9 @@ a:hover {
 }
 
 .c-card--interactive:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   border-color: var(--clr-accent-primary);
-  box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.4), 0 0 16px var(--clr-accent-glow);
+  box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.45), 0 0 20px var(--clr-accent-glow);
 }
 
 /* Input */
@@ -276,13 +286,13 @@ a:hover {
   color: var(--clr-text-primary);
   font-family: 'Inter', sans-serif;
   font-size: var(--fs-body-sm);
-  transition: var(--transition-fast);
+  transition: all 0.2s ease;
   outline: none;
 }
 
 .c-input__field:focus {
   border-color: var(--clr-accent-primary);
-  box-shadow: 0 0 12px var(--clr-accent-glow);
+  box-shadow: 0 0 0 3px var(--clr-accent-glow);
 }
 
 .c-input__field--error {
@@ -299,31 +309,46 @@ a:hover {
 .c-badge {
   display: inline-flex;
   align-items: center;
+  gap: 6px;
   font-size: var(--fs-caption);
-  font-weight: var(--fw-medium);
-  padding: var(--sp-1) var(--sp-3);
+  font-weight: var(--fw-semibold);
+  padding: 4px 10px;
   border-radius: var(--radius-full);
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.c-badge::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
 }
 
 .c-badge--success {
-  background-color: rgba(56, 161, 105, 0.15);
+  background-color: rgba(16, 185, 129, 0.14);
   color: var(--clr-success);
+  border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
 .c-badge--warning {
-  background-color: rgba(221, 107, 32, 0.15);
+  background-color: rgba(245, 158, 11, 0.14);
   color: var(--clr-warning);
+  border: 1px solid rgba(245, 158, 11, 0.25);
 }
 
 .c-badge--error {
-  background-color: rgba(229, 62, 62, 0.15);
+  background-color: rgba(239, 68, 68, 0.14);
   color: var(--clr-error);
+  border: 1px solid rgba(239, 68, 68, 0.25);
 }
 
 .c-badge--info {
-  background-color: rgba(0, 210, 255, 0.15);
+  background-color: rgba(0, 210, 255, 0.14);
   color: var(--clr-accent-primary);
+  border: 1px solid rgba(0, 210, 255, 0.25);
 }
 
 /* Responsive Sidebar & Backdrop Drawer */
@@ -867,9 +892,31 @@ button, a, input[type="submit"], input[type="button"], select, [role="button"], 
   transform-origin: center center;
 }
 
+/* Skeleton Shimmer Animation */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--clr-bg-card-darker) 25%,
+    rgba(0, 210, 255, 0.08) 50%,
+    var(--clr-bg-card-darker) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite ease-in-out;
+  border-radius: var(--radius-sm);
+}
+
 /* Preferred Reduced Motion Media Query for Motion Sickness Prevention (Exempts Loading Spinners) */
 @media (prefers-reduced-motion: reduce) {
-  *:not(.animate-spin):not(.spin-loader), ::before, ::after {
+  *:not(.animate-spin):not(.spin-loader):not(.animate-skeleton), ::before, ::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

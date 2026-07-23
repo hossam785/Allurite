@@ -977,14 +977,20 @@ export default function SettingsDashboardPage() {
 
                   <div className="c-input">
                     <label className="c-input__label">{t("settings_view.session_timeout_mins")}</label>
-                    <input 
-                      type="number" 
-                      min="10"
-                      max="1440"
-                      value={settingsForm.sessionTimeoutMinutes}
-                      onChange={(e) => setSettingsForm(p => ({ ...p, sessionTimeoutMinutes: parseInt(e.target.value) || 60 }))}
-                      className="c-input__field"
-                    />
+                    <div 
+                      className="c-input__field" 
+                      style={{ 
+                        display: "flex", 
+                        alignItems: "center", 
+                        backgroundColor: "var(--clr-bg-secondary)", 
+                        color: "var(--clr-accent-primary)", 
+                        fontWeight: 600,
+                        fontSize: "var(--fs-caption)",
+                        cursor: "not-allowed"
+                      }}
+                    >
+                      جلسة دائمة ومستمرة (حتى تسجيل الخروج اليدوي)
+                    </div>
                   </div>
                 </div>
 

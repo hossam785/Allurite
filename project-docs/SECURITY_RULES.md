@@ -2,9 +2,9 @@
 
 ## Authentication & Sessions
 - **Mechanism**: JWT (JSON Web Tokens) or secure session cookies.
-- **Token Storage**: JWT tokens must be stored in HTTP-Only, Secure, SameSite=Strict cookies to protect against XSS (Cross-Site Scripting).
-- **Expiration**: Access tokens must expire within 15 minutes. Refresh tokens must be stored in database, rotated on every usage, and expire in 7 days.
-- **Session Auditing**: Every login, logout, and token refresh must be logged with IP address and User Agent.
+- **Token Storage**: JWT tokens must be stored in HTTP-Only, Secure (production), SameSite=Lax cookies to protect against XSS while ensuring cross-navigation compatibility.
+- **Expiration & Persistence**: User sessions are persistent for up to 365 days across browser restarts and system reboots. Sessions are terminated strictly when the user manually logs out, administrator revokes access, or JWT secrets rotate. No automatic idle/inactivity timeouts are enforced.
+- **Session Auditing**: Every login and explicit logout must be logged with IP address and User Agent.
 
 ## Authorization & RBAC
 - Access control must be enforced at the server API layer on every endpoint. Client-side hiding is for UX only.
